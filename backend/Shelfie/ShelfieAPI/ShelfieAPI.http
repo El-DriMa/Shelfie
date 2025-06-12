@@ -1,0 +1,6 @@
+@ShelfieAPI_HostAddress = http://localhost:5083
+
+GET {{ShelfieAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
