@@ -3,10 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Shelfie.Services.Database;
 using Shelfie.Services.Interfaces;
 using Shelfie.Services.Services;
+using ShelfieAPI.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 
@@ -41,7 +40,31 @@ builder.Services.AddTransient<ICommentService, CommentService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.AddSecurityDefinition("basic", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "basic",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "Basic Authentication header"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "basic"
+                }
+            },
+            new string[] { }
+        }
+    });
 });
+
 
 
 var app = builder.Build();
@@ -56,6 +79,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
+app.UseMiddleware<BasicAuthMiddleware>();
 
 app.UseAuthorization();
 
