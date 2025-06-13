@@ -40,7 +40,7 @@ namespace Shelfie.Services.Services
         {
             if (entity is BaseEntity baseEntity)
             {
-                baseEntity.ModifiedAt = DateTime.UtcNow;
+                baseEntity.ModifiedAt = DateTime.Now;
             }
 
             await Task.CompletedTask;
