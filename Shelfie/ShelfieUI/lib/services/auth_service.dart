@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../config.dart';
 
 class AuthService {
-  Future<bool> login(String email, String password) async {
+  Future<String?> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/User/me');
 
     final basicAuth =
@@ -14,6 +14,10 @@ class AuthService {
       headers: {'authorization': basicAuth},
     );
 
-    return response.statusCode == 200;
+    if (response.statusCode == 200) {
+      return basicAuth;
+    } else {
+      return null;
+    }
   }
 }

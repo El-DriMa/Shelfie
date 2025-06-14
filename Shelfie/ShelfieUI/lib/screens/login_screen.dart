@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-
+import 'main_screen.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -12,17 +12,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+
   void _login() async {
     final email = emailController.text;
     final password = passwordController.text;
 
+    final authHeader = await AuthService().login(email, password);
+
     final success = await AuthService().login(email, password);
 
-    if (success) {
+    if (authHeader != null) {
       print('Login successful');
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => PlaceholderScreen()),
+        MaterialPageRoute(
+          builder: (context) => MainScreen(authHeader: authHeader),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
