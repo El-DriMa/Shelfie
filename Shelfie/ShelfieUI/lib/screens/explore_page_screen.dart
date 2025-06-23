@@ -18,7 +18,7 @@ Future<List<Book>> fetchBooks(String authHeader) async {
   );
 
   print(' Response status code: ${response.statusCode}');
- // print(' Raw response body: ${response.body}');
+
 
   if (response.statusCode == 200) {
     try {
@@ -85,19 +85,24 @@ class ExplorePageScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final book = books[index];
                 Widget imageWidget;
-                if (book.coverImageBase64 != null) {
-                  imageWidget = Image.memory(
-                    base64Decode(book.coverImageBase64!),
+                if (book.CoverImage != null && book.CoverImage!.isNotEmpty) {
+                  imageWidget = Image.network(
+                    '$baseUrl/${book.CoverImage}',
                     fit: BoxFit.cover,
-                    height: 100,
-                    width: 70,
+                    width: 100,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: Colors.grey,
+                      height: 150,
+                      width: 100,
+                      child: Icon(Icons.book, size: 60),
+                    ),
                   );
                 } else {
                   imageWidget = Container(
-                    color: Colors.white,
-                    height: 100,
-                    width: 70,
-                    child: Icon(Icons.book, size: 40),
+                    color: Colors.grey,
+                    height: 150,
+                    width: 100,
+                    child: Icon(Icons.book, size: 60),
                   );
                 }
 
@@ -108,19 +113,7 @@ class ExplorePageScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        (book.coverImageBase64 != null)
-                            ? Image.memory(
-                          base64Decode(book.coverImageBase64!),
-                          height: 150,
-                          width: 100,
-                          fit: BoxFit.cover,
-                        )
-                            : Container(
-                          height: 150,
-                          width: 100,
-                          color: Colors.grey,
-                          child: Icon(Icons.book, size: 60),
-                        ),
+                        imageWidget,
                         SizedBox(width: 16),
                         Expanded(
                           child: Column(

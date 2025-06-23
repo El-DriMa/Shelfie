@@ -9,17 +9,17 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final emailController = TextEditingController();
+  final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
 
   void _login() async {
-    final email = emailController.text;
+    final username = usernameController.text;
     final password = passwordController.text;
 
-    final authHeader = await AuthService().login(email, password);
+    final authHeader = await AuthService().login(username, password);
 
-    final success = await AuthService().login(email, password);
+    final success = await AuthService().login(username, password);
 
     if (authHeader != null) {
       print('Login successful');
@@ -61,9 +61,9 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 40),
               TextField(
-                controller: emailController,
+                controller: usernameController,
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Username',
                   labelStyle: TextStyle(color: Colors.deepPurple),
                   enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(color: Colors.deepPurple),
@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   prefixIcon: Icon(Icons.email, color: Colors.deepPurple),
                 ),
-                keyboardType: TextInputType.emailAddress,
+                keyboardType: TextInputType.text,
               ),
               SizedBox(height: 24),
               TextField(

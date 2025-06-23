@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,6 +10,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Shelfie',
       home: LoginScreen(),
+      routes: {
+        '/login': (context) => LoginScreen(),
+        '/profile': (context) => ProfileScreen(authHeader: ''),
+      },
     );
   }
 }

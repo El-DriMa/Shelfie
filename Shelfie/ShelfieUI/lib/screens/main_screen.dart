@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shelfie/screens/profile_screen.dart';
 import 'explore_page_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _screens = [
       ExplorePageScreen(authHeader: widget.authHeader),
-      Center(child: Text('Profile page coming soon')),
+      ProfileScreen(authHeader: widget.authHeader),
     ];
   }
 

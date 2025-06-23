@@ -126,23 +126,23 @@ namespace ShelfieAPI.DataSeed
                 return BadRequest("Books already seeded.");
 
             var books = new List<Book>
-    {
-        new Book { Title = "The Silent Spring", TotalPages = 320, CoverImage = null, AuthorId = 1, PublisherId = 1, GenreId = 1, YearPublished = 1962, ShortDescription = "Environmental science classic", Language = "English" },
-        new Book { Title = "To Kill a Mockingbird", TotalPages = 281, CoverImage = null, AuthorId = 2, PublisherId = 2, GenreId = 2, YearPublished = 1960, ShortDescription = "Pulitzer Prize-winning novel", Language = "English" },
-        new Book { Title = "1984", TotalPages = 328, CoverImage = null, AuthorId = 3, PublisherId = 3, GenreId = 3, YearPublished = 1949, ShortDescription = "Dystopian social science fiction", Language = "English" },
-        new Book { Title = "Pride and Prejudice", TotalPages = 279, CoverImage = null, AuthorId = 4, PublisherId = 4, GenreId = 4, YearPublished = 1813, ShortDescription = "Classic romantic novel", Language = "English" },
-        new Book { Title = "Moby-Dick", TotalPages = 635, CoverImage = null, AuthorId = 5, PublisherId = 5, GenreId = 5, YearPublished = 1851, ShortDescription = "Epic sea story", Language = "English" },
-        new Book { Title = "War and Peace", TotalPages = 1225, CoverImage = null, AuthorId = 6, PublisherId = 6, GenreId = 6, YearPublished = 1869, ShortDescription = "Historical novel", Language = "English" },
-        new Book { Title = "The Great Gatsby", TotalPages = 180, CoverImage = null, AuthorId = 7, PublisherId = 7, GenreId = 7, YearPublished = 1925, ShortDescription = "Jazz Age novel", Language = "English" },
-        new Book { Title = "Crime and Punishment", TotalPages = 430, CoverImage = null, AuthorId = 8, PublisherId = 8, GenreId = 8, YearPublished = 1866, ShortDescription = "Philosophical crime novel", Language = "English" },
-        new Book { Title = "The Catcher in the Rye", TotalPages = 277, CoverImage = null, AuthorId = 9, PublisherId = 9, GenreId = 9, YearPublished = 1951, ShortDescription = "Coming-of-age novel", Language = "English" },
-        new Book { Title = "Brave New World", TotalPages = 268, CoverImage = null, AuthorId = 10, PublisherId = 10, GenreId = 10, YearPublished = 1932, ShortDescription = "Science fiction dystopia", Language = "English" },
-        new Book { Title = "Jane Eyre", TotalPages = 500, CoverImage = null, AuthorId = 11, PublisherId = 11, GenreId = 11, YearPublished = 1847, ShortDescription = "Gothic novel", Language = "English" },
-        new Book { Title = "The Hobbit", TotalPages = 310, CoverImage = null, AuthorId = 12, PublisherId = 12, GenreId = 12, YearPublished = 1937, ShortDescription = "Fantasy novel", Language = "English" },
-        new Book { Title = "Fahrenheit 451", TotalPages = 194, CoverImage = null, AuthorId = 13, PublisherId = 13, GenreId = 13, YearPublished = 1953, ShortDescription = "Dystopian novel", Language = "English" },
-        new Book { Title = "The Odyssey", TotalPages = 500, CoverImage = null, AuthorId = 14, PublisherId = 14, GenreId = 14, YearPublished = -800, ShortDescription = "Epic Greek poem", Language = "English" },
-        new Book { Title = "Don Quixote", TotalPages = 863, CoverImage = null, AuthorId = 15, PublisherId = 15, GenreId = 15, YearPublished = 1605, ShortDescription = "Classic Spanish novel", Language = "English" }
-    };
+            {
+                new Book { Title = "Pride and Prejudice", TotalPages = 279, CoverImage = null, AuthorId = 1, PublisherId = 1, GenreId = 5, YearPublished = 1813, ShortDescription = "Classic romantic novel", Language = "English" },
+                new Book { Title = "The Adventures of Tom Sawyer", TotalPages = 274, CoverImage = null, AuthorId = 2, PublisherId = 2, GenreId = 10, YearPublished = 1876, ShortDescription = "American classic", Language = "English" },
+                new Book { Title = "Great Expectations", TotalPages = 505, CoverImage = null, AuthorId = 3, PublisherId = 3, GenreId = 13, YearPublished = 1861, ShortDescription = "Coming-of-age novel", Language = "English" },
+                new Book { Title = "War and Peace", TotalPages = 1225, CoverImage = null, AuthorId = 4, PublisherId = 4, GenreId = 6, YearPublished = 1869, ShortDescription = "Historical novel", Language = "English" },
+                new Book { Title = "Murder on the Orient Express", TotalPages = 256, CoverImage = null, AuthorId = 5, PublisherId = 5, GenreId = 3, YearPublished = 1934, ShortDescription = "Mystery novel", Language = "English" },
+                new Book { Title = "Harry Potter and the Philosopher's Stone", TotalPages = 223, CoverImage = null, AuthorId = 6, PublisherId = 6, GenreId = 1, YearPublished = 1997, ShortDescription = "Fantasy novel", Language = "English" },
+                new Book { Title = "1984", TotalPages = 328, CoverImage = null, AuthorId = 7, PublisherId = 7, GenreId = 2, YearPublished = 1949, ShortDescription = "Dystopian novel", Language = "English" },
+                new Book { Title = "The Old Man and the Sea", TotalPages = 127, CoverImage = null, AuthorId = 8, PublisherId = 8, GenreId = 13, YearPublished = 1952, ShortDescription = "Short novel", Language = "English" },
+                new Book { Title = "The Great Gatsby", TotalPages = 180, CoverImage = null, AuthorId = 9, PublisherId = 9, GenreId = 13, YearPublished = 1925, ShortDescription = "Jazz Age novel", Language = "English" },
+                new Book { Title = "Mrs Dalloway", TotalPages = 296, CoverImage = null, AuthorId = 10, PublisherId = 10, GenreId = 9, YearPublished = 1925, ShortDescription = "Modernist novel", Language = "English" },
+                new Book { Title = "Ulysses", TotalPages = 730, CoverImage = null, AuthorId = 11, PublisherId = 11, GenreId = 13, YearPublished = 1922, ShortDescription = "Stream-of-consciousness novel", Language = "English" },
+                new Book { Title = "Moby-Dick", TotalPages = 635, CoverImage = null, AuthorId = 12, PublisherId = 12, GenreId = 10, YearPublished = 1851, ShortDescription = "Epic sea story", Language = "English" },
+                new Book { Title = "The Hobbit", TotalPages = 310, CoverImage = null, AuthorId = 13, PublisherId = 13, GenreId = 1, YearPublished = 1937, ShortDescription = "Fantasy novel", Language = "English" },
+                new Book { Title = "To Kill a Mockingbird", TotalPages = 281, CoverImage = null, AuthorId = 14, PublisherId = 14, GenreId = 9, YearPublished = 1960, ShortDescription = "Pulitzer-winning novel", Language = "English" },
+                new Book { Title = "Frankenstein", TotalPages = 280, CoverImage = null, AuthorId = 15, PublisherId = 15, GenreId = 11, YearPublished = 1818, ShortDescription = "Gothic horror novel", Language = "English" }
+            };
 
             _context.Books.AddRange(books);
             _context.SaveChanges();
