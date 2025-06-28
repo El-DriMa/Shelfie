@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/book.dart';
+import 'book_details_screen.dart';
 import 'package:shelfie/config.dart';
 
 Future<List<Book>> fetchBooks(String authHeader) async {
@@ -106,7 +107,19 @@ class ExplorePageScreen extends StatelessWidget {
                   );
                 }
 
-                return Card(
+                return GestureDetector(
+                    onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookDetailsScreen(
+                        authHeader: authHeader,
+                        bookId: book.id,
+                      ),
+                    ),
+                  );
+                },
+                child: Card(
                   margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -161,6 +174,7 @@ class ExplorePageScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                )
                 );
               },
             );

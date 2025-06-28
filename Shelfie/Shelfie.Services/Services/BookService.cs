@@ -152,6 +152,25 @@ namespace Shelfie.Services.Services
             };
         }
 
+        public async Task<BookResponse> GetById(int id)
+        {
+            var book = await _db.Books
+                .Include(b => b.Genre)
+                .Include(b => b.Author)
+                .Include(b => b.Publisher)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null)
+            {
+                throw new KeyNotFoundException($"Book with ID {id} not found.");
+            }
+
+            var response = Mapper.Map<BookResponse>(book);
+            response.AuthorName = $"{book.Author.FirstName} {book.Author.LastName}".Trim();
+
+            return response;
+        }
+
 
     }
 }

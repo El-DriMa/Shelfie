@@ -30,7 +30,10 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('My Profile')),
+      appBar: AppBar(title: Text('My Profile'),
+        backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
+        elevation: 1,),
       body: FutureBuilder<User>(
         future: fetchCurrentUser(authHeader),
         builder: (context, snapshot) {
@@ -68,37 +71,57 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 35),
+                Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(width: double.infinity,
+                  child:
                 ElevatedButton(
-                  onPressed: () {
-                  },
-                  child: Text('Account Settings'),
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50),
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                  },
+                  onPressed: () {},
                   child: Text('Settings'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50),
+                ),
                   ),
                 ),
-                SizedBox(height: 20),
+               SizedBox(height: 8),
+                Align(
+              alignment: Alignment.center,
+              child: SizedBox(width: double.infinity,
+              child:
                 ElevatedButton(
-                  onPressed:  () async {
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: () async {
                     final prefs = await SharedPreferences.getInstance();
                     await prefs.remove('authToken');
                     Navigator.pushReplacementNamed(context, '/login');
                   },
                   child: Text('Logout'),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    minimumSize: Size(double.infinity, 50),
-                  ),
                 ),
+              ),
+                ),
+
               ],
             ),
           );
