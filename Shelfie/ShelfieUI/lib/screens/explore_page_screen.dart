@@ -53,7 +53,7 @@ class ExplorePageScreen extends StatefulWidget {
   State<ExplorePageScreen> createState() => _ExplorePageScreenState();
 }
 
-class _ExplorePageScreenState extends State<ExplorePageScreen> {
+class _ExplorePageScreenState extends State<ExplorePageScreen>{
   late Future<List<Book>> booksFuture;
   bool isSearching = false;
   final TextEditingController searchController = TextEditingController();

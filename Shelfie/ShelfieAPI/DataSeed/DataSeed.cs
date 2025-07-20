@@ -150,6 +150,23 @@ namespace ShelfieAPI.DataSeed
             return Ok("Books seeded.");
         }
 
+        [HttpPost("shelves")]
+        public IActionResult SeedShelves()
+        {
+            if (_context.Set<Shelf>().Any()) return BadRequest("Shelves already seeded.");
+
+            var shelves = new List<Shelf>
+           {
+               new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.Read, BooksCount = 0, UserId = 1 },
+               new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.CurrentlyReading, BooksCount = 0, UserId = 1 },
+               new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.WantToRead, BooksCount = 0, UserId = 1 },
+           };
+
+            _context.Set<Shelf>().AddRange(shelves);
+            _context.SaveChanges();
+            return Ok($"Shelves seeded for user {shelves[0].UserId}");
+        }
+
 
 
     }
