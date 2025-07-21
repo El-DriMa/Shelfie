@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shelfie/screens/read_shelf_screen.dart';
 
 import '../models/shelf.dart';
 import '../models/book.dart';
@@ -68,6 +69,7 @@ class MyBooksScreen extends StatefulWidget {
   _MyBooksScreenState createState() => _MyBooksScreenState();
 }
 
+
 class _MyBooksScreenState extends State<MyBooksScreen>{
 
   @override
@@ -120,7 +122,25 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                       width: 80,
                       child: Icon(Icons.book, size: 30),
                     );
-                    return Card(
+
+                    return GestureDetector(
+                        onTap: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReadShelfScreen(
+                                authHeader: widget.authHeader,
+                                shelfId: shelf.id,
+                              ),
+                            ),
+                          );
+
+                          if (result == true) {
+                            await fetchShelves(widget.authHeader);
+
+                          }
+                        },
+                        child: Card(
                       margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       child: Padding(
                         padding: EdgeInsets.all(12.0),
@@ -156,6 +176,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                           ],
                         ),
                       ),
+                    )
                     );
                   },
                 );

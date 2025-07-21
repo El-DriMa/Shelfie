@@ -9,7 +9,14 @@ namespace Shelfie.Models.Responses
     public class ShelfBooksResponse
     {
         public int Id { get; set; }
-        public string ShelfName { get; set; } = string.Empty;
-        public string BookTitle { get; set; } = string.Empty;
+        public int ShelfId { get; set; }
+        public string? ShelfName { get; set; } = string.Empty;
+        public int BookId { get; set; }
+        public string? BookTitle { get; set; } = string.Empty;
+        public int? PagesRead { get; set; } = 0;
+        public int? TotalPages {  get; set; }
+        public string AuthorName { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } 
+        public DateTime? ModifiedAt { get; set; }
     }
 }

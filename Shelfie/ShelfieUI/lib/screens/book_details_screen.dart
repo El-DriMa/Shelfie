@@ -29,7 +29,6 @@ Future<Book> fetchBookDetails(String authHeader,int id) async {
     print('API call failed. Status code: ${response.statusCode}');
     throw Exception('Failed to load book details');
   }
-
 }
 
 class BookDetailsScreen extends StatelessWidget {
@@ -116,7 +115,7 @@ class BookDetailsScreen extends StatelessWidget {
                           textAlign: TextAlign.justify,
                         ),
                         const SizedBox(height: 24),
-                        const SizedBox(height: 24),
+                        /*const SizedBox(height: 24),
                         Align(
                           alignment: Alignment.center,
                           child: SizedBox(width: double.infinity,
@@ -137,7 +136,7 @@ class BookDetailsScreen extends StatelessWidget {
                             child: Text('Add to Shelf'),
                           ),
                         ),
-                        ),
+                        ),*/
                       ],
                     ),
                   ),
