@@ -2,48 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shelfie/screens/add_to_shelf_screen.dart';
 
 import '../models/book.dart';
 import 'book_details_screen.dart';
 import 'package:shelfie/config.dart';
-
-Future<List<Book>> fetchBooks(String authHeader) async {
-
-
-  final response = await http.get(
-    Uri.parse('$baseUrl/Book'),
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-
-  print(' Response status code: ${response.statusCode}');
-
-
-  if (response.statusCode == 200) {
-    try {
-      final data = jsonDecode(response.body);
-      final List items = data['items'];
-
-      if (items.isEmpty) {
-        print('Book list is empty.');
-      } else {
-        print('Loaded ${items.length} books.');
-        print('First book: ${items[0]}');
-      }
-
-      return items.map((json) => Book.fromJson(json)).toList();
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Error processing data');
-    }
-  } else {
-    print('API call failed. Status code: ${response.statusCode}');
-    throw Exception('Failed to load books');
-  }
-}
-
+import '../utils/api_helpers.dart';
 
 class ExplorePageScreen extends StatefulWidget {
   final String authHeader;
@@ -286,7 +250,16 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                        builder: (context) => AddToShelfScreen(
+                                      authHeader: widget.authHeader,
+                                      bookId: book.id,
+                                    ),
+                                    ));
+                                  },
                                   child: Text('Add to Shelf'),
                                 ),
                               ),

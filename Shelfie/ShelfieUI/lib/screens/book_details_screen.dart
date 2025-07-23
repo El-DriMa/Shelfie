@@ -7,29 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shelfie/config.dart';
 
 import '../models/book.dart';
-
-Future<Book> fetchBookDetails(String authHeader,int id) async {
-  final response= await http.get(
-    Uri.parse('$baseUrl/Book/$id'),
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    }
-  );
-  print(' Response status code: ${response.statusCode}');
-  if (response.statusCode == 200) {
-    try {
-      final book = jsonDecode(response.body);
-      return Book.fromJson(book);
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Error processing data');
-    }
-  } else {
-    print('API call failed. Status code: ${response.statusCode}');
-    throw Exception('Failed to load book details');
-  }
-}
+import '../utils/api_helpers.dart';
 
 class BookDetailsScreen extends StatelessWidget {
   final String authHeader;

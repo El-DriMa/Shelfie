@@ -10,55 +10,9 @@ import '../models/book.dart';
 import '../models/shelfBooks.dart';
 import '../models/shelf.dart';
 import 'book_details_screen.dart';
+import '../utils/api_helpers.dart';
 
-Future<List<ShelfBooks>> fetchReadShelfBooks(String authHeader,int shelfId) async {
-  final params = <String, String>{};
-  if (shelfId>0) {
-    params['ShelfId'] = shelfId.toString();
-  }
 
-  final uri = Uri.parse('$baseUrl/ShelfBooks').replace(queryParameters: params);
-  print('Search request URL: $uri');
-  final response = await http.get(
-    uri,
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    final List items = data['items'];
-    return items.map((json) => ShelfBooks.fromJson(json)).toList();
-  } else {
-    throw Exception('Failed to search shelf books');
-  }
-}
-
-Future<ShelfBooks?> removeBookFromShelf(String authHeader, int id) async {
-  final uri = Uri.parse('$baseUrl/ShelfBooks/$id');
-  print('DELETE request URL: $uri');
-
-  final response = await http.delete(
-    uri,
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
-
-  if (response.statusCode == 200) {
-    final json = jsonDecode(response.body);
-    return ShelfBooks.fromJson(json);
-  } else if (response.statusCode == 204) {
-    return null;
-  } else {
-    throw Exception('Failed to delete book from shelf: ${response.statusCode}');
-  }
-}
 class ReadShelfScreen extends StatefulWidget {
   final String authHeader;
   final int shelfId;
@@ -86,7 +40,7 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
         children: [
           Expanded(
             child: FutureBuilder<List<ShelfBooks>>(
-              future: fetchReadShelfBooks(widget.authHeader,widget.shelfId),
+              future: fetchShelfBooks(widget.authHeader,widget.shelfId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -193,7 +147,7 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
 
                                         if (confirmed == true) {
                                           await removeBookFromShelf(widget.authHeader, book.id);
-                                          await fetchReadShelfBooks(widget.authHeader, book.shelfId);
+                                          await fetchShelfBooks(widget.authHeader, book.shelfId);
                                           setState(() {});
                                           //Navigator.pop(context, true);
                                           if (context.mounted) {

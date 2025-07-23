@@ -2,48 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shelfie/screens/explore_page_screen.dart';
 import 'package:shelfie/screens/read_shelf_screen.dart';
+import 'package:shelfie/screens/want_to_read_shelf_screen.dart';
 
 import '../models/shelf.dart';
 import '../models/book.dart';
 import 'package:shelfie/config.dart';
 
-Future<List<Shelf>> fetchShelves(String authHeader) async {
-
-
-  final response = await http.get(
-    Uri.parse('$baseUrl/Shelf/user'),
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-
-  print(' Response status code: ${response.statusCode}');
-
-
-  if (response.statusCode == 200) {
-    try {
-      final data = jsonDecode(response.body);
-      final List items = data['items'];
-
-      if (items.isEmpty) {
-        print('Shelves list is empty.');
-      } else {
-        print('Loaded ${items.length} shelves.');
-        print('First shelf: ${items[0]}');
-      }
-
-      return items.map((json) => Shelf.fromJson(json)).toList();
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Error processing data');
-    }
-  } else {
-    print('API call failed. Status code: ${response.statusCode}');
-    throw Exception('Failed to load books');
-  }
-}
+import 'currently_reading_shelf_screen.dart';
+import '../utils/api_helpers.dart';
 
 String prettifyShelfName(String rawName) {
   switch (rawName) {
@@ -125,19 +93,29 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
 
                     return GestureDetector(
                         onTap: () async {
+                          Widget screen;
+                          switch (shelf.name) {
+                            case 'Read':
+                              screen = ReadShelfScreen(authHeader: widget.authHeader, shelfId: shelf.id);
+                              break;
+                            case 'WantToRead':
+                              screen = WantToReadShelfScreen(authHeader: widget.authHeader, shelfId: shelf.id);
+                              break;
+                            case 'CurrentlyReading':
+                              screen = CurrentlyReadingShelfScreen(authHeader: widget.authHeader, shelfId: shelf.id);
+                              break;
+                            default:
+                              screen = ExplorePageScreen(authHeader: widget.authHeader);
+
+                          }
+
                           final result = await Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => ReadShelfScreen(
-                                authHeader: widget.authHeader,
-                                shelfId: shelf.id,
-                              ),
-                            ),
+                            MaterialPageRoute(builder: (context) => screen),
                           );
 
                           if (result == true) {
                             await fetchShelves(widget.authHeader);
-
                           }
                         },
                         child: Card(
