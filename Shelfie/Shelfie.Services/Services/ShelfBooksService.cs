@@ -36,9 +36,17 @@ namespace Shelfie.Services.Services
 
         public override async Task BeforeInsert(ShelfBooksInsertRequest request, ShelfBooks entity)
         {
-            if (_db.ShelfBooks.Any(b => b.BookId == request.BookId && b.ShelfId == request.ShelfId))
+            var shelf = await _db.Shelves.FindAsync(request.ShelfId);
+            var userId = shelf?.UserId;
+
+            var existing = await _db.ShelfBooks
+                .Include(sb => sb.Shelf)
+                .Where(sb => sb.BookId == request.BookId && sb.Shelf.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            if (existing != null)
             {
-                throw new InvalidOperationException("A book with the same shelf already exists.");
+                throw new InvalidOperationException("This book is already in one of your shelves.");
             }
         }
 
@@ -52,6 +60,7 @@ namespace Shelfie.Services.Services
             if(shelf != null)
             {
                 shelf.BooksCount++;
+                shelf.ModifiedAt = DateTime.UtcNow;
             }
             await _db.SaveChangesAsync();
 
@@ -100,6 +109,7 @@ namespace Shelfie.Services.Services
             if (shelf != null)
             {
                 shelf.BooksCount--;
+                shelf.ModifiedAt= DateTime.UtcNow;
             }
         }
         public override async Task<bool> Delete(int id)

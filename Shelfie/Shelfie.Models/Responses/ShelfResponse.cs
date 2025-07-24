@@ -15,5 +15,6 @@ namespace Shelfie.Models.Responses
         public ShelfTypeEnum Name { get; set; }
         public int BooksCount { get; set; }
        // public string UserFullName { get; set; } = string.Empty;
+       public int UserId {  get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Shelfie.Models.Enums;
 using Shelfie.Models.Requests;
 using Shelfie.Models.Responses;
 using Shelfie.Models.SearchObjects;
@@ -48,6 +49,17 @@ namespace Shelfie.Services.Services
             }
 
             await _db.Users.AddAsync(user);
+            await _db.SaveChangesAsync();
+
+            var shelves = new List<Shelf>
+                {
+                    new Shelf { Name = ShelfTypeEnum.Read, UserId = user.Id },
+                    new Shelf { Name = ShelfTypeEnum.CurrentlyReading, UserId = user.Id },
+                    new Shelf { Name = ShelfTypeEnum.WantToRead, UserId = user.Id }
+                };
+
+            await _db.Shelves.AddRangeAsync(shelves);
+
             await _db.SaveChangesAsync();
 
             return Mapper.Map<UserResponse>(user);

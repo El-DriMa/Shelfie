@@ -1,9 +1,11 @@
 using MapsterMapper;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Shelfie.Services.Database;
 using Shelfie.Services.Interfaces;
 using Shelfie.Services.Services;
 using ShelfieAPI.Authentication;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +70,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
