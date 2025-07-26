@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:shelfie/config.dart';
+import 'package:shelfie/screens/add_to_shelf_screen.dart';
 
 import '../models/book.dart';
 import '../models/shelfBooks.dart';
@@ -17,14 +18,31 @@ class WantToReadShelfScreen extends StatefulWidget {
   final int shelfId;
   WantToReadShelfScreen({required this.authHeader,required this.shelfId});
 
+
   @override
   State<WantToReadShelfScreen> createState() => _WantToReadShelfScreenState();
 }
 
 
-
-
 class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
+
+  int currentlyReadingShelfId=0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCurrentlyReadingShelfId();
+  }
+
+  Future<void> fetchCurrentlyReadingShelfId() async {
+    final shelves = await fetchShelves(widget.authHeader);
+    final shelf = shelves.firstWhere(
+          (shelf) => shelf.name == 'CurrentlyReading',
+    );
+    setState(() {
+      currentlyReadingShelfId = shelf.id;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +95,8 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
                         margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         child: Padding(
                           padding: EdgeInsets.all(12.0),
+                          child : SizedBox(
+                          height: 150,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -102,29 +122,30 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
                                         color: Colors.grey[700],
                                       ),
                                     ),
-                                    SizedBox(height: 20),
-                                    Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.deepPurple,
-                                          foregroundColor: Colors.white,
-                                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                  Spacer(),
+                                  Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.deepPurple,
+                                            foregroundColor: Colors.white,
+                                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            textStyle: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                          textStyle: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
                                         onPressed: () async {
                                           final confirmed = await showDialog<bool>(
                                             context: context,
                                             builder: (BuildContext context) {
                                               return AlertDialog(
-                                                title: Text('Confirm Delete'),
-                                                content: Text('Are you sure you want to delete this book from the shelf?'),
+                                                title: Text('Confirm Move'),
+                                                content: Text('Are you sure you want to move this book to other shelf?'),
                                                 actions: [
                                                   TextButton(
                                                     child: Text('Cancel'),
@@ -133,7 +154,7 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
                                                     },
                                                   ),
                                                   TextButton(
-                                                    child: Text('Delete'),
+                                                    child: Text('Move'),
                                                     style: TextButton.styleFrom(foregroundColor: Colors.red),
                                                     onPressed: () {
                                                       Navigator.of(context).pop(true);
@@ -144,30 +165,37 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
                                             },
                                           );
 
-                                          if (confirmed == true) {
-                                            await removeBookFromShelf(widget.authHeader, book.id);
-                                            await fetchShelfBooks(widget.authHeader, book.shelfId);
-                                            setState(() {});
-                                            //Navigator.pop(context, true);
-                                            if (context.mounted) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Book removed from shelf'),
-                                                  backgroundColor: Colors.green,
-                                                  duration: Duration(seconds: 2),
-                                                ),
-                                              );
+                                            if (confirmed == true) {
+
+                                              var bookId = book.bookId;
+                                              await removeBookFromShelf(widget.authHeader, book.id);
+                                              await addToShelf(widget.authHeader,bookId,currentlyReadingShelfId);
+                                              await fetchShelfBooks(widget.authHeader, book.shelfId);
+                                              setState(() {});
+                                              //Navigator.pop(context, true);
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text('Book moved to other shelf'),
+                                                    backgroundColor: Colors.green,
+                                                    duration: Duration(seconds: 2),
+                                                  ),
+                                                );
+                                              }
                                             }
-                                          }
-                                        },
-                                        child: Text('Remove'),
-                                      ),
+                                          },
+                                          child: Text('Currently Reading'),
                                     ),
+                                  ],
+                                  ),
+
                                   ],
                                 ),
                               ),
                             ],
                           ),
+                          ),
+
                         ),
                       ),
                     );

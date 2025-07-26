@@ -209,6 +209,8 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                   margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
+                    child : SizedBox(
+                    height: 150,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -217,7 +219,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisSize: MainAxisSize.max,
                             children: [
                               Text(
                                 book.title,
@@ -234,43 +236,51 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                                   color: Colors.grey[700],
                                 ),
                               ),
-                              SizedBox(height: 20),
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepPurple,
-                                    foregroundColor: Colors.white,
-                                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+
+                            Spacer(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.deepPurple,
+                                      foregroundColor: Colors.white,
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      textStyle: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                    textStyle: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
+                                    onPressed: () {
+                                      Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                        builder: (context) => AddToShelfScreen(
-                                      authHeader: widget.authHeader,
-                                      bookId: book.id,
-                                    ),
-                                    ));
-                                  },
-                                  child: Text('Add to Shelf'),
-                                ),
+                                          builder: (context) => AddToShelfScreen(
+                                            authHeader: widget.authHeader,
+                                            bookId: book.id,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Text('Add to Shelf'),
+                                  ),
+                                ],
                               ),
+
                             ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                )
+
+                ),
+                    ),
                 );
+
               },
             );
           },

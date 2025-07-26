@@ -7,11 +7,13 @@ class Shelf {
   int id;
   String name;
   int booksCount;
+  int userId;
 
   Shelf({
     required this.id,
     required this.name,
     required this.booksCount,
+    required this.userId,
   });
 
   factory Shelf.fromJson(Map<String, dynamic> json) => _$ShelfFromJson(json);

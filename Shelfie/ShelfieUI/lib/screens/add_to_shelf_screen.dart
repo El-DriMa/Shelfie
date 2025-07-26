@@ -45,43 +45,6 @@ Future<ShelfBooks> addToShelf(String authHeader, int bookId, int shelfId) async 
   }
 }
 
-Future<List<Shelf>> fetchShelves(String authHeader) async {
-
-
-  final response = await http.get(
-    Uri.parse('$baseUrl/Shelf/user'),
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-
-  print(' Response status code: ${response.statusCode}');
-
-
-  if (response.statusCode == 200) {
-    try {
-      final data = jsonDecode(response.body);
-      final List items = data['items'];
-
-      if (items.isEmpty) {
-        print('Shelves list is empty.');
-      } else {
-        print('Loaded ${items.length} shelves.');
-        print('First shelf: ${items[0]}');
-      }
-
-      return items.map((json) => Shelf.fromJson(json)).toList();
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Error processing data');
-    }
-  } else {
-    print('API call failed. Status code: ${response.statusCode}');
-    throw Exception('Failed to load books');
-  }
-}
-
 class AddToShelfScreen extends StatefulWidget {
   final String authHeader;
   final int bookId;

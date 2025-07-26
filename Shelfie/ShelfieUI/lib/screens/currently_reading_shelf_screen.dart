@@ -77,6 +77,8 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                         margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         child: Padding(
                           padding: EdgeInsets.all(12.0),
+                          child : SizedBox(
+                          height: 150,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -102,10 +104,11 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                                         color: Colors.grey[700],
                                       ),
                                     ),
-                                    SizedBox(height: 20),
-                                    Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: ElevatedButton(
+                                Spacer(),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.deepPurple,
                                           foregroundColor: Colors.white,
@@ -161,13 +164,17 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                                           }
                                         },
                                         child: Text('Remove'),
-                                      ),
                                     ),
+                                  ],
+                                ),
+
                                   ],
                                 ),
                               ),
                             ],
                           ),
+                          ),
+
                         ),
                       ),
                     );
