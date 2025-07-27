@@ -176,3 +176,18 @@ Future<ShelfBooks?> removeBookFromShelf(String authHeader, int id) async {
     throw Exception('Failed to delete book from shelf: ${response.statusCode}');
   }
 }
+
+String prettifyShelfName(String rawName) {
+  switch (rawName) {
+    case 'CurrentlyReading':
+      return 'Currently Reading';
+    case 'WantToRead':
+      return 'Want to Read';
+    case 'Read':
+      return 'Read';
+    default:
+      return rawName.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (match) {
+        return '${match.group(1)} ${match.group(2)}';
+      });
+  }
+}

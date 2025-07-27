@@ -165,7 +165,7 @@ class _AddToShelfScreenState extends State<AddToShelfScreen> {
                     return Column(
                       children: shelves.map((shelf) {
                         return RadioListTile<int>(
-                          title: Text(shelf.name),
+                          title: Text(prettifyShelfName(shelf.name)),
                           value: shelf.id,
                           groupValue: _selectedShelfId,
                           onChanged: (value) {

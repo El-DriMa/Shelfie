@@ -13,20 +13,6 @@ import 'package:shelfie/config.dart';
 import 'currently_reading_shelf_screen.dart';
 import '../utils/api_helpers.dart';
 
-String prettifyShelfName(String rawName) {
-  switch (rawName) {
-    case 'CurrentlyReading':
-      return 'Currently Reading';
-    case 'WantToRead':
-      return 'Want to Read';
-    case 'Read':
-      return 'Read';
-    default:
-      return rawName.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (match) {
-        return '${match.group(1)} ${match.group(2)}';
-      });
-  }
-}
 
 class MyBooksScreen extends StatefulWidget {
   final String authHeader;

@@ -27,6 +27,8 @@ class CurrentlyReadingShelfScreen extends StatefulWidget {
 class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScreen> {
 
   int readShelfId=0;
+  String _sortBy = 'Date Added';
+  List<ShelfBooks> sortedBooks = [];
 
   @override
   void initState() {
@@ -55,6 +57,32 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 30, top: 16),
+            child : Align(
+              alignment: Alignment.centerRight,
+              child: PopupMenuButton<String>(
+                onSelected: (value) {
+                  setState(() {
+                    _sortBy = value;
+                  });
+                },
+                child: Text(
+                  'Sort by: $_sortBy',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 'Author', child: Text('Author')),
+                  PopupMenuItem(value: 'Alphabetical', child: Text('Alphabetical')),
+                  PopupMenuItem(value: 'Date Added', child: Text('Date Added')),
+                ],
+              ),
+            ),
+          ),
+
           Expanded(
             child: FutureBuilder<List<ShelfBooks>>(
               future: fetchShelfBooks(widget.authHeader,widget.shelfId),
@@ -67,11 +95,20 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                   return Center(child: Text('No read shelf found'));
                 }
                 final data = snapshot.data!;
+
+                sortedBooks = List.from(data);
+                if (_sortBy == 'Author') {
+                  sortedBooks.sort((a, b) => (a.authorName ?? '').compareTo(b.authorName ?? ''));
+                } else if (_sortBy == 'Alphabetical') {
+                  sortedBooks.sort((a, b) => (a.bookTitle ?? '').compareTo(b.bookTitle ?? ''));
+                } else if (_sortBy == 'Date Added') {
+                  sortedBooks.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+                }
                 return ListView.builder(
                   padding: EdgeInsets.all(16),
-                  itemCount: data.length,
+                  itemCount: sortedBooks.length,
                   itemBuilder: (context, index) {
-                    final book = data[index];
+                    final book = sortedBooks[index];
                     Widget imageWidget = Container(
                       color: Colors.grey,
                       height: 150,
