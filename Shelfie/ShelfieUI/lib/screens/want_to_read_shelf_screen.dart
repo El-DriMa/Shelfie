@@ -166,7 +166,6 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
                                           );
 
                                             if (confirmed == true) {
-
                                               var bookId = book.bookId;
                                               await removeBookFromShelf(widget.authHeader, book.id);
                                               await addToShelf(widget.authHeader,bookId,currentlyReadingShelfId);

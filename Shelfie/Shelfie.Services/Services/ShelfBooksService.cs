@@ -94,7 +94,7 @@ namespace Shelfie.Services.Services
                 var response = Mapper.Map<ShelfBooksResponse>(b);
                 response.AuthorName = $"{b.Book.Author.FirstName} {b.Book.Author.LastName}".Trim();
                 response.TotalPages = b.Book.TotalPages;
-                
+
                 return response;
             }).ToList();
 

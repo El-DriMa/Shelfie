@@ -16,7 +16,7 @@ namespace Shelfie.Models.Responses
         public int? PagesRead { get; set; } = 0;
         public int? TotalPages {  get; set; }
         public string AuthorName { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; } 
+        public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
     }
 }
