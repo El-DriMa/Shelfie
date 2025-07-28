@@ -14,6 +14,23 @@ import 'book_details_screen.dart';
 import '../utils/api_helpers.dart';
 import 'package:intl/intl.dart';
 
+Future<void> updatePagesRead(String authHeader, int id, int pagesRead) async {
+  final uri = Uri.parse('$baseUrl/ShelfBooks/$id');
+
+  final response = await http.put(
+    uri,
+    headers: {
+      'authorization': authHeader,
+      'content-type': 'application/json',
+    },
+    body: jsonEncode({'pagesRead': pagesRead}),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to update pages read');
+  }
+}
+
 class CurrentlyReadingShelfScreen extends StatefulWidget {
   final String authHeader;
   final int shelfId;
@@ -164,8 +181,8 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                                           SizedBox(height: 2),
                                           Text(
                                             book.pagesRead != null
-                                                ? 'Pages Read: ${book.pagesRead}'
-                                                : 'Pages Read: 0',
+                                                ? 'Pages Read: ${book.pagesRead}/${book.totalPages}'
+                                                : 'Pages Read: 0/${book.totalPages}',
                                             style: TextStyle(
                                               fontSize: 16,
                                               color: Colors.grey[700],
@@ -190,12 +207,67 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      'Update reading progress',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red,
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final currentPagesRead = book.pagesRead ?? 0;
+                                        final newPagesRead = await showDialog<int>(
+                                          context: context,
+                                          builder: (context) {
+                                            int tempPagesRead = currentPagesRead;
+                                            return AlertDialog(
+                                              title: Text('Update your reading progress'),
+                                              content: TextFormField(
+                                                initialValue: tempPagesRead.toString(),
+                                                keyboardType: TextInputType.number,
+                                                onChanged: (val) {
+                                                  tempPagesRead = int.tryParse(val) ?? 0;
+                                                },
+                                                decoration: InputDecoration(
+                                                  labelText: 'Pages Read',
+                                                ),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  child: Text('Cancel'),
+                                                  onPressed: () => Navigator.of(context).pop(null),
+                                                ),
+                                                ElevatedButton(
+                                                  child: Text('Save'),
+                                                  onPressed: () => Navigator.of(context).pop(tempPagesRead),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+
+                                        if (newPagesRead != null && newPagesRead != currentPagesRead) {
+                                          try {
+                                            await updatePagesRead(widget.authHeader,book.id, newPagesRead);
+                                            setState(() {});
+                                          } catch (e) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                               // title: Text('Error'),
+                                                content: Text('Pages read cannot be decreased or exceed the total number of pages.'),
+                                                actions: [
+                                                  TextButton(
+                                                    child: Text('OK'),
+                                                    onPressed: () => Navigator.of(context).pop(),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                      child: Text(
+                                        'Update reading progress',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red,
+                                        ),
                                       ),
                                     ),
                                     ElevatedButton(

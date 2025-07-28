@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Shelfie.Models.Requests
 {
-    public class ShelfBooksUpdateRequest : ShelfBooksInsertRequest
+    public class ShelfBooksUpdateRequest 
     {
+        public int PagesRead {  get; set; }
     }
 }

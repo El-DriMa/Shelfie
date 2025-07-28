@@ -129,5 +129,32 @@ namespace Shelfie.Services.Services
 
             return true;
         }
+
+        public override async Task BeforeUpdate(ShelfBooksUpdateRequest request, ShelfBooks entity)
+        {
+            Console.WriteLine("BEFORE UPDATE CALLED");
+            if (request.PagesRead < entity.PagesRead || request.PagesRead > entity.Book.TotalPages)
+            {
+                throw new InvalidOperationException("Pages read cannot be decreased or exceed the total number of pages.");
+            }
+        }
+
+        public override async Task<ShelfBooksResponse> Update(int id, ShelfBooksUpdateRequest request)
+        {
+            var set = _db.Set<ShelfBooks>();
+
+            var entity = await set
+                .Include(x => x.Book)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            await BeforeUpdate(request, entity);
+
+            Mapper.Map(request, entity);
+
+
+            await _db.SaveChangesAsync();
+
+            return Mapper.Map<ShelfBooksResponse>(entity);
+        }
     }
 }

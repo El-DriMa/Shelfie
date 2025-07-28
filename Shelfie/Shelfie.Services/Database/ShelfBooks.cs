@@ -19,5 +19,7 @@ namespace Shelfie.Services.Database
         public int BookId { get; set; }
         [ForeignKey("BookId")]
         public Book Book { get; set; } = null!;
+
+        public int? PagesRead { get; set; } = 0;
     }
 }
