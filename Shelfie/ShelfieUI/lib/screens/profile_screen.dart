@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'edit_profile_screen.dart';
+
 Future<User> fetchCurrentUser(String authHeader) async {
   final response = await http.get(
     Uri.parse('$baseUrl/User/me'),
@@ -22,110 +24,159 @@ Future<User> fetchCurrentUser(String authHeader) async {
   }
 }
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final String authHeader;
 
   ProfileScreen({required this.authHeader});
 
   @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late Future<User> userFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    userFuture = fetchCurrentUser(widget.authHeader);
+  }
+
+  Future<void> _refreshUser() async {
+    setState(() {
+      userFuture = fetchCurrentUser(widget.authHeader);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('My Profile'),
+      appBar: AppBar(
+        title: Text('My Profile'),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
-        elevation: 1,),
+        elevation: 1,
+      ),
       body: FutureBuilder<User>(
-        future: fetchCurrentUser(authHeader),
+        future: userFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
+          }
+          if (snapshot.hasError) {
             return Center(child: Text('Failed to load user data'));
-          } else if (!snapshot.hasData) {
+          }
+          if (!snapshot.hasData) {
             return Center(child: Text('No user data found'));
           }
 
           final user = snapshot.data!;
-          return Padding(
+
+          return SingleChildScrollView(
             padding: EdgeInsets.all(16),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: AssetImage('assets/placeholder.png'),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${user.firstName} ${user.lastName}',
-                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 4),
-                          Text(user.username,
-                              style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-                        ],
+                CircleAvatar(
+                  radius: 50,
+                  child: Icon(Icons.person, size: 50),
+                ),
+                SizedBox(height: 16),
+                Text('${user.firstName} ${user.lastName}',
+                    style: TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold)),
+                Text('@${user.username}',
+                    style: TextStyle(color: Colors.grey[600])),
+
+                Divider(height: 40, thickness: 1),
+
+                _buildInfoRow('Email', user.email),
+                _buildInfoRow('Phone', user.phoneNumber ?? 'Not provided'),
+
+                SizedBox(height: 30),
+                Text('Update your profile or change your account settings.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+
+                SizedBox(height: 20),
+
+                SizedBox(
+                  width: double.infinity,
+                  child:
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.edit),
+                    label: Text('Edit Profile'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(height: 35),
-                Align(
-                  alignment: Alignment.center,
-                  child: SizedBox(width: double.infinity,
-                  child:
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              EditProfileScreen(
+                                user: user,
+                                authHeader: widget.authHeader,
+                              ),
+                        ),
+                      );
+                      if (result == true) {
+                        _refreshUser();
+                      }
+                    },
                   ),
-                  onPressed: () {},
-                  child: Text('Settings'),
-                ),
-                  ),
-                ),
-               SizedBox(height: 8),
-                Align(
-              alignment: Alignment.center,
-              child: SizedBox(width: double.infinity,
-              child:
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    textStyle: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  onPressed: () async {
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.remove('authToken');
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                  child: Text('Logout'),
-                ),
-              ),
                 ),
 
+                SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child:
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.logout),
+                    label: Text('Logout'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.remove('authToken');
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                  ),
+                ),
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+
+  Widget _buildInfoRow(String title, String value) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(Icons.email_outlined, size: 20, color: Colors.deepPurple),
+          SizedBox(width: 10),
+          Text('$title: ',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Expanded(
+              child: Text(value,
+                  style: TextStyle(fontSize: 16), overflow: TextOverflow.ellipsis)),
+        ],
       ),
     );
   }

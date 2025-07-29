@@ -132,7 +132,7 @@ namespace Shelfie.Services.Services
 
         public override async Task BeforeUpdate(ShelfBooksUpdateRequest request, ShelfBooks entity)
         {
-            Console.WriteLine("BEFORE UPDATE CALLED");
+           
             if (request.PagesRead < entity.PagesRead || request.PagesRead > entity.Book.TotalPages)
             {
                 throw new InvalidOperationException("Pages read cannot be decreased or exceed the total number of pages.");

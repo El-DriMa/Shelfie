@@ -26,6 +26,14 @@ class MyBooksScreen extends StatefulWidget {
 
 class _MyBooksScreenState extends State<MyBooksScreen>{
 
+  late Future<List<Shelf>> shelvesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    shelvesFuture = fetchShelves(widget.authHeader);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +63,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
           ),
           Expanded(
             child: FutureBuilder<List<Shelf>>(
-              future: fetchShelves(widget.authHeader),
+              future: shelvesFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -101,7 +109,9 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                           );
 
                           if (result == true) {
-                            await fetchShelves(widget.authHeader);
+                            setState(() {
+                              shelvesFuture = fetchShelves(widget.authHeader);
+                            });
                           }
                         },
                         child: Card(

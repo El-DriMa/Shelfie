@@ -30,6 +30,19 @@ namespace Shelfie.Services.Services
             return query;
         }
 
+        public override async Task BeforeInsert(UserInsertRequest request, User entity)
+        {
+            if (await _db.Users.AnyAsync(u => u.Username == request.Username))
+                throw new Exception("Username already exists.");
+
+            if (entity is BaseEntity baseEntity)
+            {
+                baseEntity.IsActive = true;
+            }
+
+            await Task.CompletedTask;
+        }
+
         public override async Task<UserResponse> Insert(UserInsertRequest request)
         {
             PasswordHelper.CreatePasswordHash(request.Password, out string hash, out string salt);
@@ -64,6 +77,31 @@ namespace Shelfie.Services.Services
 
             return Mapper.Map<UserResponse>(user);
         }
+        public override async Task BeforeUpdate(UserUpdateRequest request, User entity)
+        {
+            if (!string.IsNullOrWhiteSpace(request.FirstName))
+                entity.FirstName = request.FirstName;
 
+            if (!string.IsNullOrWhiteSpace(request.LastName))
+                entity.LastName = request.LastName;
+
+            if (!string.IsNullOrWhiteSpace(request.Email))
+                entity.Email = request.Email;
+
+
+            if (!string.IsNullOrWhiteSpace(request.Password))
+            {
+                PasswordHelper.CreatePasswordHash(request.Password, out string hash, out string salt);
+                entity.PasswordHash = hash;
+                entity.PasswordSalt = salt;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+                entity.PhoneNumber = request.PhoneNumber;
+
+            entity.ModifiedAt = DateTime.Now;
+
+            await Task.CompletedTask;
+        }
     }
 }

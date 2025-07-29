@@ -53,8 +53,6 @@ namespace Shelfie.Services.Services
 
             var entity = set.Find(id);
 
-            Mapper.Map(request, entity);
-
             await BeforeUpdate(request, entity);
 
             await _db.SaveChangesAsync();
