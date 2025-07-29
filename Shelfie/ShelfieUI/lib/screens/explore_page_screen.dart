@@ -119,7 +119,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.deepPurple[100],
         title: isSearching
             ? TextField(
           controller: searchController,
@@ -133,7 +133,15 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
           style: TextStyle(color: Colors.white),
           onSubmitted: _onSearchSubmitted,
         )
-            : Text('Shelfie', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            : Text(
+          'Shelfie',
+          style: TextStyle(
+            fontSize: 48,
+            fontFamily: 'Cursive',
+            fontWeight: FontWeight.bold,
+            color: Colors.deepPurple[100],
+          ),
+        ),
         actions: isSearching
             ? [
           IconButton(
@@ -153,6 +161,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
 
         ],
       ),
+      backgroundColor: Colors.deepPurple[50],
       body: Padding(
         padding: EdgeInsets.all(4),
         child: FutureBuilder<List<Book>>(
@@ -178,18 +187,18 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                     fit: BoxFit.cover,
                     width: 100,
                     errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey,
+                      color: Colors.white54,
                       height: 150,
                       width: 100,
-                      child: Icon(Icons.book, size: 60),
+                      child: Icon(Icons.menu_book_rounded, size: 60),
                     ),
                   );
                 } else {
                   imageWidget = Container(
-                    color: Colors.grey,
+                    color: Colors.white54,
                     height: 150,
                     width: 100,
-                    child: Icon(Icons.book, size: 60),
+                    child: Icon(Icons.menu_book_rounded, size: 60),
                   );
                 }
 
@@ -206,6 +215,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                   );
                 },
                 child: Card(
+                    color: Colors.deepPurple[200],
                   margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -226,6 +236,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
+                                  color: Colors.white,
                                 ),
                               ),
                               SizedBox(height: 8),
@@ -233,7 +244,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                                 book.authorName,
                                 style: TextStyle(
                                   fontSize: 16,
-                                  color: Colors.grey[700],
+                                  color: Colors.white54,
                                 ),
                               ),
 

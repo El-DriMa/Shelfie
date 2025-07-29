@@ -38,6 +38,7 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
+      backgroundColor: Colors.deepPurple[50],
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -93,10 +94,10 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
                   itemBuilder: (context, index) {
                     final book = sortedBooks[index];
                     Widget imageWidget = Container(
-                      color: Colors.grey,
+                      color: Colors.white54,
                       height: 150,
                       width: 100,
-                      child: Icon(Icons.book, size: 30),
+                      child: Icon(Icons.menu_book_rounded, size: 30),
                     );
 
                     return GestureDetector(
@@ -112,6 +113,7 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
                           );
                         },
                     child: Card(
+                      color: Colors.deepPurple[100],
                       margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       child: Padding(
                         padding: EdgeInsets.all(12.0),
@@ -139,7 +141,7 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
                                     book.authorName ?? 'Unknown Author',
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color: Colors.grey[700],
+                                      color: Colors.white54,
                                     ),
                                   ),
                                 Spacer(),

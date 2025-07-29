@@ -57,6 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         foregroundColor: Colors.white,
         elevation: 1,
       ),
+      backgroundColor: Colors.deepPurple[50],
       body: FutureBuilder<User>(
         future: userFuture,
         builder: (context, snapshot) {
@@ -151,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: () async {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.remove('authToken');
-                      Navigator.pushReplacementNamed(context, '/login');
+                      Navigator.pushReplacementNamed(context, '/start');
                     },
                   ),
                 ),

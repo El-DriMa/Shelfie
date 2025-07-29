@@ -71,6 +71,7 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
+      backgroundColor: Colors.deepPurple[50],
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -127,10 +128,10 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                   itemBuilder: (context, index) {
                     final book = sortedBooks[index];
                     Widget imageWidget = Container(
-                      color: Colors.grey,
+                      color: Colors.white54,
                       height: 150,
                       width: 100,
-                      child: Icon(Icons.book, size: 30),
+                      child: Icon(Icons.menu_book_rounded, size: 30),
                     );
 
                     return GestureDetector(
@@ -146,6 +147,7 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                         );
                       },
                       child: Card(
+                        color: Colors.deepPurple[100],
                         margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         child: Padding(
                           padding: EdgeInsets.all(12.0),

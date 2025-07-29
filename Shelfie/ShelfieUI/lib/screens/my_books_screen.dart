@@ -42,6 +42,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
+      backgroundColor: Colors.deepPurple[50],
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -50,7 +51,12 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
             child: Center(
               child: Text(
                 "SHELVES",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 48,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.deepPurple[400],
+                  ),
               ),
             ),
           ),
@@ -79,10 +85,10 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                   itemBuilder: (context, index) {
                     final shelf = shelves[index];
                     Widget imageWidget = Container(
-                      color: Colors.grey,
+                      color: Colors.white54,
                       height: 100,
                       width: 80,
-                      child: Icon(Icons.book, size: 30),
+                        child: Icon(Icons.menu_book_rounded, size: 30),
                     );
 
                     return GestureDetector(
@@ -115,6 +121,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                           }
                         },
                         child: Card(
+                            color: Colors.deepPurple[200],
                       margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       child: Padding(
                         padding: EdgeInsets.all(12.0),
@@ -140,7 +147,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                                     '${shelf.booksCount} books',
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color: Colors.grey[700],
+                                      color: Colors.white54,
                                     ),
                                   ),
                                   SizedBox(height: 20),

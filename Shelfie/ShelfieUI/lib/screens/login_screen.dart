@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurple[50],
+      backgroundColor: Colors.deepPurple[100],
       body: Center(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 32),
@@ -53,10 +53,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 'Shelfie',
                 style: TextStyle(
                   fontSize: 48,
+                  fontFamily: 'Cursive',
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple.shade700,
-                  letterSpacing: 2,
-                  fontFamily: 'RobotoMono',
+                  color: Colors.deepPurple,
                 ),
               ),
               SizedBox(height: 40),

@@ -87,10 +87,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Profile'), backgroundColor: Colors.deepPurple),
+      appBar: AppBar(title: Text('Edit Profile'), backgroundColor: Colors.deepPurple,foregroundColor: Colors.white, elevation: 1),
       body: Padding(
         padding: EdgeInsets.all(16),
+        child: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildTextField(firstNameController, 'First Name'),
             _buildTextField(lastNameController, 'Last Name'),
@@ -98,31 +100,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _buildTextField(phoneController, 'Phone'),
             _buildTextField(passwordController, 'New Password (leave empty to keep)'),
             SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
+        SizedBox(
+          width: double.infinity,
+          child:
+          ElevatedButton.icon(
+            icon: Icon(Icons.edit),
+            label: Text('Save changes'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(
+                  horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-              onPressed: () => updateUser(widget.user.id),
-              child: Text('Save Changes'),
             ),
+              onPressed: () => updateUser(widget.user.id),
+            ),
+        ),
           ],
+        ),
         ),
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: controller,
-        obscureText: label.toLowerCase().contains('password'),
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+  Widget _buildTextField(TextEditingController controller, String label, {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
         ),
-      ),
+        SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+        SizedBox(height: 14),
+      ],
     );
   }
+
 }
