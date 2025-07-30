@@ -131,7 +131,9 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
 
           ),
           style: TextStyle(color: Colors.white),
-          onSubmitted: _onSearchSubmitted,
+            onChanged: (value) {
+              _onSearchSubmitted(value);
+            },
         )
             : Text(
           'Shelfie',
