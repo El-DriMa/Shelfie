@@ -7,6 +7,7 @@ using Shelfie.Services.Database;
 using Shelfie.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,7 +47,7 @@ namespace Shelfie.Services.Services
 
             if (existing != null)
             {
-                throw new InvalidOperationException("This book is already in one of your shelves.");
+                throw new ValidationException("This book is already in one of your shelves.");
             }
         }
 
@@ -135,7 +136,7 @@ namespace Shelfie.Services.Services
            
             if (request.PagesRead < entity.PagesRead || request.PagesRead > entity.Book.TotalPages)
             {
-                throw new InvalidOperationException("Pages read cannot be decreased or exceed the total number of pages.");
+                throw new ValidationException("Pages read cannot be decreased or exceed the total number of pages.");
             }
         }
 

@@ -6,6 +6,7 @@ using Shelfie.Services.Database;
 using Shelfie.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace Shelfie.Services.Services
       
             if (_db.Authors.Any(a => a.FirstName == request.FirstName && a.LastName == request.LastName))
             {
-                throw new InvalidOperationException("An author with the same name already exists.");
+                throw new ValidationException("An author with the same name already exists.");
             }
         }
         public override IQueryable<Author> AddFilter(AuthorSearchObject search, IQueryable<Author> query)

@@ -5,6 +5,7 @@ using Shelfie.Services.Database;
 using Shelfie.Services.Interfaces;
 using Shelfie.Services.Services;
 using ShelfieAPI.Authentication;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -80,6 +81,28 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler(appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var exception = exceptionHandlerPathFeature?.Error;
+
+        context.Response.ContentType = "application/json";
+
+        if (exception is ValidationException validationException)
+        {
+            context.Response.StatusCode = 400;
+            await context.Response.WriteAsJsonAsync(new { message = validationException.Message });
+        }
+        else if (exception is Exception)
+        {
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsJsonAsync(new { message = exception.Message });
+        }
+    });
+});
 
 
 app.UseMiddleware<BasicAuthMiddleware>();

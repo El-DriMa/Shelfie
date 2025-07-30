@@ -9,6 +9,7 @@ using Shelfie.Services.Helpers;
 using Shelfie.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace Shelfie.Services.Services
         public override async Task BeforeInsert(UserInsertRequest request, User entity)
         {
             if (await _db.Users.AnyAsync(u => u.Username == request.Username))
-                throw new Exception("Username already exists.");
+                throw new ValidationException("Username already exists.");
 
             if (entity is BaseEntity baseEntity)
             {
@@ -45,6 +46,8 @@ namespace Shelfie.Services.Services
 
         public override async Task<UserResponse> Insert(UserInsertRequest request)
         {
+            await BeforeInsert(request, null);
+
             PasswordHelper.CreatePasswordHash(request.Password, out string hash, out string salt);
 
             var user = Mapper.Map<User>(request);

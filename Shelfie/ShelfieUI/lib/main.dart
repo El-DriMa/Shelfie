@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shelfie/screens/explore_page_screen.dart';
 import 'package:shelfie/screens/read_shelf_screen.dart';
 import 'package:shelfie/screens/start_screen.dart';
 import 'screens/login_screen.dart';
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
       home: StartScreen(),
       routes: {
         '/start': (context) => StartScreen(),
+        '/explore': (context) => ExplorePageScreen(authHeader: ''),
         '/login': (context) => LoginScreen(),
         '/profile': (context) => ProfileScreen(authHeader: ''),
       },

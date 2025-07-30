@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shelfie/screens/signup_screen.dart';
 
 import 'login_screen.dart';
 
@@ -72,7 +73,10 @@ class StartScreen extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, '/signup');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => SignUpScreen()),
+                    );
                   },
                   child: Text(
                     'Sign Up',

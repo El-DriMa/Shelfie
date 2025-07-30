@@ -7,6 +7,7 @@ using Shelfie.Services.Database;
 using Shelfie.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
@@ -24,7 +25,7 @@ namespace Shelfie.Services.Services
         {
             if (_db.Books.Any(b => b.Title == request.Title && b.AuthorId == request.AuthorId))
             {
-               throw new InvalidOperationException("A book with the same title and author already exists.");
+               throw new ValidationException("A book with the same title and author already exists.");
             }
         }
 
