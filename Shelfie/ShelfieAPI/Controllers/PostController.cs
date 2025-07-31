@@ -32,6 +32,15 @@ namespace ShelfieAPI.Controllers
             return result ?? new PagedResult<PostResponse> { Items = new List<PostResponse>(), TotalCount = 0 };
         }
 
+        [HttpGet("Genre/{genreId}")]
+        public async Task<PagedResult<PostResponse>> GetByGenre(int genreId,[FromQuery] PostSearchObject search)
+        {
+
+            var result = await _service.GetPagedByGenre(search, genreId);
+
+            return result ?? new PagedResult<PostResponse> { Items = new List<PostResponse>(), TotalCount = 0 };
+        }
+
 
     }
 }

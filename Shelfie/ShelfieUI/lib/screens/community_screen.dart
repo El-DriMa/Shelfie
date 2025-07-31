@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shelfie/screens/posts_screen.dart';
 
 import '../models/book.dart';
 import 'package:shelfie/config.dart';
@@ -143,10 +144,15 @@ class _CommunityScreenState extends State<CommunityScreen>{
 
 
   void navigateToDiscussion(int genreId, String genreName) {
-    Navigator.pushNamed(
-      context,
-      '/genreDiscussion',
-      arguments: {'genreId': genreId},
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+        builder: (context) => PostsScreen(
+        authHeader: widget.authHeader,
+        genreId: genreId,
+        genreName: genreName,
+        )
+    ),
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:shelfie/config.dart';
 
 import '../models/book.dart';
 import '../models/genre.dart';
+import '../models/post.dart';
 import '../models/shelf.dart';
 import '../models/shelfBooks.dart';
 
@@ -193,3 +194,55 @@ String prettifyShelfName(String rawName) {
   }
 }
 
+Future<List<Post>> fetchPosts(String authHeader, int genreId) async {
+
+
+  final response = await http.get(
+    Uri.parse('$baseUrl/Post/Genre/$genreId'),
+    headers: {
+      'authorization': authHeader,
+      'content-type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    try {
+      final data = jsonDecode(response.body);
+      final List items = data['items'];
+
+      if (items.isEmpty) {
+        print('Post list is empty.');
+      } else {
+        print('Loaded ${items.length} posts.');
+        //  print('First book: ${items[0]}');
+      }
+
+      return items.map((json) => Post.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Error processing data');
+    }
+  } else {
+    throw Exception('Failed to load posts');
+  }
+}
+
+
+Future<Post> fetchPost(String authHeader,int postId) async {
+  final response= await http.get(
+      Uri.parse('$baseUrl/Post/$postId'),
+      headers: {
+        'authorization': authHeader,
+        'content-type': 'application/json',
+      }
+  );
+  if (response.statusCode == 200) {
+    try {
+      final book = jsonDecode(response.body);
+      return Post.fromJson(book);
+    } catch (e) {
+      throw Exception('Error processing data');
+    }
+  } else {
+    throw Exception('Failed to load post details');
+  }
+}

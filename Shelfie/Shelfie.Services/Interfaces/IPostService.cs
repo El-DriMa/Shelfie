@@ -13,5 +13,6 @@ namespace Shelfie.Services.Interfaces
     public interface IPostService : ICRUDService<PostResponse,PostSearchObject,PostInsertRequest,PostUpdateRequest>
     {
         Task<PagedResult<PostResponse>> GetPagedForUser(PostSearchObject search, int userId);
+        Task<PagedResult<PostResponse>> GetPagedByGenre(PostSearchObject search, int genreId);
     }
 }
