@@ -7,6 +7,7 @@ import '../models/genre.dart';
 import '../models/post.dart';
 import '../models/shelf.dart';
 import '../models/shelfBooks.dart';
+import '../models/user.dart';
 
 
 Future<List<Shelf>> fetchShelves(String authHeader) async {
@@ -244,5 +245,22 @@ Future<Post> fetchPost(String authHeader,int postId) async {
     }
   } else {
     throw Exception('Failed to load post details');
+  }
+}
+
+Future<User> fetchCurrentUser(String authHeader) async {
+  final response = await http.get(
+    Uri.parse('$baseUrl/User/me'),
+    headers: {
+      'authorization': authHeader,
+      'content-type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return User.fromJson(data);
+  } else {
+    throw Exception('Failed to load user');
   }
 }

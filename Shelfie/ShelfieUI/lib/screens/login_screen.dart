@@ -19,8 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final authHeader = await AuthService().login(username, password);
 
-    final success = await AuthService().login(username, password);
-
     if (authHeader != null) {
       print('Login successful');
       Navigator.pushReplacement(

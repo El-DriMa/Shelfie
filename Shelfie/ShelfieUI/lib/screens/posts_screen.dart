@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shelfie/screens/add_new_post_screen.dart';
 import 'package:shelfie/utils/api_helpers.dart';
 import '../models/post.dart';
 
@@ -48,69 +50,123 @@ class _PostsScreenState extends State<PostsScreen> {
         foregroundColor: Colors.white,
       ),
       backgroundColor: Colors.deepPurple[50],
-      body: Padding(
+      body:
+      Padding(
         padding: const EdgeInsets.all(20),
-        child: FutureBuilder<List<Post>>(
-          future: posts,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return const Center(child: Text('Failed to load posts'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text('No posts found'));
-            }
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(Icons.add, color: Colors.deepPurple),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () async {
+                    final user = await fetchCurrentUser(widget.authHeader);
 
-            final postList = snapshot.data!;
-            return ListView.builder(
-              itemCount: postList.length,
-              itemBuilder: (context, index) {
-                final post = postList[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: GestureDetector(
-                    onTap: () {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddNewPostScreen(
+                          authHeader: widget.authHeader,
+                          userId: user.id,
+                          genreId: widget.genreId,
+                        ),
+                      ),
+                    );
 
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const CircleAvatar(
-                              radius: 30,
-                              child: Icon(Icons.person, size: 50),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              post.username ?? 'User',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              getTimeAgo(post.createdAt),
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          post.content,
-                          style: const TextStyle(fontSize: 15),
-                        ),
-                        const SizedBox(height: 12),
-                        const Divider(thickness: 1),
-                      ],
+                    if (result == true) {
+                      setState(() {
+                        posts = fetchPosts(widget.authHeader, widget.genreId);
+                      });
+                    }
+                  },
+                  child: const Text(
+                    'Add New Post',
+                    style: TextStyle(
+                      color: Colors.deepPurple,
+                      fontWeight: FontWeight.bold,
                     ),
-
                   ),
-                );
-              },
-            );
-          },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: FutureBuilder<List<Post>>(
+                future: posts,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text('Failed to load posts'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No posts found'));
+                  }
+
+                  final postList = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: postList.length,
+                    itemBuilder: (context, index) {
+                      final post = postList[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  spreadRadius: 1,
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const CircleAvatar(
+                                      radius: 30,
+                                      child: Icon(Icons.person, size: 50),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      post.username ?? 'User',
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      getTimeAgo(post.createdAt),
+                                      style: const TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  post.content,
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
-
     );
   }
 }
