@@ -47,5 +47,25 @@ namespace Shelfie.Services.Services
                 TotalCount = count
             };
         }
+
+        public async Task<PagedResult<CommentResponse>> GetPagedByPost(CommentSearchObject search, int postId)
+        {
+            var query = _db.Comments.Where(c=>c.PostId==postId).Include(x=>x.User).AsQueryable();
+
+            int totalCount = await query.CountAsync();
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+                query = query.Skip(search.Page.Value * search.PageSize.Value).Take(search.PageSize.Value);
+
+            var list = await query.ToListAsync();
+            var result = list.Select(c =>
+            {
+                var response = Mapper.Map<CommentResponse>(c);
+                response.Username = c.User.Username;
+                return response;
+            }).ToList();
+
+            return new PagedResult<CommentResponse> { Items = result ?? new(), TotalCount = totalCount };
+        }
     }
 }

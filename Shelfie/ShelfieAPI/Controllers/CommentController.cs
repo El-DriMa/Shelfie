@@ -12,8 +12,19 @@ namespace ShelfieAPI.Controllers
     [ApiController]
     public class CommentController : BaseCRUDController<CommentResponse, CommentSearchObject, CommentInsertRequest, CommentUpdateRequest>
     {
+        private readonly ICommentService _service;
         public CommentController(ILogger<BaseController<CommentResponse, CommentSearchObject>> logger, ICommentService service) : base(logger, service)
         {
+           _service = service;
+        }
+
+        [HttpGet("Post/{postId}")]
+        public async Task<PagedResult<CommentResponse>> GetByPost(int postId, [FromQuery] CommentSearchObject search)
+        {
+
+            var result = await _service.GetPagedByPost(search, postId);
+
+            return result ?? new PagedResult<CommentResponse> { Items = new List<CommentResponse>(), TotalCount = 0 };
         }
     }
 }

@@ -24,6 +24,12 @@ namespace Shelfie.Services.Database
 
         [Required]
         public string Content { get; set; } = string.Empty;
+        public int? ParentCommentId { get; set; }
+
+        [ForeignKey("ParentCommentId")]
+        public Comment? ParentComment { get; set; }
+
+        public ICollection<Comment> Replies { get; set; } = new List<Comment>();
 
     }
 }

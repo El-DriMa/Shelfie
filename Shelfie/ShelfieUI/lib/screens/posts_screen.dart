@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shelfie/screens/add_new_post_screen.dart';
 import 'package:shelfie/utils/api_helpers.dart';
 import '../models/post.dart';
+import 'comments_screen.dart';
 
 class PostsScreen extends StatefulWidget {
   final String genreName;
@@ -32,9 +33,6 @@ class _PostsScreenState extends State<PostsScreen> {
   String getTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final diff = now.difference(dateTime.toLocal());
-
-    print('now: $now');
-    print('createdAt: ${dateTime.toLocal()}');
 
     if (diff.inMinutes < 60) return '${diff.inMinutes} min';
     if (diff.inHours < 24) return '${diff.inHours} h';
@@ -113,7 +111,23 @@ class _PostsScreenState extends State<PostsScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: GestureDetector(
-                          onTap: () {},
+                            onTap: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CommentsScreen(
+                                    post: post,
+                                    authHeader: widget.authHeader,
+                                  ),
+                                ),
+                              );
+
+                              if (result == true) {
+                                setState(() {
+                                  posts = fetchPosts(widget.authHeader, widget.genreId);
+                                });
+                              }
+                            },
                           child: Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(

@@ -11,5 +11,6 @@ namespace Shelfie.Services.Interfaces
 {
     public interface ICommentService : ICRUDService<CommentResponse,CommentSearchObject,CommentInsertRequest,CommentUpdateRequest>
     {
+        Task<PagedResult<CommentResponse>> GetPagedByPost(CommentSearchObject search, int genreId);
     }
 }
