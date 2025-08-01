@@ -17,6 +17,7 @@ namespace Shelfie.Models.Responses
         public DateOnly EndDate { get; set; }
         public int Progress { get; set; }
         public bool IsCompleted { get; set; }
-        public string UserFullName { get; set; } = string.Empty;
+        public int UserId { get; set; }
+        public string? UserFullName { get; set; } = string.Empty;
     }
 }

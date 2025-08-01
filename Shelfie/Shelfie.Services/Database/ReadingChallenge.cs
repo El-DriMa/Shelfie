@@ -24,7 +24,7 @@ namespace Shelfie.Services.Database
         public string Description { get; set; } = string.Empty;
 
    
-        [Column(TypeName = "varchar(20)")]
+        
         [Required]
         public GoalTypeEnum GoalType { get; set; }
 
