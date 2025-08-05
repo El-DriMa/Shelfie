@@ -25,10 +25,12 @@ Future<List<Comment>> fetchComments(String authHeader, int postId) async {
   }
 }
 
-Future<void> addComment(String authHeader, int postId, int userId, String content, int? parentCommentId) async {
+Future<Comment> addComment(String authHeader, int postId, int userId, String content, int? parentCommentId) async {
+  final uri = Uri.parse('$baseUrl/Comment');
+
   final response = await http.post(
-    Uri.parse('$baseUrl/Comment'),
-    headers: {
+    uri,
+    headers:  {
       'authorization': authHeader,
       'content-type': 'application/json',
     },
@@ -40,8 +42,17 @@ Future<void> addComment(String authHeader, int postId, int userId, String conten
     }),
   );
 
-  if (response.statusCode != 200 && response.statusCode != 201) {
-    throw Exception('Failed to add comment');
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    try {
+      final data = jsonDecode(response.body);
+      return Comment.fromJson(data);
+    } catch (e) {
+      print('JSON parsing error: $e');
+      throw Exception('Failed to parse comment response');
+    }
+  } else {
+    print('Add new comment failed: ${response.body}');
+    throw Exception('Failed to add new comment');
   }
 }
 

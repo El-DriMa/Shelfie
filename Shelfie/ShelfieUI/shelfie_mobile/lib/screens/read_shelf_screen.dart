@@ -141,7 +141,7 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
                                     book.authorName ?? 'Unknown Author',
                                     style: TextStyle(
                                       fontSize: 16,
-                                      color: Colors.white54,
+                                      color: Colors.grey[700],
                                     ),
                                   ),
                                 Spacer(),

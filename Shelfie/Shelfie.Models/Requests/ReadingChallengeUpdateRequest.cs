@@ -11,13 +11,11 @@ namespace Shelfie.Models.Requests
 {
     public class ReadingChallengeUpdateRequest
     {
-
-        [Required(ErrorMessage = "Challenge name is required.")]
         [MaxLength(100, ErrorMessage = "Challenge name cannot exceed 100 characters.")]
-        public string? ChallengeName { get; set; } = string.Empty;
+        public string? ChallengeName { get; set; }
 
         [MaxLength(1000, ErrorMessage = "Description cannot exceed 1000 characters.")]
-        public string? Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         [Required(ErrorMessage = "Goal type is required.")]
         [Column(TypeName = "varchar(20)")]

@@ -43,5 +43,36 @@ namespace Shelfie.Services.Services
 
             return new PagedResult<ReadingChallengeResponse> { Items = result ?? new(), TotalCount = totalCount };
         }
+
+        public override async Task BeforeUpdate(ReadingChallengeUpdateRequest request, ReadingChallenge entity)
+        {
+            if (!string.IsNullOrWhiteSpace(request.ChallengeName))
+                entity.ChallengeName = request.ChallengeName;
+
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                entity.Description = request.Description;
+
+            if (request.GoalType.HasValue)
+                entity.GoalType = request.GoalType.Value;
+
+            if (request.GoalAmount.HasValue)
+                entity.GoalAmount = request.GoalAmount.Value;
+
+            if (request.StartDate.HasValue)
+                entity.StartDate = (DateOnly)request.StartDate;
+
+            if (request.EndDate.HasValue)
+                entity.EndDate = (DateOnly)request.EndDate;
+
+            if (request.Progress.HasValue)
+                entity.Progress = request.Progress.Value;
+
+            entity.IsCompleted = request.IsCompleted;
+
+            entity.ModifiedAt = DateTime.Now;
+
+            await Task.CompletedTask;
+        }
+
     }
 }

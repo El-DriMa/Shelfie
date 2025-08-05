@@ -18,6 +18,6 @@ namespace Shelfie.Models.Responses
         public int Progress { get; set; }
         public bool IsCompleted { get; set; }
         public int UserId { get; set; }
-        public string? UserFullName { get; set; } = string.Empty;
+        public string? Username { get; set; }
     }
 }
