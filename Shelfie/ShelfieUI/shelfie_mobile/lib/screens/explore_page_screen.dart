@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shelfie/screens/add_to_shelf_screen.dart';
 
 import '../models/book.dart';
+import '../models/user.dart';
 import 'book_details_screen.dart';
 import 'package:shelfie/config.dart';
 import '../utils/api_helpers.dart';
@@ -19,6 +20,7 @@ class ExplorePageScreen extends StatefulWidget {
 
 class _ExplorePageScreenState extends State<ExplorePageScreen>{
   late Future<List<Book>> booksFuture;
+  int? userId;
   bool isSearching = false;
   final TextEditingController searchController = TextEditingController();
 
@@ -27,12 +29,11 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
       isSearching = true;
     });
   }
-
   void _stopSearch() {
     setState(() {
       isSearching = false;
       searchController.clear();
-      booksFuture = fetchBooks(widget.authHeader);
+      booksFuture = recommended(widget.authHeader,userId!);
     });
   }
 
@@ -54,6 +55,19 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
   void initState() {
     super.initState();
     booksFuture = fetchBooks(widget.authHeader);
+    initUserAndBooks();
+  }
+
+  Future<void> initUserAndBooks() async {
+    try {
+      final user = await fetchCurrentUser(widget.authHeader);
+      userId = user.id;
+      setState(() {
+        booksFuture = recommended(widget.authHeader,userId!);
+      });
+    } catch (e) {
+      print('Error loading user or books: $e');
+    }
   }
 
   Future<List<Book>> searchBooks(String query) async {
@@ -172,7 +186,8 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
-              return Center(child: Text('Failed to load books'));
+              print(snapshot.error);
+              return Center(child: Text('FRONT DIO FUTURE Failed to load books'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Center(child: Text('No books found'));
             }

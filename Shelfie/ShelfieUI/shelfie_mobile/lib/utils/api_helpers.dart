@@ -264,3 +264,32 @@ Future<User> fetchCurrentUser(String authHeader) async {
     throw Exception('Failed to load user');
   }
 }
+
+Future<List<Book>> recommended(String authHeader, int userId) async {
+
+  final response = await http.get(
+    Uri.parse('$baseUrl/Book/recommended/$userId'),
+    headers: {
+      'authorization': authHeader,
+      'content-type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    try {
+      final data = jsonDecode(response.body);
+      final List items = data['items'];
+      if (items.isEmpty) {
+        print('Recommended list is empty.');
+      } else {
+        print('Loaded ${items.length} books.');
+      }
+
+      return items.map((json) => Book.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Error processing data');
+    }
+  } else {
+    throw Exception('Failed to load recommended books');
+  }
+}

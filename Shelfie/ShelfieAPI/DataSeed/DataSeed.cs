@@ -167,6 +167,43 @@ namespace ShelfieAPI.DataSeed
             return Ok($"Shelves seeded for user {shelves[0].UserId}");
         }
 
+        [HttpPost("more-books")]
+        public IActionResult SeedMoreBooks()
+        {
+            var books = new List<Book>
+            {
+                new Book { Title = "Emma", TotalPages = 474, CoverImage = null, AuthorId = 1, PublisherId = 1, GenreId = 5, YearPublished = 1815, ShortDescription = "Romantic novel", Language = "English" },
+                new Book { Title = "The Prince and the Pauper", TotalPages = 192, CoverImage = null, AuthorId = 2, PublisherId = 2, GenreId = 10, YearPublished = 1881, ShortDescription = "Historical tale", Language = "English" },
+                new Book { Title = "Oliver Twist", TotalPages = 554, CoverImage = null, AuthorId = 3, PublisherId = 3, GenreId = 6, YearPublished = 1839, ShortDescription = "Victorian novel", Language = "English" },
+                new Book { Title = "Anna Karenina", TotalPages = 864, CoverImage = null, AuthorId = 4, PublisherId = 4, GenreId = 5, YearPublished = 1878, ShortDescription = "Tragic romance", Language = "English" },
+                new Book { Title = "And Then There Were None", TotalPages = 272, CoverImage = null, AuthorId = 5, PublisherId = 5, GenreId = 3, YearPublished = 1939, ShortDescription = "Mystery classic", Language = "English" },
+                new Book { Title = "Harry Potter and the Chamber of Secrets", TotalPages = 251, CoverImage = null, AuthorId = 6, PublisherId = 6, GenreId = 1, YearPublished = 1998, ShortDescription = "Fantasy sequel", Language = "English" },
+                new Book { Title = "Animal Farm", TotalPages = 112, CoverImage = null, AuthorId = 7, PublisherId = 7, GenreId = 2, YearPublished = 1945, ShortDescription = "Political satire", Language = "English" },
+                new Book { Title = "A Farewell to Arms", TotalPages = 355, CoverImage = null, AuthorId = 8, PublisherId = 8, GenreId = 6, YearPublished = 1929, ShortDescription = "War romance", Language = "English" },
+                new Book { Title = "Tender Is the Night", TotalPages = 317, CoverImage = null, AuthorId = 9, PublisherId = 9, GenreId = 13, YearPublished = 1934, ShortDescription = "Psychological novel", Language = "English" },
+                new Book { Title = "To the Lighthouse", TotalPages = 209, CoverImage = null, AuthorId = 10, PublisherId = 10, GenreId = 9, YearPublished = 1927, ShortDescription = "Modernist work", Language = "English" },
+                new Book { Title = "Dubliners", TotalPages = 152, CoverImage = null, AuthorId = 11, PublisherId = 11, GenreId = 13, YearPublished = 1914, ShortDescription = "Short story collection", Language = "English" },
+                new Book { Title = "Billy Budd", TotalPages = 192, CoverImage = null, AuthorId = 12, PublisherId = 12, GenreId = 10, YearPublished = 1924, ShortDescription = "Maritime tale", Language = "English" },
+                new Book { Title = "The Silmarillion", TotalPages = 365, CoverImage = null, AuthorId = 13, PublisherId = 13, GenreId = 1, YearPublished = 1977, ShortDescription = "Mythopoeic work", Language = "English" },
+                new Book { Title = "Go Set a Watchman", TotalPages = 278, CoverImage = null, AuthorId = 14, PublisherId = 14, GenreId = 9, YearPublished = 2015, ShortDescription = "Sequel to Mockingbird", Language = "English" },
+                new Book { Title = "Mathilda", TotalPages = 123, CoverImage = null, AuthorId = 15, PublisherId = 15, GenreId = 11, YearPublished = 1819, ShortDescription = "Gothic fiction", Language = "English" },
+                new Book { Title = "Northanger Abbey", TotalPages = 251, CoverImage = null, AuthorId = 1, PublisherId = 1, GenreId = 5, YearPublished = 1817, ShortDescription = "Romantic satire", Language = "English" },
+                new Book { Title = "Roughing It", TotalPages = 412, CoverImage = null, AuthorId = 2, PublisherId = 2, GenreId = 10, YearPublished = 1872, ShortDescription = "Travel literature", Language = "English" },
+                new Book { Title = "A Tale of Two Cities", TotalPages = 341, CoverImage = null, AuthorId = 3, PublisherId = 3, GenreId = 6, YearPublished = 1859, ShortDescription = "Revolutionary drama", Language = "English" },
+                new Book { Title = "Resurrection", TotalPages = 592, CoverImage = null, AuthorId = 4, PublisherId = 4, GenreId = 6, YearPublished = 1899, ShortDescription = "Spiritual awakening", Language = "English" },
+                new Book { Title = "The Mysterious Affair at Styles", TotalPages = 296, CoverImage = null, AuthorId = 5, PublisherId = 5, GenreId = 3, YearPublished = 1920, ShortDescription = "Debut mystery", Language = "English" },
+                new Book { Title = "Harry Potter and the Prisoner of Azkaban", TotalPages = 317, CoverImage = null, AuthorId = 6, PublisherId = 6, GenreId = 1, YearPublished = 1999, ShortDescription = "Fantasy sequel", Language = "English" },
+                new Book { Title = "Homage to Catalonia", TotalPages = 232, CoverImage = null, AuthorId = 7, PublisherId = 7, GenreId = 6, YearPublished = 1938, ShortDescription = "War memoir", Language = "English" },
+                new Book { Title = "The Sun Also Rises", TotalPages = 251, CoverImage = null, AuthorId = 8, PublisherId = 8, GenreId = 13, YearPublished = 1926, ShortDescription = "Postwar novel", Language = "English" },
+                new Book { Title = "This Side of Paradise", TotalPages = 305, CoverImage = null, AuthorId = 9, PublisherId = 9, GenreId = 13, YearPublished = 1920, ShortDescription = "Debut novel", Language = "English" },
+                new Book { Title = "Jacob's Room", TotalPages = 224, CoverImage = null, AuthorId = 10, PublisherId = 10, GenreId = 9, YearPublished = 1922, ShortDescription = "Modernist novel", Language = "English" }
+            };
+
+            _context.Books.AddRange(books);
+            _context.SaveChanges();
+
+            return Ok("More books seeded.");
+        }
 
 
     }

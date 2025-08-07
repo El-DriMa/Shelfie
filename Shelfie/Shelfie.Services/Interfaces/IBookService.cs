@@ -12,6 +12,8 @@ namespace Shelfie.Services.Interfaces
     public interface IBookService : ICRUDService<BookResponse,BookSearchObject,BookInsertRequest,BookUpdateRequest>
     {
        Task<PagedResult<BookResponse>> GetPagedForUser(BookSearchObject search, int userId);
+        Task<PagedResult<BookResponse>> GetRecommendedBooksAsync(BookSearchObject search,int userId);
+
 
     }
 }
