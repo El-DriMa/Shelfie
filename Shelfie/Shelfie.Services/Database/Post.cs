@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shelfie.Models.Enums;
 
 namespace Shelfie.Services.Database
 {
@@ -25,5 +26,8 @@ namespace Shelfie.Services.Database
         public Genre Genre { get; set; } = null!;
 
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
+        [Required]
+        public PostStateEnum State { get; set; } = PostStateEnum.Draft;
     }
 }

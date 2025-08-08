@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shelfie.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,5 +18,7 @@ namespace Shelfie.Models.Requests
 
         [Required]
         public int GenreId { get; set; }
+        [Required]
+        public PostStateEnum State { get; set; } = PostStateEnum.Draft;
     }
 }

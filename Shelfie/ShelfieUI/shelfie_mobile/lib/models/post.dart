@@ -12,6 +12,7 @@ class Post {
   String? genreName;
   DateTime createdAt;
   DateTime? modifiedAt;
+  String state;
 
   Post({
     required this.id,
@@ -22,6 +23,7 @@ class Post {
     this.genreName,
     required this.createdAt,
     this.modifiedAt,
+    required this.state,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);

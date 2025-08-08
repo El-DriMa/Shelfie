@@ -18,6 +18,7 @@ Post _$PostFromJson(Map<String, dynamic> json) => Post(
       json['modifiedAt'] == null
           ? null
           : DateTime.parse(json['modifiedAt'] as String),
+  state: json['state'] as String,
 );
 
 Map<String, dynamic> _$PostToJson(Post instance) => <String, dynamic>{
@@ -29,4 +30,5 @@ Map<String, dynamic> _$PostToJson(Post instance) => <String, dynamic>{
   'genreName': instance.genreName,
   'createdAt': instance.createdAt.toIso8601String(),
   'modifiedAt': instance.modifiedAt?.toIso8601String(),
+  'state': instance.state,
 };

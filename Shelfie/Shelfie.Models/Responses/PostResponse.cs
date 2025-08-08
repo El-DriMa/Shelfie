@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Shelfie.Models.Enums;
 
 namespace Shelfie.Models.Responses
 {
@@ -21,5 +22,6 @@ namespace Shelfie.Models.Responses
         public DateTime? ModifiedAt { get; set; }
 
         public ICollection<CommentResponse> Comments { get; set; } = new List<CommentResponse>();
+        public String State { get; set; } = string.Empty;
     }
 }

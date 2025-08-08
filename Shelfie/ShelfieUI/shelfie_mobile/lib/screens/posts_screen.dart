@@ -1,9 +1,28 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shelfie/screens/add_new_post_screen.dart';
 import 'package:shelfie/utils/api_helpers.dart';
+import '../config.dart';
 import '../models/post.dart';
 import 'comments_screen.dart';
+
+Future<void> updatePostState(String authHeader, int postId, int newState) async {
+  final response = await http.put(
+    Uri.parse('$baseUrl/Post/$postId'),
+    headers: {
+      'authorization': authHeader,
+      'content-type': 'application/json',
+    },
+    body: jsonEncode({'state': newState}),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to update post state');
+  }
+}
 
 class PostsScreen extends StatefulWidget {
   final String genreName;
@@ -21,9 +40,24 @@ class PostsScreen extends StatefulWidget {
   State<PostsScreen> createState() => _PostsScreenState();
 }
 
+const Map<int, Color> postStateColors = {
+  0: Colors.grey,        // Draft
+  1: Colors.green,       // Published
+  2: Colors.orange,      // Archived
+  3: Colors.red,         // Deleted
+};
+
+const Map<int, String> postStateLabels = {
+  0: 'Draft',
+  1: 'Published',
+  2: 'Archived',
+  3: 'Deleted',
+};
+
 class _PostsScreenState extends State<PostsScreen> {
   late Future<List<Post>> posts;
   bool isMyPosts = false;
+
 
   void loadPosts() async {
     setState(() {
@@ -98,7 +132,7 @@ class _PostsScreenState extends State<PostsScreen> {
                     ),
                   ),
                 ),
-                Spacer(), // Pushes the next widgets to the right
+                Spacer(),
                 Icon(Icons.add, color: Colors.deepPurple),
                 const SizedBox(width: 4),
                 GestureDetector(
@@ -145,7 +179,9 @@ class _PostsScreenState extends State<PostsScreen> {
                     return const Center(child: Text('No posts found'));
                   }
 
-                  final postList = snapshot.data!;
+                  final postList = snapshot.data!
+                      .where((p) => p.state != 'Deleted')
+                      .toList();
                   return ListView.builder(
                     itemCount: postList.length,
                     itemBuilder: (context, index) {
@@ -203,6 +239,53 @@ class _PostsScreenState extends State<PostsScreen> {
                                       getTimeAgo(post.createdAt),
                                       style: const TextStyle(color: Colors.grey),
                                     ),
+                                    Spacer(),
+                                    if (isMyPosts)
+                                      Builder(
+                                        builder: (context) {
+                                          print('post.state: ${post.state}');
+                                          final stateMap = {
+                                            'Draft': 0,
+                                            'Published': 1,
+                                            'Archived': 2,
+                                            'Deleted': 3,
+                                          };
+                                          final int stateValue = stateMap[post.state] ?? 0;
+                                          return Row(
+                                            children: [
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: postStateColors[stateValue]?.withOpacity(0.2),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: Text(
+                                                  postStateLabels[stateValue] ?? 'Unknown',
+                                                  style: TextStyle(
+                                                    color: postStateColors[stateValue] ?? Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              PopupMenuButton<int>(
+                                                icon: const Icon(Icons.edit, color: Colors.deepPurple),
+                                                onSelected: (newValue) async {
+                                                  await updatePostState(widget.authHeader, post.id, newValue);
+                                                  loadPosts();
+                                                },
+                                                itemBuilder: (context) => [
+                                                  const PopupMenuItem(value: 0, child: Text('Draft')),
+                                                  const PopupMenuItem(value: 1, child: Text('Published')),
+                                                  const PopupMenuItem(value: 2, child: Text('Archived')),
+                                                  const PopupMenuItem(value: 3, child: Text('Deleted')),
+                                                ],
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+
                                   ],
                                 ),
                                 const SizedBox(height: 8),

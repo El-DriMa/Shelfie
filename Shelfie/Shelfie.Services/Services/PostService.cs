@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Shelfie.Models.Enums;
 using Shelfie.Models.Requests;
 using Shelfie.Models.Responses;
 using Shelfie.Models.SearchObjects;
@@ -26,12 +27,36 @@ namespace Shelfie.Services.Services
                 query = query.Where(g => g.User.Username.Contains(search.Username));
             }
 
+            if (search.PostState.HasValue)
+            {
+                query = query.Where(p => p.State == search.PostState.Value);
+            }
+
             return query;
+        }
+        public override async Task BeforeUpdate(PostUpdateRequest request, Post entity)
+        {
+            if (!string.IsNullOrWhiteSpace(request.Content))
+            {
+                entity.Content = request.Content;
+            }
+
+            if (request.State.HasValue)
+            {
+                entity.State = request.State.Value;
+            }
+
+            await base.BeforeUpdate(request, entity);
         }
 
         public async Task<PagedResult<PostResponse>> GetPagedForUser(PostSearchObject search, int userId)
         {
             var query = _db.Posts.Where(p => p.UserId == userId).Include(x=>x.Genre).Include(x=>x.User).AsQueryable();
+
+            if (search.PostState.HasValue)
+            {
+                query = query.Where(p => p.State == search.PostState.Value);
+            }
 
             int totalCount = await query.CountAsync();
 
@@ -53,6 +78,11 @@ namespace Shelfie.Services.Services
         {
             var query = _db.Posts.Where(p => p.UserId == userId && p.GenreId==genreId).Include(x => x.Genre).Include(x => x.User).AsQueryable();
 
+            if (search.PostState.HasValue)
+            {
+                query = query.Where(p => p.State == search.PostState.Value);
+            }
+
             int totalCount = await query.CountAsync();
 
             if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
@@ -71,7 +101,11 @@ namespace Shelfie.Services.Services
 
         public async Task<PagedResult<PostResponse>> GetPagedByGenre(PostSearchObject search, int genreId)
         {
-            var query = _db.Posts.Where(p => p.GenreId == genreId).Include(x => x.Genre).Include(x => x.User).AsQueryable();
+            var query = _db.Posts
+                .Where(p => p.GenreId == genreId && p.State == PostStateEnum.Published)
+                .Include(x => x.Genre)
+                .Include(x => x.User)
+                .AsQueryable();
 
             int totalCount = await query.CountAsync();
 
