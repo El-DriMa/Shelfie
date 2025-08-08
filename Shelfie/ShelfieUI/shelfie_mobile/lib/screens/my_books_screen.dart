@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shelfie/screens/explore_page_screen.dart';
 import 'package:shelfie/screens/read_shelf_screen.dart';
 import 'package:shelfie/screens/reading_challenges_screen.dart';
+import 'package:shelfie/screens/statistics_screen.dart';
 import 'package:shelfie/screens/want_to_read_shelf_screen.dart';
 
 import '../models/shelf.dart';
@@ -210,7 +211,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                     onPressed: () async {
                       final result = await Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => ReadingChallengeScreen(authHeader:widget.authHeader)),
+                        MaterialPageRoute(builder: (_) => StatisticsScreen(authHeader:widget.authHeader)),
                       );
                     },
                   ),

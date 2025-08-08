@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Shelfie.Models.Enums;
 using Shelfie.Models.Requests;
 using Shelfie.Models.Responses;
 using Shelfie.Models.SearchObjects;
@@ -55,10 +56,21 @@ namespace Shelfie.Services.Services
         {
             var entity = Mapper.Map<ShelfBooks>(request);
 
+            var shelf = await _db.Shelves.FirstOrDefaultAsync(x => x.Id == request.ShelfId);
+
+            if (shelf != null && shelf.Name == ShelfTypeEnum.Read)
+            {
+                var book = await _db.Books.FirstOrDefaultAsync(b => b.Id == request.BookId);
+                if (book != null)
+                {
+                    entity.PagesRead = book.TotalPages;
+                }
+            }
+
             await _db.AddAsync(entity);
             await BeforeInsert(request, entity);
-            var shelf = await _db.Shelves.Where(x=>x.Id==request.ShelfId).FirstOrDefaultAsync();
-            if(shelf != null)
+
+            if (shelf != null)
             {
                 shelf.BooksCount++;
                 shelf.ModifiedAt = DateTime.UtcNow;

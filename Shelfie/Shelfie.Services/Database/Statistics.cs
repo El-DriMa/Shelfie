@@ -23,7 +23,6 @@ namespace Shelfie.Services.Database
         [Range(0, int.MaxValue, ErrorMessage = "Total pages read must be a positive number or zero.")]
         public int TotalPagesRead { get; set; } = 0;
 
-        [Required]
         public int MostReadGenreId { get; set; }
         [ForeignKey("MostReadGenreId")]
         public Genre MostReadGenre { get; set; } = null!;  
@@ -34,7 +33,14 @@ namespace Shelfie.Services.Database
 
         public int BookWithMostPagesId { get; set; }  
         [ForeignKey("BookWithMostPagesId")]
-        public Book BookWithMostPages { get; set; } = null!; 
+        public Book BookWithMostPages { get; set; } = null!;
+        public DateTime? FirstBookReadDate { get; set; }
+        public DateTime? LastBookReadDate { get; set; } 
+        public int UniqueGenresCount { get; set; } 
+        public int TopAuthorId { get; set; } 
+        [ForeignKey("TopAuthorId")]
+        public Author TopAuthor { get; set; } = null!;
+
 
     }
 }
