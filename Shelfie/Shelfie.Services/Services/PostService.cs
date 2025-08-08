@@ -49,6 +49,26 @@ namespace Shelfie.Services.Services
             return new PagedResult<PostResponse> { Items = result ?? new(), TotalCount = totalCount };
         }
 
+        public async Task<PagedResult<PostResponse>> GetPagedForUserByGenre(PostSearchObject search, int userId,int genreId)
+        {
+            var query = _db.Posts.Where(p => p.UserId == userId && p.GenreId==genreId).Include(x => x.Genre).Include(x => x.User).AsQueryable();
+
+            int totalCount = await query.CountAsync();
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+                query = query.Skip(search.Page.Value * search.PageSize.Value).Take(search.PageSize.Value);
+
+            var list = await query.ToListAsync();
+            var result = list.Select(p =>
+            {
+                var response = Mapper.Map<PostResponse>(p);
+                response.Username = p.User.Username;
+                return response;
+            }).ToList();
+
+            return new PagedResult<PostResponse> { Items = result ?? new(), TotalCount = totalCount };
+        }
+
         public async Task<PagedResult<PostResponse>> GetPagedByGenre(PostSearchObject search, int genreId)
         {
             var query = _db.Posts.Where(p => p.GenreId == genreId).Include(x => x.Genre).Include(x => x.User).AsQueryable();

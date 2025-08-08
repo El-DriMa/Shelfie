@@ -23,11 +23,22 @@ class PostsScreen extends StatefulWidget {
 
 class _PostsScreenState extends State<PostsScreen> {
   late Future<List<Post>> posts;
+  bool isMyPosts = false;
+
+  void loadPosts() async {
+    setState(() {
+      if (isMyPosts) {
+        posts = fetchUserPosts(widget.authHeader, widget.genreId);
+      } else {
+        posts = fetchPosts(widget.authHeader, widget.genreId);
+      }
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    posts = fetchPosts(widget.authHeader,widget.genreId);
+    loadPosts();
   }
 
   String getTimeAgo(DateTime dateTime) {
@@ -55,8 +66,39 @@ class _PostsScreenState extends State<PostsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                // Toggle buttons on the left
+                TextButton(
+                  onPressed: () {
+                    if (isMyPosts) {
+                      isMyPosts = false;
+                      loadPosts();
+                    }
+                  },
+                  child: Text(
+                    'All Posts',
+                    style: TextStyle(
+                      color: !isMyPosts ? Colors.deepPurple : Colors.grey,
+                      fontWeight: !isMyPosts ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (!isMyPosts) {
+                      isMyPosts = true;
+                      loadPosts();
+                    }
+                  },
+                  child: Text(
+                    'My Posts',
+                    style: TextStyle(
+                      color: isMyPosts ? Colors.deepPurple : Colors.grey,
+                      fontWeight: isMyPosts ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                Spacer(), // Pushes the next widgets to the right
                 Icon(Icons.add, color: Colors.deepPurple),
                 const SizedBox(width: 4),
                 GestureDetector(

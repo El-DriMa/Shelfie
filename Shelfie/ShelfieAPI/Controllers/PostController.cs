@@ -32,6 +32,19 @@ namespace ShelfieAPI.Controllers
             return result ?? new PagedResult<PostResponse> { Items = new List<PostResponse>(), TotalCount = 0 };
         }
 
+
+        [HttpGet("user/{genreId}")]
+        public async Task<PagedResult<PostResponse>> GetForUserByGenre(int genreId,[FromQuery] PostSearchObject search)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+                return new PagedResult<PostResponse> { Items = new List<PostResponse>(), TotalCount = 0 };
+
+            var result = await _service.GetPagedForUserByGenre(search, userId, genreId);
+
+            return result ?? new PagedResult<PostResponse> { Items = new List<PostResponse>(), TotalCount = 0 };
+        }
+
         [HttpGet("Genre/{genreId}")]
         public async Task<PagedResult<PostResponse>> GetByGenre(int genreId,[FromQuery] PostSearchObject search)
         {

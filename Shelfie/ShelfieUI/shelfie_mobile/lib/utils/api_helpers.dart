@@ -215,7 +215,37 @@ Future<List<Post>> fetchPosts(String authHeader, int genreId) async {
         print('Post list is empty.');
       } else {
         print('Loaded ${items.length} posts.');
-        //  print('First book: ${items[0]}');
+      }
+
+      return items.map((json) => Post.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception('Error processing data');
+    }
+  } else {
+    throw Exception('Failed to load posts');
+  }
+}
+
+Future<List<Post>> fetchUserPosts(String authHeader,int genreId) async {
+
+
+  final response = await http.get(
+    Uri.parse('$baseUrl/Post/user/$genreId'),
+    headers: {
+      'authorization': authHeader,
+      'content-type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    try {
+      final data = jsonDecode(response.body);
+      final List items = data['items'];
+
+      if (items.isEmpty) {
+        print('Post list is empty.');
+      } else {
+        print('Loaded ${items.length} posts.');
       }
 
       return items.map((json) => Post.fromJson(json)).toList();
