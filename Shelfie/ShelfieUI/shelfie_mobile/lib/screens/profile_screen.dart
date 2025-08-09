@@ -4,8 +4,8 @@ import 'package:shelfie/config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/user_provider.dart';
 import 'edit_profile_screen.dart';
-import '../utils/api_helpers.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String authHeader;
@@ -18,16 +18,17 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late Future<User> userFuture;
+  final _provider = UserProvider();
 
   @override
   void initState() {
     super.initState();
-    userFuture = fetchCurrentUser(widget.authHeader);
+    userFuture = _provider.getCurrentUser(widget.authHeader);
   }
 
   Future<void> _refreshUser() async {
     setState(() {
-      userFuture = fetchCurrentUser(widget.authHeader);
+      userFuture = _provider.getCurrentUser(widget.authHeader);
     });
   }
 

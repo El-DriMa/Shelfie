@@ -2,40 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shelfie/utils/api_helpers.dart';
+import '../providers/post_provider.dart';
 
 import '../config.dart';
 import '../models/post.dart';
 
-Future<Post> addNewPost(String authHeader, String content, int userId, int genreId) async {
-  final uri = Uri.parse('$baseUrl/Post');
-
-  final response = await http.post(
-    uri,
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-    body: jsonEncode({
-      'content': content,
-      'userId': userId,
-      'genreId': genreId,
-    }),
-  );
-
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    try {
-      final data = jsonDecode(response.body);
-      return Post.fromJson(data);
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Failed to parse Post response');
-    }
-  } else {
-    print('Add new post failed: ${response.body}');
-    throw Exception('Failed to add new Post');
-  }
-}
 
 class AddNewPostScreen extends StatefulWidget {
   final int userId;
@@ -55,13 +26,11 @@ class AddNewPostScreen extends StatefulWidget {
 
 class _AddNewPostScreenState extends State<AddNewPostScreen> {
   final TextEditingController _contentController = TextEditingController();
+  final PostProvider _provider = PostProvider();
   bool isLoading = false;
 
   Future<void> submitPost() async {
     final content = _contentController.text.trim();
-    print('SubmitPost called with content: "$content"');
-    print('UserId: ${widget.userId}, GenreId: ${widget.genreId}');
-
     if (content.isEmpty) {
       print('Content is empty, aborting submit');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,7 +42,7 @@ class _AddNewPostScreenState extends State<AddNewPostScreen> {
     setState(() => isLoading = true);
 
     try {
-      final post = await addNewPost(
+      final post = await _provider.addNewPost(
         widget.authHeader,
         content,
         widget.userId,

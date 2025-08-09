@@ -1,40 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shelfie/models/statistics.dart';
 import 'package:intl/intl.dart';
 
-import '../config.dart';
+import '../providers/statistics_provider.dart';
 
-Future<List<Statistics>> statsForUser(String authHeader) async {
-
-  final response = await http.get(
-    Uri.parse('$baseUrl/Statistics/user'),
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-
-  if (response.statusCode == 200) {
-    try {
-      final data = jsonDecode(response.body);
-      final List items = data['items'];
-      if (items.isEmpty) {
-        print('Recommended list is empty.');
-      } else {
-        print('Loaded ${items.length} books.');
-      }
-
-      return items.map((json) => Statistics.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Error processing data');
-    }
-  } else {
-    throw Exception('Failed to load Statistics');
-  }
-}
 
 class StatisticsScreen extends StatefulWidget {
   final String authHeader;
@@ -46,11 +15,12 @@ class StatisticsScreen extends StatefulWidget {
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
   late Future<List<Statistics>> futureStats;
+  final _provider= StatisticsProvider();
 
   @override
   void initState() {
     super.initState();
-    futureStats = statsForUser(widget.authHeader);
+    futureStats = _provider.statsForUser(widget.authHeader);
   }
 
   String formatDate(DateTime? date) {

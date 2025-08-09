@@ -2,59 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shelfie/providers/comment_provider.dart';
 import '../config.dart';
 import '../models/post.dart';
 import '../models/comment.dart';
-import '../utils/api_helpers.dart';
+import '../providers/user_provider.dart';
 
-Future<List<Comment>> fetchComments(String authHeader, int postId) async {
-  final response = await http.get(
-    Uri.parse('$baseUrl/Comment/Post/$postId'),
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    final List items = data['items'];
-    return items.map((json) => Comment.fromJson(json)).toList();
-  } else {
-    throw Exception('Failed to load comments for post $postId');
-  }
-}
-
-Future<Comment> addComment(String authHeader, int postId, int userId, String content, int? parentCommentId) async {
-  final uri = Uri.parse('$baseUrl/Comment');
-
-  final response = await http.post(
-    uri,
-    headers:  {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-    body: jsonEncode({
-      'postId': postId,
-      'userId': userId,
-      'content': content,
-      'parentCommentId': parentCommentId,
-    }),
-  );
-
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    try {
-      final data = jsonDecode(response.body);
-      return Comment.fromJson(data);
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Failed to parse comment response');
-    }
-  } else {
-    print('Add new comment failed: ${response.body}');
-    throw Exception('Failed to add new comment');
-  }
-}
 
 class CommentsScreen extends StatefulWidget {
   final Post post;
@@ -74,6 +27,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
   late Future<List<Comment>> commentsFuture;
   Comment? replyingToComment;
   final TextEditingController replyController = TextEditingController();
+  final _provider = CommentProvider();
+  final _userProvider = UserProvider();
 
   Map<int, List<Comment>> buildRepliesMap(List<Comment> comments) {
     final map = <int, List<Comment>>{};
@@ -88,7 +43,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   @override
   void initState() {
     super.initState();
-    commentsFuture = fetchComments(widget.authHeader, widget.post.id);
+    commentsFuture = _provider.fetchComments(widget.authHeader, widget.post.id);
   }
 
   String getTimeAgo(DateTime dateTime) {
@@ -106,13 +61,13 @@ class _CommentsScreenState extends State<CommentsScreen> {
     if (content.isEmpty) return;
     int? parentCommentId = replyingToComment?.id;
     int postId = widget.post.id;
-    final user = await fetchCurrentUser(widget.authHeader);
-    await addComment(widget.authHeader, postId, user.id, content, parentCommentId);
+    final user = await _userProvider.getCurrentUser(widget.authHeader);
+    await _provider.addComment(widget.authHeader, postId, user.id, content, parentCommentId);
 
     replyController.clear();
     setState(() {
       replyingToComment = null;
-      commentsFuture = fetchComments(widget.authHeader, postId);
+      commentsFuture = _provider.fetchComments(widget.authHeader, postId);
     });
   }
 

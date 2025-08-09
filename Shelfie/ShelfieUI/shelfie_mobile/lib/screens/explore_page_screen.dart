@@ -6,9 +6,10 @@ import 'package:shelfie/screens/add_to_shelf_screen.dart';
 
 import '../models/book.dart';
 import '../models/user.dart';
+import '../providers/book_provider.dart';
+import '../providers/user_provider.dart';
 import 'book_details_screen.dart';
 import 'package:shelfie/config.dart';
-import '../utils/api_helpers.dart';
 
 class ExplorePageScreen extends StatefulWidget {
   final String authHeader;
@@ -23,6 +24,8 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
   int? userId;
   bool isSearching = false;
   final TextEditingController searchController = TextEditingController();
+  final _bookProvider = BookProvider();
+  final _userProvider = UserProvider();
 
   void _startSearch() {
     setState(() {
@@ -33,7 +36,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
     setState(() {
       isSearching = false;
       searchController.clear();
-      booksFuture = recommended(widget.authHeader,userId!);
+      booksFuture = _bookProvider.getRecommended(widget.authHeader,userId!);
     });
   }
 
@@ -41,9 +44,9 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
     print('Search called with query: $query');
     setState(() {
       if (query.trim().isEmpty) {
-        booksFuture = fetchBooks(widget.authHeader);
+        booksFuture = _bookProvider.getAll(widget.authHeader);
       } else {
-        booksFuture = searchBooks(query);
+        booksFuture = _bookProvider.searchBooks(widget.authHeader,query);
 
       print('Search result for: $query, result: $booksFuture');
 
@@ -54,45 +57,22 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
   @override
   void initState() {
     super.initState();
-    booksFuture = fetchBooks(widget.authHeader);
+    booksFuture = _bookProvider.getAll(widget.authHeader);
     initUserAndBooks();
   }
 
   Future<void> initUserAndBooks() async {
     try {
-      final user = await fetchCurrentUser(widget.authHeader);
+      final user = await _userProvider.getCurrentUser(widget.authHeader);
       userId = user.id;
       setState(() {
-        booksFuture = recommended(widget.authHeader,userId!);
+        booksFuture = _bookProvider.getRecommended(widget.authHeader,userId!);
       });
     } catch (e) {
       print('Error loading user or books: $e');
     }
   }
 
-  Future<List<Book>> searchBooks(String query) async {
-    final params = <String, String>{};
-    if (query.trim().isNotEmpty) {
-      params['Title'] = query;
-    }
-
-    final uri = Uri.parse('$baseUrl/Book').replace(queryParameters: params);
-    print('Search request URL: $uri');
-    final response = await http.get(
-      uri,
-      headers: {
-        'authorization': widget.authHeader,
-        'content-type': 'application/json',
-      },
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List items = data['items'];
-      return items.map((json) => Book.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to search books');
-    }
-  }
 
  void _showSearchDialog() async {
     String query = '';
@@ -121,7 +101,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
     );
     if (result != null && result.isNotEmpty) {
       setState(() {
-        booksFuture = searchBooks(result);
+        booksFuture = _bookProvider.searchBooks(widget.authHeader,result);
       });
     }
   }

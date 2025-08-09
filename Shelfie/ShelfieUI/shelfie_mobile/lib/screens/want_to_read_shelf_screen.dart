@@ -1,17 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-
-import 'package:http/http.dart' as http;
-import 'package:shelfie/config.dart';
-import 'package:shelfie/screens/add_to_shelf_screen.dart';
-
-import '../models/book.dart';
 import '../models/shelfBooks.dart';
-import '../models/shelf.dart';
+import '../providers/shelf_books_provider.dart';
+import '../providers/shelf_provider.dart';
 import 'book_details_screen.dart';
-import '../utils/api_helpers.dart';
 
 class WantToReadShelfScreen extends StatefulWidget {
   final String authHeader;
@@ -30,6 +22,9 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
   String _sortBy = 'Date Added';
   List<ShelfBooks> sortedBooks = [];
 
+  final _shelfBooksProvider = ShelfBooksProvider();
+  final _shelfProvider = ShelfProvider();
+
   @override
   void initState() {
     super.initState();
@@ -37,7 +32,7 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
   }
 
   Future<void> fetchCurrentlyReadingShelfId() async {
-    final shelves = await fetchShelves(widget.authHeader);
+    final shelves = await _shelfProvider.getAll(widget.authHeader);
     final shelf = shelves.firstWhere(
           (shelf) => shelf.name == 'CurrentlyReading',
     );
@@ -85,7 +80,7 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
           ),
           Expanded(
             child: FutureBuilder<List<ShelfBooks>>(
-              future: fetchShelfBooks(widget.authHeader,widget.shelfId),
+              future: _shelfBooksProvider.getByShelfId(widget.authHeader,widget.shelfId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -205,9 +200,9 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
 
                                             if (confirmed == true) {
                                               var bookId = book.bookId;
-                                              await removeBookFromShelf(widget.authHeader, book.id);
-                                              await addToShelf(widget.authHeader,bookId,currentlyReadingShelfId);
-                                              await fetchShelfBooks(widget.authHeader, book.shelfId);
+                                              await _shelfBooksProvider.removeBookFromShelf(widget.authHeader, book.id);
+                                              await _shelfBooksProvider.addToShelf(widget.authHeader,bookId,currentlyReadingShelfId);
+                                              await _shelfBooksProvider.getByShelfId(widget.authHeader, book.shelfId);
                                               setState(() {});
                                               //Navigator.pop(context, true);
                                               if (context.mounted) {

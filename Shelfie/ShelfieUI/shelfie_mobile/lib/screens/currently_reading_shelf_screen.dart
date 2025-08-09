@@ -6,30 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shelfie/config.dart';
 
-import '../models/book.dart';
 import '../models/shelfBooks.dart';
-import '../models/shelf.dart';
-import 'add_to_shelf_screen.dart';
+import '../providers/shelf_books_provider.dart';
+import '../providers/shelf_provider.dart';
 import 'book_details_screen.dart';
-import '../utils/api_helpers.dart';
 import 'package:intl/intl.dart';
 
-Future<void> updatePagesRead(String authHeader, int id, int pagesRead) async {
-  final uri = Uri.parse('$baseUrl/ShelfBooks/$id');
-
-  final response = await http.put(
-    uri,
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-    body: jsonEncode({'pagesRead': pagesRead}),
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception('Failed to update pages read');
-  }
-}
 
 class CurrentlyReadingShelfScreen extends StatefulWidget {
   final String authHeader;
@@ -47,6 +29,9 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
   String _sortBy = 'Date Added';
   List<ShelfBooks> sortedBooks = [];
 
+  final _shelfProvider = ShelfProvider();
+  final _shelfBooksProvider = ShelfBooksProvider();
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +39,7 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
   }
 
   Future<void> fetchReadShelfId() async {
-    final shelves = await fetchShelves(widget.authHeader);
+    final shelves = await _shelfProvider.getAll(widget.authHeader);
     final shelf = shelves.firstWhere(
           (shelf) => shelf.name == 'Read',
     );
@@ -103,7 +88,7 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
 
           Expanded(
             child: FutureBuilder<List<ShelfBooks>>(
-              future: fetchShelfBooks(widget.authHeader,widget.shelfId),
+              future: _shelfBooksProvider.getByShelfId(widget.authHeader,widget.shelfId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -244,7 +229,7 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
 
                                         if (newPagesRead != null && newPagesRead != currentPagesRead) {
                                           try {
-                                            await updatePagesRead(widget.authHeader,book.id, newPagesRead);
+                                            await _shelfBooksProvider.updatePagesRead(widget.authHeader,book.id, newPagesRead);
                                             setState(() {});
                                           } catch (e) {
                                             showDialog(
@@ -313,9 +298,9 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
 
                                         if (confirmed == true) {
                                           var bookId = book.bookId;
-                                          await removeBookFromShelf(widget.authHeader, book.id);
-                                          await addToShelf(widget.authHeader, bookId, readShelfId);
-                                          await fetchShelfBooks(widget.authHeader, book.shelfId);
+                                          await _shelfBooksProvider.removeBookFromShelf(widget.authHeader, book.id);
+                                          await _shelfBooksProvider.addToShelf(widget.authHeader, bookId, readShelfId);
+                                          await _shelfBooksProvider.getByShelfId(widget.authHeader, book.shelfId);
                                           setState(() {});
                                           if (context.mounted) {
                                             ScaffoldMessenger.of(context).showSnackBar(

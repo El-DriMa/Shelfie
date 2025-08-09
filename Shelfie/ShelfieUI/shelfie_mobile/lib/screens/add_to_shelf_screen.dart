@@ -1,49 +1,28 @@
 import 'dart:convert';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-
-import 'package:http/http.dart' as http;
-import 'package:shelfie/config.dart';
-
 import '../models/book.dart';
 import '../models/shelfBooks.dart';
 import '../models/shelf.dart';
-import 'book_details_screen.dart';
-import '../utils/api_helpers.dart';
+import '../providers/book_provider.dart';
+import '../providers/shelf_books_provider.dart';
+import '../providers/shelf_provider.dart';
 
-
-Future<ShelfBooks> addToShelf(String authHeader, int bookId, int shelfId) async {
-  final uri = Uri.parse('$baseUrl/ShelfBooks');
-
-  final response = await http.post(
-    uri,
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-    body: jsonEncode({
-      'bookId': bookId,
-      'shelfId': shelfId,
-    }),
-  );
-
-  print('AddToShelf response status: ${response.statusCode}');
-  print('Request body: {"bookId": $bookId, "shelfId": $shelfId}');
-
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    try {
-      final data = jsonDecode(response.body);
-      return ShelfBooks.fromJson(data);
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Failed to parse ShelfBooks response');
-    }
-  } else {
-    print('AddToShelf failed: ${response.body}');
-    throw Exception('Failed to add book to shelf');
+String prettifyShelfName(String rawName) {
+  switch (rawName) {
+    case 'CurrentlyReading':
+      return 'Currently Reading';
+    case 'WantToRead':
+      return 'Want to Read';
+    case 'Read':
+      return 'Read';
+    default:
+      return rawName.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (match) {
+        return '${match.group(1)} ${match.group(2)}';
+      });
   }
 }
+
 
 class AddToShelfScreen extends StatefulWidget {
   final String authHeader;
@@ -56,6 +35,10 @@ class AddToShelfScreen extends StatefulWidget {
 
 class _AddToShelfScreenState extends State<AddToShelfScreen> {
   int? _selectedShelfId;
+  final _provider = ShelfBooksProvider();
+  final _shelfProvider = ShelfProvider();
+  final _bookProvider = BookProvider();
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +54,7 @@ class _AddToShelfScreenState extends State<AddToShelfScreen> {
       ),
       backgroundColor: const Color(0xFFF5F5F5),
       body: FutureBuilder<Book>(
-        future: fetchBook(widget.authHeader, widget.bookId),
+        future: _bookProvider.getById(widget.authHeader, widget.bookId),
         builder: (context, bookSnapshot) {
           if (bookSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -143,7 +126,7 @@ class _AddToShelfScreenState extends State<AddToShelfScreen> {
                 const SizedBox(height: 16),
 
                 FutureBuilder<List<Shelf>>(
-                  future: fetchShelves(widget.authHeader),
+                  future: _shelfProvider.getAll(widget.authHeader),
                   builder: (context, shelfSnapshot) {
                     if (shelfSnapshot.connectionState ==
                         ConnectionState.waiting) {
@@ -184,7 +167,7 @@ class _AddToShelfScreenState extends State<AddToShelfScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      final result = await addToShelf(widget.authHeader, book.id, _selectedShelfId!);
+                      final result = await _provider.addToShelf(widget.authHeader, book.id, _selectedShelfId!);
                       final shelfName = result.shelfName?? 'Unknown Shelf';
 
                       ScaffoldMessenger.of(context).showSnackBar(

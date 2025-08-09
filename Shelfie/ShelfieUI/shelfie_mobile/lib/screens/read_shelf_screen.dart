@@ -9,8 +9,8 @@ import 'package:shelfie/config.dart';
 import '../models/book.dart';
 import '../models/shelfBooks.dart';
 import '../models/shelf.dart';
+import '../providers/shelf_books_provider.dart';
 import 'book_details_screen.dart';
-import '../utils/api_helpers.dart';
 
 
 class ReadShelfScreen extends StatefulWidget {
@@ -24,11 +24,11 @@ class ReadShelfScreen extends StatefulWidget {
 
 
 
-
 class _ReadShelfScreenState extends State<ReadShelfScreen> {
 
   String _sortBy = 'Date Added';
   List<ShelfBooks> sortedBooks = [];
+  final _shelfBooksProvider = ShelfBooksProvider();
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +69,7 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
           ),
           Expanded(
             child: FutureBuilder<List<ShelfBooks>>(
-              future: fetchShelfBooks(widget.authHeader,widget.shelfId),
+              future: _shelfBooksProvider.getByShelfId(widget.authHeader,widget.shelfId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -188,8 +188,8 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
                                         );
 
                                         if (confirmed == true) {
-                                          await removeBookFromShelf(widget.authHeader, book.id);
-                                          await fetchShelfBooks(widget.authHeader, book.shelfId);
+                                          await _shelfBooksProvider.removeBookFromShelf(widget.authHeader, book.id);
+                                          await _shelfBooksProvider.getByShelfId(widget.authHeader, book.shelfId);
                                           setState(() {});
                                           //Navigator.pop(context, true);
                                           if (context.mounted) {

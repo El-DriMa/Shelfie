@@ -1,71 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-import '../config.dart';
-import '../models/readingChallenge.dart';
-import '../utils/api_helpers.dart';
-
-Future<ReadingChallenge> fetchReadingChallenge(String authHeader,int challengeId) async {
-  final response= await http.get(
-      Uri.parse('$baseUrl/ReadingChallenge/$challengeId'),
-      headers: {
-        'authorization': authHeader,
-        'content-type': 'application/json',
-      }
-  );
-  if (response.statusCode == 200) {
-    try {
-      final book = jsonDecode(response.body);
-      return ReadingChallenge.fromJson(book);
-    } catch (e) {
-      throw Exception('Error processing data');
-    }
-  } else {
-    throw Exception('Failed to load ReadingChallenge details');
-  }
-}
-
-Future<ReadingChallenge> addChallenge(String authHeader, int userId, String challengeName, String description, int goalType, int goalAmount,
-    DateTime startDate, DateTime endDate, int progress, bool isCompleted) async {
-
-  final uri = Uri.parse('$baseUrl/ReadingChallenge');
-
-  final response = await http.post(
-    uri,
-    headers:  {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-    body: jsonEncode({
-      'userId': userId,
-      'challengeName': challengeName,
-      'description': description,
-      'goalType': goalType,
-      'goalAmount': goalAmount,
-      'startDate': DateFormat('yyyy-MM-dd').format(startDate),
-      'endDate': DateFormat('yyyy-MM-dd').format(endDate),
-      'progress': progress,
-      'isCompleted': isCompleted,
-    }),
-  );
-
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    try {
-      final data = jsonDecode(response.body);
-      return ReadingChallenge.fromJson(data);
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Failed to parse Reading Challenge response');
-    }
-  } else {
-    print('Add new challenge failed: ${response.body}');
-    throw Exception('Failed to add new challenge');
-  }
-}
-
-
+import '../providers/reading_challenge_provider.dart';
 
 class AddEditChallengeScreen extends StatefulWidget {
   final String authHeader;
@@ -90,6 +25,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
   late TextEditingController goalAmountController;
   late TextEditingController progressController;
 
+  final ReadingChallengeProvider _provider = ReadingChallengeProvider();
 
   int selectedGoalType = 1;
   DateTime? startDate;
@@ -111,73 +47,9 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
     }
   }
 
-  Future<void> updateChallenge(int id) async {
-    Map<String, dynamic> data = {};
-
-    if (challengeNameController.text.trim().isNotEmpty) {
-      data['challengeName'] = challengeNameController.text.trim();
-    }
-    if (descriptionController.text.trim().isNotEmpty) {
-      data['description'] = descriptionController.text.trim();
-    }
-    if (goalAmountController.text.trim().isNotEmpty) {
-      data['goalAmount'] = int.tryParse(goalAmountController.text.trim()) ?? 0;
-    }
-    data['goalType'] = selectedGoalType;
-    if (startDate != null) {
-      data['startDate'] = DateFormat('yyyy-MM-dd').format(startDate!);
-    }
-    if (endDate != null) {
-      data['endDate'] = DateFormat('yyyy-MM-dd').format(endDate!);
-    }
-
-    data['progress'] = int.tryParse(progressController.text.trim()) ?? 0;
-    data['isCompleted'] = isCompleted;
-
-    if (data.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No changes to save')),
-      );
-      return;
-    }
-
-    final response = await http.put(
-      Uri.parse('$baseUrl/ReadingChallenge/$id'),
-      headers: {
-        'authorization': widget.authHeader,
-        'content-type': 'application/json',
-      },
-      body: jsonEncode(data),
-    );
-
-    print('Update response status: ${response.statusCode}');
-    print('Update response body: ${response.body}');
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Challenge updated successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Future.delayed(Duration(seconds: 1), () {
-        if (!mounted) return;
-        Navigator.pop(context, true);
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to update challenge'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
-
   Future<void> _loadChallenge() async {
     setState(() => isLoading = true);
-    final challenge = await fetchReadingChallenge(widget.authHeader, widget.challengeId!);
+    final challenge = await _provider.getById(widget.authHeader, widget.challengeId!);
 
     challengeNameController.text = challenge.challengeName;
     descriptionController.text = challenge.description;
@@ -207,7 +79,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
       }
 
       if (widget.challengeId == null) {
-        await addChallenge(
+        await _provider.addChallenge(
           widget.authHeader,
           widget.userId,
           name,
@@ -220,10 +92,16 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
           isCompleted,
         );
       } else {
-        print('Progress value: "${progressController.text}"');
-        await updateChallenge(
-            widget.challengeId!
-        );
+        await _provider.updateChallenge(widget.authHeader, widget.challengeId!, {
+          'challengeName': challengeNameController.text.trim(),
+          'description': descriptionController.text.trim(),
+          'goalAmount': int.tryParse(goalAmountController.text.trim()) ?? 0,
+          'goalType': selectedGoalType,
+          'startDate': DateFormat('yyyy-MM-dd').format(startDate!),
+          'endDate': DateFormat('yyyy-MM-dd').format(endDate!),
+          'progress': int.tryParse(progressController.text.trim()) ?? 0,
+          'isCompleted': isCompleted,
+        });
       }
 
       Navigator.pop(context, true);

@@ -1,28 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shelfie/screens/add_new_post_screen.dart';
-import 'package:shelfie/utils/api_helpers.dart';
-import '../config.dart';
 import '../models/post.dart';
+import '../providers/post_provider.dart';
+import '../providers/user_provider.dart';
 import 'comments_screen.dart';
 
-Future<void> updatePostState(String authHeader, int postId, int newState) async {
-  final response = await http.put(
-    Uri.parse('$baseUrl/Post/$postId'),
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-    body: jsonEncode({'state': newState}),
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception('Failed to update post state');
-  }
-}
 
 class PostsScreen extends StatefulWidget {
   final String genreName;
@@ -58,13 +40,15 @@ class _PostsScreenState extends State<PostsScreen> {
   late Future<List<Post>> posts;
   bool isMyPosts = false;
 
+  final _provider = PostProvider();
+  final _userProvider = UserProvider();
 
   void loadPosts() async {
     setState(() {
       if (isMyPosts) {
-        posts = fetchUserPosts(widget.authHeader, widget.genreId);
+        posts = _provider.getUserPosts(widget.authHeader, widget.genreId);
       } else {
-        posts = fetchPosts(widget.authHeader, widget.genreId);
+        posts = _provider.getByGenre(widget.authHeader, widget.genreId);
       }
     });
   }
@@ -137,7 +121,7 @@ class _PostsScreenState extends State<PostsScreen> {
                 const SizedBox(width: 4),
                 GestureDetector(
                   onTap: () async {
-                    final user = await fetchCurrentUser(widget.authHeader);
+                    final user = await _userProvider.getCurrentUser(widget.authHeader);
 
                     final result = await Navigator.push(
                       context,
@@ -152,7 +136,7 @@ class _PostsScreenState extends State<PostsScreen> {
 
                     if (result == true) {
                       setState(() {
-                        posts = fetchPosts(widget.authHeader, widget.genreId);
+                        posts = _provider.getByGenre(widget.authHeader, widget.genreId);
                       });
                     }
                   },
@@ -202,7 +186,7 @@ class _PostsScreenState extends State<PostsScreen> {
 
                               if (result == true) {
                                 setState(() {
-                                  posts = fetchPosts(widget.authHeader, widget.genreId);
+                                  posts = _provider.getByGenre(widget.authHeader, widget.genreId);
                                 });
                               }
                             },
@@ -271,7 +255,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                               PopupMenuButton<int>(
                                                 icon: const Icon(Icons.edit, color: Colors.deepPurple),
                                                 onSelected: (newValue) async {
-                                                  await updatePostState(widget.authHeader, post.id, newValue);
+                                                  await _provider.updatePostState(widget.authHeader, post.id, newValue);
                                                   loadPosts();
                                                 },
                                                 itemBuilder: (context) => [

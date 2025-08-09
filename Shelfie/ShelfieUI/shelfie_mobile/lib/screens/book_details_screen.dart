@@ -3,15 +3,14 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
-import 'package:http/http.dart' as http;
-import 'package:shelfie/config.dart';
-
 import '../models/book.dart';
-import '../utils/api_helpers.dart';
+import '../providers/book_provider.dart';
 
 class BookDetailsScreen extends StatelessWidget {
   final String authHeader;
   final int bookId;
+
+  final _provider = BookProvider();
 
   BookDetailsScreen({required this.authHeader, required this.bookId});
 
@@ -30,7 +29,7 @@ class BookDetailsScreen extends StatelessWidget {
       ),
       backgroundColor: const Color(0xFFF5F5F5),
       body: FutureBuilder<Book>(
-        future: fetchBookDetails(authHeader, bookId),
+        future: _provider.getById(authHeader, bookId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -93,28 +92,6 @@ class BookDetailsScreen extends StatelessWidget {
                           textAlign: TextAlign.justify,
                         ),
                         const SizedBox(height: 24),
-                        /*const SizedBox(height: 24),
-                        Align(
-                          alignment: Alignment.center,
-                          child: SizedBox(width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurple,
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              textStyle: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            onPressed: () {},
-                            child: Text('Add to Shelf'),
-                          ),
-                        ),
-                        ),*/
                       ],
                     ),
                   ),

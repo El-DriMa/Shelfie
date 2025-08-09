@@ -1,104 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shelfie/screens/add_edit_challenge_screen.dart';
-
-import '../config.dart';
 import '../models/readingChallenge.dart';
-import '../utils/api_helpers.dart';
+import '../providers/reading_challenge_provider.dart';
+import '../providers/user_provider.dart';
 
-
-
-Future<List<ReadingChallenge>> fetchChallenges(String authHeader) async {
-
-  final response = await http.get(
-    Uri.parse('$baseUrl/ReadingChallenge/user'),
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-
-  if (response.statusCode == 200) {
-    try {
-      final data = jsonDecode(response.body);
-      final List items = data['items'];
-
-      if (items.isEmpty) {
-        print('Post list is empty.');
-      } else {
-        print('Loaded ${items.length} challenges.');
-      }
-
-      return items.map((json) => ReadingChallenge.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Error processing data');
-    }
-  } else {
-    throw Exception('Failed to load ReadingChallenge');
-  }
-}
-
-Future<ReadingChallenge> addChallenge(String authHeader, int userId, String challengeName, String description, int goalType, int goalAmount,
-    DateTime startDate, DateTime endDate, int progress, bool isCompleted) async {
-
-  final uri = Uri.parse('$baseUrl/ReadingChallenge');
-
-  final response = await http.post(
-    uri,
-    headers:  {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-    body: jsonEncode({
-      'userId': userId,
-      'challengeName': challengeName,
-      'description': description,
-      'goalType': goalType,
-      'goalAmount': goalAmount,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
-      'progress': progress,
-      'isCompleted': isCompleted,
-    }),
-  );
-
-  if (response.statusCode == 200 || response.statusCode == 201) {
-    try {
-      final data = jsonDecode(response.body);
-      return ReadingChallenge.fromJson(data);
-    } catch (e) {
-      print('JSON parsing error: $e');
-      throw Exception('Failed to parse Reading Challenge response');
-    }
-  } else {
-    print('Add new challenge failed: ${response.body}');
-    throw Exception('Failed to add new challenge');
-  }
-}
-
-Future<ReadingChallenge?> deleteChallenge(String authHeader, int id) async {
-  final uri = Uri.parse('$baseUrl/ReadingChallenge/$id');
-
-  final response = await http.delete(
-    uri,
-    headers: {
-      'authorization': authHeader,
-      'content-type': 'application/json',
-    },
-  );
-
-
-  if (response.statusCode == 200) {
-    final json = jsonDecode(response.body);
-    return ReadingChallenge.fromJson(json);
-  } else if (response.statusCode == 204) {
-    return null;
-  } else {
-    throw Exception('Failed to delete book from shelf: ${response.statusCode}');
-  }
-}
 
 class ReadingChallengeScreen extends StatefulWidget {
   final String authHeader;
@@ -114,10 +20,13 @@ class ReadingChallengeScreen extends StatefulWidget {
 class _ReadingChallengeScreenState extends State<ReadingChallengeScreen> {
   late Future<List<ReadingChallenge>> challengesFuture;
 
+  final _provider= ReadingChallengeProvider();
+  final _userProvider = UserProvider();
+
   @override
   void initState() {
     super.initState();
-    challengesFuture = fetchChallenges(widget.authHeader);
+    challengesFuture = _provider.getUserChallenges(widget.authHeader);
   }
 
   String formatDate(DateTime date) {
@@ -126,7 +35,7 @@ class _ReadingChallengeScreenState extends State<ReadingChallengeScreen> {
 
   Future<void> refreshChallenges() async {
     setState(() {
-      challengesFuture = fetchChallenges(widget.authHeader);
+      challengesFuture = _provider.getUserChallenges(widget.authHeader);
     });
   }
 
@@ -167,7 +76,7 @@ class _ReadingChallengeScreenState extends State<ReadingChallengeScreen> {
                         const SizedBox(width: 4),
                         GestureDetector(
                           onTap: () async {
-                            final user = await fetchCurrentUser(
+                            final user = await _userProvider.getCurrentUser(
                                 widget.authHeader);
 
                             final result = await Navigator.push(
@@ -184,7 +93,7 @@ class _ReadingChallengeScreenState extends State<ReadingChallengeScreen> {
                             if (result == true) {
                               setState(() {
                                 challengesFuture =
-                                    fetchChallenges(widget.authHeader);
+                                    _provider.getUserChallenges(widget.authHeader);
                               });
                             }
                           },
@@ -309,7 +218,7 @@ class _ReadingChallengeScreenState extends State<ReadingChallengeScreen> {
                                     Spacer(),
                                     TextButton(
                                       onPressed: () async {
-                                        final user = await fetchCurrentUser(
+                                        final user = await _userProvider.getCurrentUser(
                                             widget.authHeader);
 
                                         final result = await Navigator.push(
@@ -327,7 +236,7 @@ class _ReadingChallengeScreenState extends State<ReadingChallengeScreen> {
                                         if (result == true) {
                                           setState(() {
                                             challengesFuture =
-                                                fetchChallenges(widget.authHeader);
+                                                _provider.getUserChallenges(widget.authHeader);
                                           });
                                         }
                                       },
@@ -361,7 +270,7 @@ class _ReadingChallengeScreenState extends State<ReadingChallengeScreen> {
                                         );
 
                                         if (confirmed == true) {
-                                          await deleteChallenge(widget.authHeader, c.id);
+                                          await _provider.deleteChallenge(widget.authHeader, c.id);
                                           await refreshChallenges();
 
                                           if (context.mounted) {

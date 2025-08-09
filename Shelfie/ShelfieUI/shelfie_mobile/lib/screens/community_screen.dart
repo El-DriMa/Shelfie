@@ -7,6 +7,7 @@ import 'package:shelfie/screens/posts_screen.dart';
 import '../models/book.dart';
 import 'package:shelfie/config.dart';
 import '../models/genre.dart';
+import '../providers/genre_provider.dart';
 import '../utils/api_helpers.dart';
 
 class CommunityScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _CommunityScreenState extends State<CommunityScreen>{
   late Future<List<Genre>> genres;
   bool isSearching = false;
   final TextEditingController searchController = TextEditingController();
+  final _genreProvider = GenreProvider();
 
   void _startSearch() {
     setState(() {
@@ -34,7 +36,7 @@ class _CommunityScreenState extends State<CommunityScreen>{
     setState(() {
       isSearching = false;
       searchController.clear();
-      genres = fetchGenre(widget.authHeader);
+      genres = _genreProvider.fetchGenres(widget.authHeader);
     });
   }
 
@@ -42,73 +44,23 @@ class _CommunityScreenState extends State<CommunityScreen>{
     print('Search called with query: $query');
     setState(() {
       if (query.trim().isEmpty) {
-        genres = fetchGenre(widget.authHeader);
+        genres = _genreProvider.fetchGenres(widget.authHeader);
       } else {
-        genres = searchGenres(query);
+        genres = _genreProvider.searchGenres(widget.authHeader,query);
 
         print('Search result for: $query, result: $genres');
 
       }
     });
   }
-  Future<List<Genre>> fetchGenre(String authHeader) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/Genre'),
-      headers: {
-        'authorization': authHeader,
-        'content-type': 'application/json',
-      },
-    );
 
-    if (response.statusCode == 200) {
-      try {
-        final data = jsonDecode(response.body);
-        final List items = data['items'];
-
-        if (items.isEmpty) {
-          print('Genre list is empty.');
-        } else {
-          print('Loaded ${items.length} genres.');
-        }
-
-        return items.map((json) => Genre.fromJson(json)).toList();
-      } catch (e) {
-        throw Exception('Error processing data');
-      }
-    } else {
-      throw Exception('Failed to load genres');
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    genres=fetchGenre(widget.authHeader);
+    genres=_genreProvider.fetchGenres(widget.authHeader);
   }
 
-  Future<List<Genre>> searchGenres(String query) async {
-    final params = <String, String>{};
-    if (query.trim().isNotEmpty) {
-      params['Name'] = query;
-    }
-
-    final uri = Uri.parse('$baseUrl/Genre').replace(queryParameters: params);
-    print('Search request URL: $uri');
-    final response = await http.get(
-      uri,
-      headers: {
-        'authorization': widget.authHeader,
-        'content-type': 'application/json',
-      },
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List items = data['items'];
-      return items.map((json) => Genre.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to search genre');
-    }
-  }
 
   void _showSearchDialog() async {
     String query = '';
@@ -137,7 +89,7 @@ class _CommunityScreenState extends State<CommunityScreen>{
     );
     if (result != null && result.isNotEmpty) {
       setState(() {
-        genres = searchGenres(result);
+        genres = _genreProvider.searchGenres(widget.authHeader,result);
       });
     }
   }

@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shelfie/screens/explore_page_screen.dart';
 import 'package:shelfie/screens/read_shelf_screen.dart';
 import 'package:shelfie/screens/reading_challenges_screen.dart';
@@ -9,12 +6,25 @@ import 'package:shelfie/screens/statistics_screen.dart';
 import 'package:shelfie/screens/want_to_read_shelf_screen.dart';
 
 import '../models/shelf.dart';
-import '../models/book.dart';
-import 'package:shelfie/config.dart';
 
+import '../providers/book_provider.dart';
+import '../providers/shelf_provider.dart';
 import 'currently_reading_shelf_screen.dart';
-import '../utils/api_helpers.dart';
-import 'login_screen.dart';
+
+String prettifyShelfName(String rawName) {
+  switch (rawName) {
+    case 'CurrentlyReading':
+      return 'Currently Reading';
+    case 'WantToRead':
+      return 'Want to Read';
+    case 'Read':
+      return 'Read';
+    default:
+      return rawName.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (match) {
+        return '${match.group(1)} ${match.group(2)}';
+      });
+  }
+}
 
 
 class MyBooksScreen extends StatefulWidget {
@@ -32,11 +42,14 @@ class MyBooksScreen extends StatefulWidget {
 class _MyBooksScreenState extends State<MyBooksScreen>{
 
   late Future<List<Shelf>> shelvesFuture;
+  final _shelfProvider = ShelfProvider();
+  final _bookProvider = BookProvider();
+
 
   @override
   void initState() {
     super.initState();
-    shelvesFuture = fetchShelves(widget.authHeader);
+    shelvesFuture = _shelfProvider.getAll(widget.authHeader);
   }
 
   @override
@@ -76,6 +89,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
             child: FutureBuilder<List<Shelf>>(
               future: shelvesFuture,
               builder: (context, snapshot) {
+                print("FutureBuilder state: ${snapshot.connectionState}");
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
@@ -123,7 +137,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
 
                         if (result == true) {
                           setState(() {
-                            shelvesFuture = fetchShelves(widget.authHeader);
+                            shelvesFuture = _shelfProvider.getAll(widget.authHeader);
                           });
                         }
                       },
