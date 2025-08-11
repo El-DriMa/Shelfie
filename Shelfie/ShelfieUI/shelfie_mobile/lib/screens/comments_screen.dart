@@ -75,10 +75,10 @@ class _CommentsScreenState extends State<CommentsScreen> {
     final repliesMap = buildRepliesMap(comments);
     final mainComments = comments.where((c) => c.parentCommentId == null).toList();
 
-    return ListView(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      children: mainComments.map((comment) {
+    return ListView.builder(
+      itemCount: mainComments.length,
+      itemBuilder: (context, index) {
+        final comment = mainComments[index];
         return CommentWithRepliesWidget(
           comment: comment,
           replies: repliesMap[comment.id] ?? [],
@@ -88,7 +88,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
             });
           },
         );
-      }).toList(),
+      },
     );
   }
 

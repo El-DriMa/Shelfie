@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shelfie/screens/notifications_screen.dart';
 import 'package:shelfie/screens/profile_screen.dart';
 import 'community_screen.dart';
 import 'explore_page_screen.dart';
@@ -25,6 +26,7 @@ class _MainScreenState extends State<MainScreen> {
       ExplorePageScreen(authHeader: widget.authHeader),
       MyBooksScreen(authHeader: widget.authHeader),
       CommunityScreen(authHeader: widget.authHeader),
+      NotificationsScreen(authHeader: widget.authHeader),
       ProfileScreen(authHeader: widget.authHeader),
     ];
   }
@@ -44,6 +46,7 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
           BottomNavigationBarItem(icon: Icon(Icons.book), label: 'My Books'),
           BottomNavigationBarItem(icon: Icon(Icons.comment), label: 'Community'),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notifications'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),

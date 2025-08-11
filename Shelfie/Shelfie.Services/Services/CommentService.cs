@@ -15,8 +15,10 @@ namespace Shelfie.Services.Services
 {
     public class CommentService : BaseCRUDService<CommentResponse, CommentSearchObject, Comment, CommentInsertRequest, CommentUpdateRequest>, ICommentService
     {
-        public CommentService(IB220155Context context, IMapper mapper) : base(context, mapper)
+        private INotificationService _notificationService;
+        public CommentService(IB220155Context context, IMapper mapper, INotificationService notificationService) : base(context, mapper)
         {
+            _notificationService = notificationService;
         }
 
         public override async Task<PagedResult<CommentResponse>> GetPaged(CommentSearchObject search)
@@ -67,5 +69,45 @@ namespace Shelfie.Services.Services
 
             return new PagedResult<CommentResponse> { Items = result ?? new(), TotalCount = totalCount };
         }
+
+        public override async Task<CommentResponse> Insert(CommentInsertRequest request)
+        {
+            var entity = Mapper.Map<Comment>(request);
+
+            var post = await _db.Posts.FindAsync(entity.PostId);
+            if (post == null)
+                throw new Exception("Post not found");
+
+            await _db.Comments.AddAsync(entity);
+            await BeforeInsert(request, entity);
+            await _db.SaveChangesAsync();
+
+            if (entity.UserId != post.UserId)
+            {
+                var notification = new NotificationInsertRequest
+                {
+                    PostId = entity.PostId,
+                    CommentId = entity.Id,
+                    CommentText = entity.Content,
+                    FromUserId = entity.UserId,
+                    ToUserId = post.UserId,
+                    FromUserName = (await _db.Users.FindAsync(entity.UserId))?.Username ?? ""
+                };
+
+                await _notificationService.Insert(notification);
+            }
+
+            return Mapper.Map<CommentResponse>(entity);
+        }
+
+        public override async Task BeforeInsert(CommentInsertRequest request, Comment entity)
+        {
+            if (entity is BaseEntity baseEntity)
+            {
+                baseEntity.IsActive = true;
+            }
+            await Task.CompletedTask;
+        }
+
     }
 }

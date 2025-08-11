@@ -1,3 +1,4 @@
+using EasyNetQ;
 using MapsterMapper;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +7,10 @@ using Shelfie.Services.Interfaces;
 using Shelfie.Services.Services;
 using ShelfieAPI.Authentication;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<IBus>(RabbitHutch.CreateBus("host=localhost"));
 
 builder.Services.AddControllers();
 
@@ -36,6 +38,7 @@ builder.Services.AddTransient<IUserRoleService, UserRoleService>();
 builder.Services.AddTransient<IShelfBooksService, ShelfBooksService>();
 builder.Services.AddTransient<IPostService, PostService>();
 builder.Services.AddTransient<ICommentService, CommentService>();
+builder.Services.AddTransient<INotificationService, NotificationService>();
 
 
 

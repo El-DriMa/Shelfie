@@ -151,5 +151,23 @@ namespace Shelfie.Services.Services
                 TotalCount = count
             };
         }
+
+        public async Task<PostResponse> GetById(int id)
+        {
+            var entity = await _db.Posts
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entity == null)
+            {
+                throw new KeyNotFoundException($"Not found.");
+            }
+
+            var response = Mapper.Map<PostResponse>(entity);
+            response.Username = entity.User.Username;
+
+            return response;
+        }
+
     }
 }
