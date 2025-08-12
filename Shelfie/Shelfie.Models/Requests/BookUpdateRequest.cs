@@ -9,7 +9,7 @@ namespace Shelfie.Models.Requests
 {
     public class BookUpdateRequest
     {
-        [Required(ErrorMessage = "Title is required.")]
+        
         [MaxLength(200, ErrorMessage = "Title can't be longer than 200 characters.")]
         public string? Title { get; set; } = string.Empty;
 
@@ -18,16 +18,16 @@ namespace Shelfie.Models.Requests
 
         public byte[]? CoverImage { get; set; }
 
-        [Required(ErrorMessage = "Genre is required.")]
+      
         public int? GenreId { get; set; }
 
-        [Required(ErrorMessage = "Author is required.")]
+       
         public int? AuthorId { get; set; }
 
-        [Required(ErrorMessage = "Publisher is required.")]
+       
         public int? PublisherId { get; set; }
 
-        [Required(ErrorMessage = "Year Published is required.")]
+     
         [Range(1, 2025, ErrorMessage = "Year Published must be a valid year.")]
         public int? YearPublished { get; set; }
 

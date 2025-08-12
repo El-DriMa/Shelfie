@@ -9,19 +9,19 @@ namespace Shelfie.Models.Requests
 {
     public class AuthorUpdateRequest
     {
-        [Required(AllowEmptyStrings = false, ErrorMessage = "First name cannot be empty.")]
+       
         [MaxLength(50, ErrorMessage = "First name can't be more than 50 characters.")]
         public string? FirstName { get; set; } = string.Empty;
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Last name cannot be empty.")]
+       
         [MaxLength(50, ErrorMessage = "Last name can't be more than 50 characters.")]
         public string? LastName { get; set; } = string.Empty;
 
-        [Required(AllowEmptyStrings = false, ErrorMessage = "Birth country cannot be empty.")]
+        
         [MaxLength(100, ErrorMessage = "Birth country can't be more than 100 characters.")]
         public string? BirthCountry { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Birth date is required.")]
+
         public DateOnly? BirthDate { get; set; }
 
         public DateOnly? DeathDate { get; set; }

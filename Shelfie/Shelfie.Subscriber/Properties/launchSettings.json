@@ -2,6 +2,9 @@
   "profiles": {
     "Shelfie.Subscriber": {
       "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
     }
   }
 }

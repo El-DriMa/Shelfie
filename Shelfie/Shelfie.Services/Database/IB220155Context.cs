@@ -27,7 +27,6 @@ namespace Shelfie.Services.Database
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Publisher> Publishers { get; set; }
         public DbSet<ReadingChallenge> ReadingChallenges { get; set; }
-        public DbSet<Review> Reviews { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Shelf> Shelves { get; set; }
         public DbSet<Statistics> Statistics { get; set; }
@@ -72,9 +71,6 @@ namespace Shelfie.Services.Database
                     .WithMany(p => p.Books)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasMany(b => b.Reviews)
-                    .WithOne(r => r.Book)
-                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(b => b.ShelfBooks)
                     .WithOne(sb => sb.Book)
@@ -82,12 +78,7 @@ namespace Shelfie.Services.Database
                     .OnDelete(DeleteBehavior.NoAction);
             });
 
-            modelBuilder.Entity<Review>(entity =>
-            {
-                entity.HasOne(r => r.User)
-                    .WithMany()
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+            
 
             modelBuilder.Entity<ReadingChallenge>(entity =>
             {

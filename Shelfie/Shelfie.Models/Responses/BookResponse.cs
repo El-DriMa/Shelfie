@@ -18,7 +18,6 @@ namespace Shelfie.Models.Responses
         public int YearPublished { get; set; }
         public string ShortDescription { get; set; } = string.Empty;
         public string Language { get; set; } = string.Empty;
-        public List<ReviewResponse> Reviews { get; set; } = new List<ReviewResponse>(); 
         public List<ShelfBooksResponse> ShelfBooks { get; set; } = new List<ShelfBooksResponse>();
     }
 }

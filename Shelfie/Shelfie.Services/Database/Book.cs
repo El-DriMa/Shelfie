@@ -46,7 +46,6 @@ namespace Shelfie.Services.Database
         [MaxLength(50)]
         public string Language { get; set; } = string.Empty;
 
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<ShelfBooks> ShelfBooks { get; set; } = new List<ShelfBooks>();
 
     }

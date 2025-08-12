@@ -29,7 +29,6 @@ builder.Services.AddTransient<IBookService, BookService>();
 builder.Services.AddTransient<IGenreService, GenreService>();
 builder.Services.AddTransient<IPublisherService, PublisherService>();
 builder.Services.AddTransient<IReadingChallengeService, ReadingChallengeService>();
-builder.Services.AddTransient<IReviewService, ReviewService>();
 builder.Services.AddTransient<IRoleService, RoleService>();
 builder.Services.AddTransient<IShelfService, ShelfService>();
 builder.Services.AddTransient<IStatisticsService, StatisticsService>();
