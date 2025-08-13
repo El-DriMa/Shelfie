@@ -47,6 +47,8 @@ namespace Shelfie.Services.Database
         public string Language { get; set; } = string.Empty;
 
         public ICollection<ShelfBooks> ShelfBooks { get; set; } = new List<ShelfBooks>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
 
     }
 }

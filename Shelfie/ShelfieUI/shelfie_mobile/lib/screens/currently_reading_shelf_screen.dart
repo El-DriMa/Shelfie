@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:shelfie/config.dart';
@@ -137,7 +138,7 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                         child: Padding(
                           padding: EdgeInsets.all(12.0),
                           child : SizedBox(
-                          height: 200,
+                          height: 210,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -185,6 +186,30 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                                               color: Colors.grey[700],
                                             ),
                                           ),
+                                          SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              RatingBarIndicator(
+                                                rating: book.averageRating ?? 0,
+                                                itemBuilder: (context, _) => Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                ),
+                                                itemCount: 5,
+                                                itemSize: 20,
+                                                direction: Axis.horizontal,
+                                              ),
+                                              SizedBox(width: 8),
+                                              Text(
+                                                (book.averageRating ?? 0).toStringAsFixed(1),
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
                                         ],
                                       ),
                                     ),

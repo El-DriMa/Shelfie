@@ -14,6 +14,8 @@ class Book {
   int yearPublished;
   String shortDescription;
   String language;
+  double averageRating;
+  int reviewCount;
 
   Book({
     required this.id,
@@ -26,6 +28,8 @@ class Book {
     required this.yearPublished,
     required this.shortDescription,
     required this.language,
+    required this.averageRating,
+    required this.reviewCount,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);

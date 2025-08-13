@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../models/shelfBooks.dart';
 import '../providers/shelf_books_provider.dart';
 import '../providers/shelf_provider.dart';
@@ -129,7 +130,7 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
                         child: Padding(
                           padding: EdgeInsets.all(12.0),
                           child : SizedBox(
-                          height: 150,
+                          height: 180,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -154,6 +155,29 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
                                         fontSize: 16,
                                         color: Colors.grey[700],
                                       ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        RatingBarIndicator(
+                                          rating: book.averageRating ?? 0,
+                                          itemBuilder: (context, _) => Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                          ),
+                                          itemCount: 5,
+                                          itemSize: 20,
+                                          direction: Axis.horizontal,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          (book.averageRating ?? 0).toStringAsFixed(1),
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   Spacer(),
                                   Row(

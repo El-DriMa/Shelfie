@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:shelfie/config.dart';
@@ -10,6 +11,7 @@ import '../models/book.dart';
 import '../models/shelfBooks.dart';
 import '../models/shelf.dart';
 import '../providers/shelf_books_provider.dart';
+import 'add_edit_review_screen.dart';
 import 'book_details_screen.dart';
 
 
@@ -95,7 +97,7 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
                     final book = sortedBooks[index];
                     Widget imageWidget = Container(
                       color: Colors.white54,
-                      height: 150,
+                      height: 160,
                       width: 100,
                       child: Icon(Icons.menu_book_rounded, size: 30),
                     );
@@ -117,102 +119,100 @@ class _ReadShelfScreenState extends State<ReadShelfScreen> {
                       margin: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       child: Padding(
                         padding: EdgeInsets.all(12.0),
-                        child : SizedBox(
-                        height: 150,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            imageWidget,
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
+                        child: SizedBox(
+                          height: 220, // povećaj da stane i dugmad
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(
-                                    book.bookTitle ?? 'Unknown Book',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                  imageWidget,
+                                  SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(book.bookTitle ?? 'Unknown Book', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                                        SizedBox(height: 8),
+                                        Text(book.authorName ?? 'Unknown Author', style: TextStyle(fontSize: 16, color: Colors.grey[700])),
+                                        SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            RatingBarIndicator(
+                                              rating: book.averageRating ?? 0,
+                                              itemBuilder: (context, _) => Icon(Icons.star, color: Colors.amber),
+                                              itemCount: 5,
+                                              itemSize: 20,
+                                              direction: Axis.horizontal,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text((book.averageRating ?? 0).toStringAsFixed(1), style: TextStyle(color: Colors.white, fontSize: 14)),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    book.authorName ?? 'Unknown Author',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey[700],
-                                    ),
-                                  ),
-                                Spacer(),
-                                Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.deepPurple,
-                                        foregroundColor: Colors.white,
-                                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        textStyle: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      onPressed: () async {
-                                        final confirmed = await showDialog<bool>(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title: Text('Confirm Delete'),
-                                              content: Text('Are you sure you want to delete this book from the shelf?'),
-                                              actions: [
-                                                TextButton(
-                                                  child: Text('Cancel'),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop(false);
-                                                  },
-                                                ),
-                                                TextButton(
-                                                  child: Text('Delete'),
-                                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop(true);
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-
-                                        if (confirmed == true) {
-                                          await _shelfBooksProvider.removeBookFromShelf(widget.authHeader, book.id);
-                                          await _shelfBooksProvider.getByShelfId(widget.authHeader, book.shelfId);
-                                          setState(() {});
-                                          //Navigator.pop(context, true);
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text('Book removed from shelf'),
-                                                backgroundColor: Colors.green,
-                                                duration: Duration(seconds: 2),
-                                              ),
-                                            );
-                                          }
-                                        }
-                                      },
-                                      child: Text('Remove'),
-                                  ),
-                                ],
-                                ),
-
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
+                              Spacer(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => AddEditReviewScreen(
+                                            authHeader: widget.authHeader,
+                                            bookId: book.bookId,
+                                          ),
+                                        ),
+                                      );
+                                      if (result == true) setState(() {});
+                                    },
+                                    child: Text('Add / Edit Review'),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.deepPurple,
+                                      foregroundColor: Colors.white,
+                                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                    onPressed: () async {
+                                      final confirmed = await showDialog<bool>(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Confirm Delete'),
+                                            content: Text('Are you sure you want to delete this book from the shelf?'),
+                                            actions: [
+                                              TextButton(child: Text('Cancel'), onPressed: () => Navigator.of(context).pop(false)),
+                                              TextButton(child: Text('Delete'), style: TextButton.styleFrom(foregroundColor: Colors.red), onPressed: () => Navigator.of(context).pop(true)),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                      if (confirmed == true) {
+                                        await _shelfBooksProvider.removeBookFromShelf(widget.authHeader, book.id);
+                                        await _shelfBooksProvider.getByShelfId(widget.authHeader, book.shelfId);
+                                        setState(() {});
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Book removed from shelf'), backgroundColor: Colors.green, duration: Duration(seconds: 2)),
+                                          );
+                                        }
+                                      }
+                                    },
+                                    child: Text('Remove'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
 
                       ),

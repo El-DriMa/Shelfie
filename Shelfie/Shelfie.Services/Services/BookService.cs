@@ -1,4 +1,5 @@
-﻿using MapsterMapper;
+﻿using Azure;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 using Microsoft.ML.Data;
@@ -100,7 +101,11 @@ namespace Shelfie.Services.Services
 
         public override async Task<PagedResult<BookResponse>> GetPaged(BookSearchObject search)
         {
-            var query = _db.Books.AsQueryable();
+            var query = _db.Books
+                .Include(b => b.Author)
+                .Include(b => b.Reviews)
+                .AsQueryable();
+
             query = AddFilter(search, query);
 
             var totalCount = await query.CountAsync();
@@ -117,6 +122,8 @@ namespace Shelfie.Services.Services
             {
                 var response = Mapper.Map<BookResponse>(b);
                 response.AuthorName = $"{b.Author.FirstName} {b.Author.LastName}".Trim();
+                response.AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0;
+                response.ReviewCount = b.Reviews.Count;
                 return response;
             }).ToList();
 
@@ -132,6 +139,7 @@ namespace Shelfie.Services.Services
             var baseQuery = _db.ShelfBooks
                 .Include(sb => sb.Shelf)
                 .Include(sb => sb.Book)
+                .Include(x=>x.Book.Reviews)
                 .Include(x=>x.Book.Author)
                 .Include(x=>x.Book.Genre)
                 .Where(sb => sb.Shelf.UserId == userId)
@@ -155,6 +163,8 @@ namespace Shelfie.Services.Services
             var result = list.Select(b => {
                 var response = Mapper.Map<BookResponse>(b);
                 response.AuthorName = $"{b.Author.FirstName} {b.Author.LastName}".Trim();
+                response.AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0;
+                response.ReviewCount = b.Reviews.Count;
                 return response;
             }).ToList();
 
@@ -169,6 +179,7 @@ namespace Shelfie.Services.Services
         {
             var book = await _db.Books
                 .Include(b => b.Genre)
+                .Include(b=>b.Reviews)
                 .Include(b => b.Author)
                 .Include(b => b.Publisher)
                 .FirstOrDefaultAsync(b => b.Id == id);
@@ -180,6 +191,8 @@ namespace Shelfie.Services.Services
 
             var response = Mapper.Map<BookResponse>(book);
             response.AuthorName = $"{book.Author.FirstName} {book.Author.LastName}".Trim();
+            response.AverageRating = book.Reviews.Any() ? book.Reviews.Average(r => r.Rating) : 0;
+            response.ReviewCount = book.Reviews.Count;
 
             return response;
         }
@@ -194,6 +207,7 @@ namespace Shelfie.Services.Services
             var baseQuery = _db.ShelfBooks
                 .Include(sb => sb.Shelf)
                 .Include(sb => sb.Book)
+                .Include(x=>x.Book.Reviews)
                 .Include(x => x.Book.Author)
                 .Include(x => x.Book.Genre)
                 .Where(sb => sb.Shelf.UserId == userId)
@@ -232,7 +246,9 @@ namespace Shelfie.Services.Services
                         Id = b.Id,
                         Title = b.Title,
                         AuthorName = b.Author.FirstName + " " + b.Author.LastName,
-                        CoverImage = b.CoverImage
+                        CoverImage = b.CoverImage,
+                        AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0,
+                        ReviewCount = b.Reviews.Count,
                     })
                     .ToListAsync();
 
@@ -296,7 +312,9 @@ namespace Shelfie.Services.Services
                         Id = b.Id,
                         Title = b.Title,
                         AuthorName = b.Author.FirstName + " " + b.Author.LastName,
-                        CoverImage = b.CoverImage
+                        CoverImage = b.CoverImage,
+                        AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0,
+                        ReviewCount = b.Reviews.Count,
                     })
                     .ToListAsync();
 
@@ -312,6 +330,7 @@ namespace Shelfie.Services.Services
             var recommendedBooksQuery = _db.Books
                 .Where(b => recommendedBookIds.Contains(b.Id))
                 .Include(b => b.Author)
+                .Include(b=>b.Reviews)
                 .Include(b => b.Genre)
                 .AsQueryable();
 
@@ -331,6 +350,8 @@ namespace Shelfie.Services.Services
             {
                 var response = Mapper.Map<BookResponse>(b);
                 response.AuthorName = $"{b.Author.FirstName} {b.Author.LastName}".Trim();
+                response.AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0;
+                response.ReviewCount = b.Reviews.Count;
                 return response;
             }).ToList();
 

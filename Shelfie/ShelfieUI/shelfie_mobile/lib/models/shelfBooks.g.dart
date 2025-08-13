@@ -20,6 +20,8 @@ ShelfBooks _$ShelfBooksFromJson(Map<String, dynamic> json) => ShelfBooks(
       json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),
+  averageRating: (json['averageRating'] as num).toDouble(),
+  reviewCount: (json['reviewCount'] as num).toInt(),
 );
 
 Map<String, dynamic> _$ShelfBooksToJson(ShelfBooks instance) =>
@@ -34,4 +36,6 @@ Map<String, dynamic> _$ShelfBooksToJson(ShelfBooks instance) =>
       'authorName': instance.authorName,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
+      'averageRating': instance.averageRating,
+      'reviewCount': instance.reviewCount,
     };

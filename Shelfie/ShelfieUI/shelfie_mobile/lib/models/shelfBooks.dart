@@ -14,6 +14,8 @@ class ShelfBooks {
   String? authorName;
   DateTime createdAt;
   DateTime? updatedAt;
+  double averageRating;
+  int reviewCount;
 
   ShelfBooks({
     required this.id,
@@ -26,6 +28,8 @@ class ShelfBooks {
     this.authorName,
     required this.createdAt,
     this.updatedAt,
+    required this.averageRating,
+    required this.reviewCount,
   });
 
   factory ShelfBooks.fromJson(Map<String, dynamic> json) => _$ShelfBooksFromJson(json);

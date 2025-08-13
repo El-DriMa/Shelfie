@@ -38,6 +38,7 @@ builder.Services.AddTransient<IShelfBooksService, ShelfBooksService>();
 builder.Services.AddTransient<IPostService, PostService>();
 builder.Services.AddTransient<ICommentService, CommentService>();
 builder.Services.AddTransient<INotificationService, NotificationService>();
+builder.Services.AddTransient<IReviewService, ReviewService>();
 
 
 

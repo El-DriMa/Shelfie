@@ -87,6 +87,7 @@ namespace Shelfie.Services.Services
         {
             var query = _db.ShelfBooks
                 .Include(sb => sb.Shelf)
+                .Include(x=>x.Book.Reviews)
                 .Include(sb => sb.Book).ThenInclude(sb=>sb.Author)
                 .AsQueryable();
             query = AddFilter(search, query);
@@ -107,6 +108,8 @@ namespace Shelfie.Services.Services
                 var response = Mapper.Map<ShelfBooksResponse>(b);
                 response.AuthorName = $"{b.Book.Author.FirstName} {b.Book.Author.LastName}".Trim();
                 response.TotalPages = b.Book.TotalPages;
+                response.AverageRating = b.Book.Reviews.Any() ? b.Book.Reviews.Average(r => r.Rating) : 0;
+                response.ReviewCount = b.Book.Reviews.Count;
 
                 return response;
             }).ToList();

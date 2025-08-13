@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shelfie/screens/add_to_shelf_screen.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import '../models/book.dart';
 import '../models/user.dart';
@@ -185,7 +186,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                     width: 100,
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: Colors.white54,
-                      height: 150,
+                      height: 160,
                       width: 100,
                       child: Icon(Icons.menu_book_rounded, size: 60),
                     ),
@@ -193,7 +194,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                 } else {
                   imageWidget = Container(
                     color: Colors.white54,
-                    height: 150,
+                    height: 160,
                     width: 100,
                     child: Icon(Icons.menu_book_rounded, size: 60),
                   );
@@ -217,7 +218,7 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child : SizedBox(
-                    height: 150,
+                    height: 180,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -243,6 +244,29 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
                                   fontSize: 16,
                                   color: Colors.white54,
                                 ),
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  RatingBarIndicator(
+                                    rating: book.averageRating ?? 0,
+                                    itemBuilder: (context, _) => Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
+                                    itemCount: 5,
+                                    itemSize: 20,
+                                    direction: Axis.horizontal,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    (book.averageRating ?? 0).toStringAsFixed(1),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
                               ),
 
                             Spacer(),
