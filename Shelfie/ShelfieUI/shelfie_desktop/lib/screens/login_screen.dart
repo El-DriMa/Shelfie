@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'start_screen.dart';
+import 'main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,25 +25,26 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+  void _login() async {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
 
-    setState(() => _isLoading = true);
+    final authHeader = await AuthService().login(username, password);
 
-    final authHeader = await _authService.login(
-      _usernameController.text.trim(),
-      _passwordController.text.trim(),
-    );
-
-    setState(() => _isLoading = false);
-
-    if (authHeader != null && mounted) {
-      Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const StartScreen()),
+    if (authHeader != null) {
+      print('Login successful');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(authHeader: authHeader),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid username or password')),
+        SnackBar(
+          content: Text('Invalid credentials'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }

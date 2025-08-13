@@ -28,6 +28,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const LoginScreen(),
+      routes: {
+        '/login': (context) => LoginScreen(),
+      },
       debugShowCheckedModeBanner: false,
     );
   }
