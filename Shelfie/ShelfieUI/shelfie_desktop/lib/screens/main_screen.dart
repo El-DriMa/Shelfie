@@ -42,15 +42,15 @@ class _MainScreenState extends State<MainScreen> {
             color: Colors.deepPurple,
             child: Row(
               children: [
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
                     'Shelfie',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                     style: TextStyle(
+                      fontSize: 40,
+                      fontFamily: 'Cursive',
+                      fontStyle: FontStyle.italic,
+                      color: Colors.deepPurple[100],
                     ),
                   ),
                 ),

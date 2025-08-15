@@ -79,9 +79,9 @@ class _AddToShelfScreenState extends State<AddToShelfScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        book.CoverImage != null
+                        book.coverImage != null
                             ? Image.network(
-                          book.CoverImage!,
+                          book.coverImage!,
                           height: 180,
                           width: 120,
                           fit: BoxFit.cover,

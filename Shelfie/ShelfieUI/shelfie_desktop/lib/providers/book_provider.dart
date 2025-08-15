@@ -12,6 +12,7 @@ class BookProvider extends BaseProvider<Book> {
   @override
   Future<List<Book>> getAll(String authHeader) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Book");
+print("Pozivam API na: $uri");
     final response = await http.get(uri, headers: createHeaders(authHeader));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -143,18 +144,16 @@ class BookProvider extends BaseProvider<Book> {
     throw Exception("Failed to create book");
   }
 
-  Future<Book> updateBook(String authHeader, int bookId, Map<String, dynamic> bookData) async {
+  Future<void> updateBook(String authHeader, int bookId, Map<String, dynamic> bookData) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Book/$bookId");
     final response = await http.put(
       uri,
       headers: createHeaders(authHeader),
       body: jsonEncode(bookData),
     );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return fromJson(data);
+    if (response.statusCode != 200) {
+      throw Exception("Failed to update book");
     }
-    throw Exception("Failed to update book");
   }
 
  

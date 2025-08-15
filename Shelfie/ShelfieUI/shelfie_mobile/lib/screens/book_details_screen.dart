@@ -46,9 +46,9 @@ class BookDetailsScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
-                  child: book.CoverImage != null
+                  child: book.coverImage != null
                       ? Image.network(
-                    book.CoverImage!,
+                    book.coverImage!,
                     fit: BoxFit.cover,
                     height: 220,
                     width: 150,

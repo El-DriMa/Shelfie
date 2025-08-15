@@ -179,9 +179,9 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
               itemBuilder: (context, index) {
                 final book = books[index];
                 Widget imageWidget;
-                if (book.CoverImage != null && book.CoverImage!.isNotEmpty) {
+                if (book.coverImage != null && book.coverImage!.isNotEmpty) {
                   imageWidget = Image.network(
-                    '$baseUrl/${book.CoverImage}',
+                    '$baseUrl/${book.coverImage}',
                     fit: BoxFit.cover,
                     width: 100,
                     errorBuilder: (context, error, stackTrace) => Container(

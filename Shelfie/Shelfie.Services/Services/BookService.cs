@@ -98,7 +98,21 @@ namespace Shelfie.Services.Services
 
             return query;
         }
-
+        public override async Task BeforeUpdate(BookUpdateRequest request, Book entity)
+        { 
+            if (!string.IsNullOrWhiteSpace(request.Title)) entity.Title = request.Title; 
+            if (request.TotalPages.HasValue && request.TotalPages.Value > 0) entity.TotalPages = request.TotalPages.Value; 
+            if (request.CoverImage != null) entity.CoverImage = request.CoverImage; 
+            if (request.GenreId.HasValue) entity.GenreId = request.GenreId.Value; 
+            if (request.AuthorId.HasValue) entity.AuthorId = request.AuthorId.Value; 
+            if (request.PublisherId.HasValue) entity.PublisherId = request.PublisherId.Value; 
+            if (request.YearPublished.HasValue && request.YearPublished.Value > 0) entity.YearPublished = request.YearPublished.Value; 
+            if (!string.IsNullOrWhiteSpace(request.ShortDescription)) entity.ShortDescription = request.ShortDescription; 
+            if (!string.IsNullOrWhiteSpace(request.Language)) entity.Language = request.Language; 
+            
+            entity.ModifiedAt = DateTime.Now;
+            await Task.CompletedTask; 
+        }
         public override async Task<PagedResult<BookResponse>> GetPaged(BookSearchObject search)
         {
             var query = _db.Books

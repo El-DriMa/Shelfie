@@ -12,6 +12,9 @@ namespace Shelfie.Models.Responses
         public string Title { get; set; } = string.Empty;
         public int TotalPages { get; set; }
         public byte[]? CoverImage { get; set; }
+        public int GenreId { get; set; }
+        public int AuthorId {  get; set; }
+        public int PublisherId { get; set; }
         public string GenreName { get; set; } = string.Empty;
         public string AuthorName { get; set; } = string.Empty;
         public string PublisherName { get; set; } = string.Empty;

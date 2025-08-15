@@ -7,7 +7,10 @@ class Book {
   int id;
   String title;
   int totalPages;
-  String? CoverImage;
+  String? coverImage;
+  int genreId;
+  int authorId;
+  int publisherId;
   String genreName;
   String authorName;
   String publisherName;
@@ -21,7 +24,10 @@ class Book {
     required this.id,
     required this.title,
     required this.totalPages,
-    this.CoverImage,
+    this.coverImage,
+    required this.genreId,
+    required this.authorId,
+    required this.publisherId,
     required this.genreName,
     required this.authorName,
     required this.publisherName,
