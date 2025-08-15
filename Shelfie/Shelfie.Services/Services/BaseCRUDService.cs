@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using Shelfie.Models.SearchObjects;
 using Shelfie.Services.Database;
 using System;
@@ -47,20 +48,38 @@ namespace Shelfie.Services.Services
         }
         public virtual async Task BeforeDelete(TDbEnitity entity) { }
 
-        public virtual async Task<TModel> Update(int id,TUpdate request)
+        //public virtual async Task<TModel> Update(int id,TUpdate request)
+        //{
+        //    var set = _db.Set<TDbEnitity>();
+
+        //    var entity = set.Find(id);
+
+        //    await BeforeUpdate(request, entity);
+
+        //    await _db.SaveChangesAsync();
+
+        //    return Mapper.Map<TModel>(entity);
+
+
+        //}
+
+        public virtual async Task<TModel> Update(int id, TUpdate request)
         {
             var set = _db.Set<TDbEnitity>();
 
-            var entity = set.Find(id);
+            var entity = await set.FindAsync(id);
+            if (entity == null) throw new Exception("Entity not found");
+
+            Mapper.Map(request, entity); 
 
             await BeforeUpdate(request, entity);
 
             await _db.SaveChangesAsync();
 
             return Mapper.Map<TModel>(entity);
-
-            
         }
+
+
 
         public virtual async Task<bool> Delete(int id)
         {

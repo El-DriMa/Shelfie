@@ -65,22 +65,21 @@ class GenreProvider extends BaseProvider<Genre> {
       final data = jsonDecode(response.body);
       return fromJson(data);
     }
-    throw Exception("Failed to create genre");
+    throw Exception("Genere with that name already exists");
   }
 
-  Future<Genre> updateGenre(String authHeader, int genreId, Map<String, dynamic> genreData) async {
+  Future<void> updateGenre(String authHeader, int genreId, Map<String, dynamic> genreData) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Genre/$genreId");
     final response = await http.put(
       uri,
       headers: createHeaders(authHeader),
       body: jsonEncode(genreData),
     );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return fromJson(data);
+    if (response.statusCode != 200) {
+      throw Exception("Genere with that name already exists");
     }
-    throw Exception("Failed to update genre");
   }
+
 
   Future<bool> deleteGenre(String authHeader, int genreId) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Genre/$genreId");

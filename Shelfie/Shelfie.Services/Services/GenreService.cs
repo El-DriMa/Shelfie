@@ -6,6 +6,7 @@ using Shelfie.Services.Database;
 using Shelfie.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,5 +27,24 @@ namespace Shelfie.Services.Services
 
             return query;
         }
+
+        public override async Task BeforeInsert(GenreInsertRequest request, Genre entity)
+        {
+            if (_db.Genres.Any(g => g.Name == request.Name))
+                throw new ValidationException("A genre with the same name already exists.");
+
+            entity.IsActive = true;
+            await Task.CompletedTask;
+        }
+
+        public override async Task BeforeUpdate(GenreUpdateRequest request, Genre entity)
+        {
+            if (_db.Genres.Any(g => g.Name == request.Name && g.Id != entity.Id))
+                throw new ValidationException("A genre with the same name already exists.");
+
+            entity.ModifiedAt = DateTime.Now;
+            await Task.CompletedTask;
+        }
+
     }
 }

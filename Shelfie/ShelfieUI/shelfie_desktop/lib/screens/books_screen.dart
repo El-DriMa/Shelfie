@@ -36,10 +36,19 @@ class _BooksScreenState extends State<BooksScreen> {
       var books = await _bookProvider.getAll(widget.authHeader);
       setState(() {
         _books = books;
+        _sortBooks();
         _isLoading = false;
       });
     } catch (e) {
       setState(() => _isLoading = false);
+    }
+  }
+
+  void _sortBooks() {
+    if (_sortOrder == 'A-Z') {
+      _books.sort((a, b) => a.title.compareTo(b.title));
+    } else {
+      _books.sort((a, b) => b.title.compareTo(a.title));
     }
   }
 
@@ -112,11 +121,7 @@ class _BooksScreenState extends State<BooksScreen> {
                       onChanged: (value) {
                         setState(() {
                           _sortOrder = value!;
-                          if (_sortOrder == 'A-Z') {
-                            _books.sort((a, b) => a.title.compareTo(b.title));
-                          } else {
-                            _books.sort((a, b) => b.title.compareTo(a.title));
-                          }
+                          _sortBooks();
                           _currentPage = 1;
                         });
                       },

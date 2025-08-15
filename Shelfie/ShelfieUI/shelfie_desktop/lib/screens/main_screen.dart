@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'books_screen.dart';
 import 'users_screen.dart';
 import 'authors_screen.dart';
+import 'genres_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _MainScreenState extends State<MainScreen> {
     _screens = [
       BooksScreen(authHeader: widget.authHeader),
       AuthorsScreen(authHeader: widget.authHeader),
+      GenresScreen(authHeader: widget.authHeader),
       UsersScreen(authHeader: widget.authHeader),
     ];
   }
@@ -67,6 +69,7 @@ class _MainScreenState extends State<MainScreen> {
                     tabs: const [
                       Tab(text: 'Books'),
                       Tab(text: 'Authors'),
+                      Tab(text: 'Genres'),
                       Tab(text: 'Users'),
                     ],
                   ),

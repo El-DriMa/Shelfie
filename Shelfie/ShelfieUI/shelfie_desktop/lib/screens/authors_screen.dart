@@ -28,15 +28,25 @@ class _AuthorsScreenState extends State<AuthorsScreen> {
     _loadAuthors();
   }
 
+
   Future<void> _loadAuthors() async {
     try {
       var authors = await _authorProvider.getAll(widget.authHeader);
       setState(() {
         _authors = authors;
+        _sortAuthors();
         _isLoading = false;
       });
     } catch (e) {
       setState(() => _isLoading = false);
+    }
+  }
+  
+  void _sortAuthors() {
+    if (_sortOrder == 'A-Z') {
+      _authors.sort((a, b) => a.lastName.compareTo(b.lastName));
+    } else {
+      _authors.sort((a, b) => b.lastName.compareTo(a.lastName));
     }
   }
 
@@ -109,13 +119,7 @@ Widget build(BuildContext context) {
                       onChanged: (value) {
                         setState(() {
                           _sortOrder = value!;
-                          if (_sortOrder == 'A-Z') {
-                            _authors.sort((a, b) =>
-                                a.lastName.compareTo(b.lastName));
-                          } else {
-                            _authors.sort((a, b) =>
-                                b.lastName.compareTo(a.lastName));
-                          }
+                           _sortAuthors(); 
                           _currentPage = 1;
                         });
                       },
