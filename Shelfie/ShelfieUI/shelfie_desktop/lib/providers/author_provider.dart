@@ -45,19 +45,19 @@ class AuthorProvider extends BaseProvider<Author> {
     throw Exception("Failed to create author");
   }
 
-  Future<Author> updateAuthor(String authHeader, int authorId, Map<String, dynamic> authorData) async {
-    final uri = Uri.parse("${BaseProvider.baseUrl}Author/$authorId");
-    final response = await http.put(
-      uri,
-      headers: createHeaders(authHeader),
-      body: jsonEncode(authorData),
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return fromJson(data);
+    Future<void> updateAuthor(String authHeader, int authorId, Map<String, dynamic> authorData) async {
+      final uri = Uri.parse("${BaseProvider.baseUrl}Author/$authorId");
+      final response = await http.put(
+        uri,
+        headers: createHeaders(authHeader),
+        body: jsonEncode(authorData),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to update author");
+      }
     }
-    throw Exception("Failed to update author");
-  }
+
 
   Future<bool> deleteAuthor(String authHeader, int authorId) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Author/$authorId");

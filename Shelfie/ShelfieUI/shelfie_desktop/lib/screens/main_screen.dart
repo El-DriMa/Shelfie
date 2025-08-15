@@ -22,8 +22,8 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _screens = [
       BooksScreen(authHeader: widget.authHeader),
-      UsersScreen(authHeader: widget.authHeader),
       AuthorsScreen(authHeader: widget.authHeader),
+      UsersScreen(authHeader: widget.authHeader),
     ];
   }
 
@@ -66,8 +66,8 @@ class _MainScreenState extends State<MainScreen> {
                         setState(() => _currentIndex = index),
                     tabs: const [
                       Tab(text: 'Books'),
-                      Tab(text: 'Users'),
                       Tab(text: 'Authors'),
+                      Tab(text: 'Users'),
                     ],
                   ),
                 ),
