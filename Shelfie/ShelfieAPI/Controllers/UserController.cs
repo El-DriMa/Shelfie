@@ -9,6 +9,7 @@ using Shelfie.Models.Responses;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using MapsterMapper;
+using System.ComponentModel.DataAnnotations;
 
 namespace ShelfieAPI.Controllers
 {
@@ -23,18 +24,23 @@ namespace ShelfieAPI.Controllers
             _context = context;
             _mapper = mapper;
         }
+
         [HttpGet("me")]
-        public async Task<IActionResult> GetCurrentUser()
+        public async Task<IActionResult> GetCurrentUser([FromServices] IUserService userService)
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdStr = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!int.TryParse(userIdStr, out int userId))
                 return Unauthorized();
 
-            var user = await _context.Users.FindAsync(userId);
+            var appType = HttpContext.Request.Headers["X-App-Type"].FirstOrDefault() ?? "swagger";
+
+            var user = await userService.GetCurrentUser(userId, appType);
             if (user == null)
                 return NotFound();
 
-            return Ok(_mapper.Map<UserResponse>(user));
+            return Ok(user);
         }
+
+
     }
 }

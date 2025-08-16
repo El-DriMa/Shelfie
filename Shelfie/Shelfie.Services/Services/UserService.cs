@@ -106,5 +106,38 @@ namespace Shelfie.Services.Services
 
             await Task.CompletedTask;
         }
+
+        public async Task<UserResponse> GetCurrentUser(int userId, string appType)
+        {
+            var user = await _db.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new ValidationException("User not found.");
+
+            bool allowed = appType switch
+            {
+                "desktop" => user.UserRoles.Any(ur => ur.Role.Name == "Admin"),
+                "mobile" => user.UserRoles.Any(ur => ur.Role.Name == "User"),
+                _ => true
+            };
+
+            if (!allowed)
+            {
+                return new UserResponse { Id = -1, Username = "FORBIDDEN" };
+            }
+
+
+
+            user.LastLoginAt = DateTime.Now;
+            await _db.SaveChangesAsync();
+
+            var response = Mapper.Map<UserResponse>(user);
+            response.Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
+            return response;
+        }
+
     }
 }

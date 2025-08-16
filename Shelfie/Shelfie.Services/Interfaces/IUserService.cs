@@ -11,5 +11,6 @@ namespace Shelfie.Services.Interfaces
 {
     public interface IUserService : ICRUDService<UserResponse,UserSearchObject,UserInsertRequest,UserUpdateRequest>
     {
+        Task<UserResponse> GetCurrentUser(int userId, string appType);
     }
 }

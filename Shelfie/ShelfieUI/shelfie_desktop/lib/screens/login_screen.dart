@@ -26,28 +26,49 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() async {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+  if (!_formKey.currentState!.validate()) return;
 
-    final authHeader = await AuthService().login(username, password);
+  setState(() => _isLoading = true);
 
-    if (authHeader != null) {
-      print('Login successful');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MainScreen(authHeader: authHeader),
+  final username = _usernameController.text;
+  final password = _passwordController.text;
+
+  try {
+    final result = await _authService.login(username, password);
+
+    if (result == "FORBIDDEN") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You are not allowed to access this app'),
+          backgroundColor: Colors.red,
         ),
       );
-    } else {
+    } else if (result == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Invalid credentials'),
           backgroundColor: Colors.red,
         ),
       );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Login successful'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(authHeader: result),
+        ),
+      );
     }
+  } finally {
+    setState(() => _isLoading = false);
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
