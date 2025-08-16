@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'books_screen.dart';
 import 'users_screen.dart';
 import 'authors_screen.dart';
+import 'publishers_screen.dart';
 import 'genres_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,6 +26,7 @@ class _MainScreenState extends State<MainScreen> {
       BooksScreen(authHeader: widget.authHeader),
       AuthorsScreen(authHeader: widget.authHeader),
       GenresScreen(authHeader: widget.authHeader),
+      PublishersScreen(authHeader: widget.authHeader),
       UsersScreen(authHeader: widget.authHeader),
     ];
   }
@@ -70,6 +72,7 @@ class _MainScreenState extends State<MainScreen> {
                       Tab(text: 'Books'),
                       Tab(text: 'Authors'),
                       Tab(text: 'Genres'),
+                      Tab(text: 'Publishers'),
                       Tab(text: 'Users'),
                     ],
                   ),

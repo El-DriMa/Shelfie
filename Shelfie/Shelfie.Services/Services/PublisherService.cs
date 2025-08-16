@@ -6,6 +6,7 @@ using Shelfie.Services.Database;
 using Shelfie.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,45 @@ namespace Shelfie.Services.Services
 
             return query;
         }
-    
+
+        public override async Task BeforeInsert(PublisherInsertRequest request, Publisher entity)
+        {
+            if (_db.Publishers.Any(p => p.Name == request.Name))
+                throw new ValidationException("A publisher with the same name already exists.");
+
+            entity.IsActive = true;
+            await Task.CompletedTask;
+        }
+
+        public override async Task BeforeUpdate(PublisherUpdateRequest request, Publisher entity)
+        {
+            if (_db.Publishers.Any(p => p.Name == request.Name))
+                throw new ValidationException("A publisher with the same name already exists.");
+
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                entity.Name = request.Name;
+
+            if (!string.IsNullOrWhiteSpace(request.HeadquartersLocation))
+                entity.HeadquartersLocation = request.HeadquartersLocation;
+
+            if (!string.IsNullOrWhiteSpace(request.ContactEmail))
+                entity.ContactEmail = request.ContactEmail;
+
+            if (!string.IsNullOrWhiteSpace(request.ContactPhone))
+                entity.ContactPhone = request.ContactPhone;
+
+            if (request.YearFounded.HasValue && request.YearFounded.Value > 0)
+                entity.YearFounded = request.YearFounded.Value;
+
+            if (!string.IsNullOrWhiteSpace(request.Country))
+                entity.Country = request.Country;
+
+            entity.ModifiedAt = DateTime.Now;
+
+            await Task.CompletedTask;
+        }
+
+       
+
     }
 }

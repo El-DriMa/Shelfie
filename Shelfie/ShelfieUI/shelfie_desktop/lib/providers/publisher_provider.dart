@@ -45,19 +45,19 @@ class PublisherProvider extends BaseProvider<Publisher> {
     throw Exception("Failed to create publisher");
   }
 
-  Future<Publisher> updatePublisher(String authHeader, int publisherId, Map<String, dynamic> publisherData) async {
+  Future<void> updatePublisher(String authHeader, int publisherId, Map<String, dynamic> publisherData) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Publisher/$publisherId");
     final response = await http.put(
       uri,
       headers: createHeaders(authHeader),
       body: jsonEncode(publisherData),
     );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return fromJson(data);
+
+    if (response.statusCode != 200) {
+      throw Exception("Failed to update publisher");
     }
-    throw Exception("Failed to update publisher");
   }
+
 
   Future<bool> deletePublisher(String authHeader, int publisherId) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Publisher/$publisherId");
