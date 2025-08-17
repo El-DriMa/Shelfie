@@ -5,6 +5,7 @@ import 'authors_screen.dart';
 import 'publishers_screen.dart';
 import 'reading_challenges_screen.dart';
 import 'genres_screen.dart';
+import 'reviews_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _MainScreenState extends State<MainScreen> {
       GenresScreen(authHeader: widget.authHeader),
       PublishersScreen(authHeader: widget.authHeader),
       ReadingChallengesScreen(authHeader: widget.authHeader),
+      ReviewsScreen(authHeader: widget.authHeader),
       UsersScreen(authHeader: widget.authHeader),
     ];
   }
@@ -76,6 +78,7 @@ class _MainScreenState extends State<MainScreen> {
                       Tab(text: 'Genres'),
                       Tab(text: 'Publishers'),
                       Tab(text: 'Challenges'),
+                      Tab(text: 'Reviews'),
                       Tab(text: 'Users'),
                     ],
                   ),

@@ -56,14 +56,19 @@ namespace Shelfie.Services.Services
         }
         public override IQueryable<Review> AddFilter(ReviewSearchObject search, IQueryable<Review> query)
         {
-            if (search.BookId.HasValue)
+            if (!string.IsNullOrWhiteSpace(search.BookName) && !string.IsNullOrWhiteSpace(search.Username))
             {
-                query = query.Where(r => r.BookId == search.BookId.Value);
+                query = query.Where(r =>
+                    r.Book.Title.Contains(search.BookName) ||
+                    r.User.Username.Contains(search.Username));
             }
-
-            if (search.UserId.HasValue)
+            else if (!string.IsNullOrWhiteSpace(search.BookName))
             {
-                query = query.Where(r => r.UserId == search.UserId.Value);
+                query = query.Where(r => r.Book.Title.Contains(search.BookName));
+            }
+            else if (!string.IsNullOrWhiteSpace(search.Username))
+            {
+                query = query.Where(r => r.User.Username.Contains(search.Username));
             }
 
             if (search.Rating.HasValue)
@@ -73,6 +78,8 @@ namespace Shelfie.Services.Services
 
             return query;
         }
+
+
 
         public async Task<PagedResult<ReviewResponse>> GetPagedForUser(ReviewSearchObject search, int userId)
         {

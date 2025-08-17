@@ -133,11 +133,12 @@ class _ReadingChallengesScreenState extends State<ReadingChallengesScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            _isLoading
-                ? const Expanded(
-                    child: Center(child: CircularProgressIndicator()))
-                : Expanded(
-                    child: SingleChildScrollView(
+            Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _challenges.isEmpty
+                    ? const Center(child: Text("No challenges available"))
+                    : SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
