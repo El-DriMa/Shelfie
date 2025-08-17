@@ -10,5 +10,8 @@ namespace Shelfie.Models.SearchObjects
     {
         public int? ShelfId { get; set; } 
         public int? BookId { get; set; }   
+        public string? Username { get; set; }
+        public string? BookTitle { get; set; }
+        public string? ShelfName { get; set; }
     }
 }

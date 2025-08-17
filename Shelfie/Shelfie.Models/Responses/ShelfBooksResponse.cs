@@ -20,5 +20,7 @@ namespace Shelfie.Models.Responses
         public DateTime? ModifiedAt { get; set; }
         public double AverageRating { get; set; }
         public int ReviewCount { get; set; }
+        public int? UserId { get; set; }
+        public string? Username { get; set; }
     }
 }

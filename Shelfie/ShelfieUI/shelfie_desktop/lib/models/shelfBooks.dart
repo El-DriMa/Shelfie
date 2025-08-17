@@ -14,6 +14,8 @@ class ShelfBooks {
   String? authorName;
   DateTime createdAt;
   DateTime? updatedAt;
+  int? userId;
+  String? username;
 
   ShelfBooks({
     required this.id,

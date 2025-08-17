@@ -69,9 +69,18 @@ class ShelfBooksProvider extends BaseProvider<ShelfBooks> {
     throw Exception("Failed to delete book from shelf");
   }
 
-  @override
-  Future<List<ShelfBooks>> getAll(String authHeader) async {
-    final uri = Uri.parse("${BaseProvider.baseUrl}ShelfBooks");
+  Future<List<ShelfBooks>> getAll(
+    String authHeader, {
+    String? username,
+    String? shelfName,
+  }) async {
+    final uri = Uri.parse("${BaseProvider.baseUrl}ShelfBooks").replace(
+      queryParameters: {
+        if (username != null && username.isNotEmpty) 'Username': username,
+        if (shelfName != null && shelfName.isNotEmpty) 'ShelfName': shelfName,
+      },
+    );
+
     final response = await http.get(uri, headers: createHeaders(authHeader));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -80,6 +89,8 @@ class ShelfBooksProvider extends BaseProvider<ShelfBooks> {
     }
     throw Exception("Failed to load shelf books");
   }
+
+
 
   Future<ShelfBooks> updateShelfBook(String authHeader, int shelfBookId, Map<String, dynamic> shelfBookData) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}ShelfBooks/$shelfBookId");

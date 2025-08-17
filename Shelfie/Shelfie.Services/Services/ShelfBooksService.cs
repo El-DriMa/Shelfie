@@ -23,6 +23,29 @@ namespace Shelfie.Services.Services
 
         public override IQueryable<ShelfBooks> AddFilter(ShelfBooksSearchObject search, IQueryable<ShelfBooks> query)
         {
+            if (!string.IsNullOrEmpty(search.ShelfName) && !string.IsNullOrEmpty(search.Username))
+            {
+                if (Enum.TryParse<ShelfTypeEnum>(search.ShelfName, out var shelfEnum))
+                {
+                    query = query.Where(sb => sb.Shelf.Name == shelfEnum
+                                              && sb.Shelf.User.Username == search.Username);
+                }
+            }
+            else if (!string.IsNullOrEmpty(search.ShelfName))
+            {
+                if (Enum.TryParse<ShelfTypeEnum>(search.ShelfName, out var shelfEnum))
+                {
+                    query = query.Where(sb => sb.Shelf.Name == shelfEnum);
+                }
+            }
+            else if (!string.IsNullOrEmpty(search.Username))
+            {
+                query = query.Where(sb => sb.Shelf.User.Username == search.Username);
+            }
+
+
+
+
             if (search.ShelfId.HasValue)
             {
                 query = query.Where(sb => sb.ShelfId == search.ShelfId.Value);
@@ -88,6 +111,7 @@ namespace Shelfie.Services.Services
             var query = _db.ShelfBooks
                 .Include(sb => sb.Shelf)
                 .Include(x=>x.Book.Reviews)
+                .Include(x=>x.Shelf.User)
                 .Include(sb => sb.Book).ThenInclude(sb=>sb.Author)
                 .AsQueryable();
             query = AddFilter(search, query);
@@ -110,6 +134,8 @@ namespace Shelfie.Services.Services
                 response.TotalPages = b.Book.TotalPages;
                 response.AverageRating = b.Book.Reviews.Any() ? b.Book.Reviews.Average(r => r.Rating) : 0;
                 response.ReviewCount = b.Book.Reviews.Count;
+                response.Username = b.Shelf.User.Username;
+                response.UserId = b.Shelf.UserId;
 
                 return response;
             }).ToList();
