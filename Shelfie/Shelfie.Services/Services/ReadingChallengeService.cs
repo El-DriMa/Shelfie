@@ -26,6 +26,17 @@ namespace Shelfie.Services.Services
                 query = query.Where(rc => rc.ChallengeName.Contains(search.Name));
             }
 
+            if (!string.IsNullOrWhiteSpace(search.Username))
+            {
+                query = query.Where(rc => rc.User.Username.Contains(search.Username));
+            }
+
+
+            if (search.UserId.HasValue)
+            {
+                query = query.Where(rc => rc.UserId == search.UserId.Value);
+            }
+
             return query;
         }
 
@@ -43,6 +54,36 @@ namespace Shelfie.Services.Services
 
             return new PagedResult<ReadingChallengeResponse> { Items = result ?? new(), TotalCount = totalCount };
         }
+
+        public virtual async Task<PagedResult<ReadingChallengeResponse>> GetPaged(ReadingChallengeSearchObject search)
+        {
+            var query = _db.Set<ReadingChallenge>().Include(x=>x.User).AsQueryable();
+
+            query = AddFilter(search, query);
+
+            int count = await query.CountAsync();
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+            {
+                query = query.Skip((search.Page.Value - 1) * search.PageSize.Value).Take(search.PageSize.Value);
+            }
+
+            var list = await query.ToListAsync();
+
+            var result = list.Select(x =>
+            {
+                var response = Mapper.Map<ReadingChallengeResponse>(x);
+                response.Username = x.User.Username;
+                return response;
+            }).ToList();
+
+            return new PagedResult<ReadingChallengeResponse>
+            {
+                Items = result,
+                TotalCount = count
+            };
+        }
+    
 
         public override async Task BeforeUpdate(ReadingChallengeUpdateRequest request, ReadingChallenge entity)
         {

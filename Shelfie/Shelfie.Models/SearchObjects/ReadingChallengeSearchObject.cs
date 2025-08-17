@@ -9,5 +9,7 @@ namespace Shelfie.Models.SearchObjects
     public class ReadingChallengeSearchObject : BaseSearchObject
     {
         public string? Name { get; set; }
+        public int? UserId { get; set; }
+        public string? Username { get; set; }
     }
 }

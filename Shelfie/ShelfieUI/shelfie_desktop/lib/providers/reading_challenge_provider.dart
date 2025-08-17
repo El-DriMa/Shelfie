@@ -92,16 +92,15 @@ class ReadingChallengeProvider extends BaseProvider<ReadingChallenge> {
   }
 
   @override
-  Future<List<ReadingChallenge>> getAll(String authHeader) async {
-    final uri = Uri.parse("${BaseProvider.baseUrl}ReadingChallenge");
+    Future<List<ReadingChallenge>> getAll(String authHeader, {String? username}) async {
+    final query = username != null ? '?Username=$username' : '';
+    final uri = Uri.parse("${BaseProvider.baseUrl}ReadingChallenge$query");
     final response = await http.get(uri, headers: createHeaders(authHeader));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final List items = data['items'];
-      return items.map((json) => fromJson(json)).toList();
+      return items.map((json) => ReadingChallenge.fromJson(json)).toList();
     }
     throw Exception("Failed to load reading challenges");
   }
-
-
 }
