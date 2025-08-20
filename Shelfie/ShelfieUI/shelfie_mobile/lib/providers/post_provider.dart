@@ -71,4 +71,5 @@ class PostProvider extends BaseProvider<Post> {
       throw Exception('Failed to update post state');
     }
   }
+
 }

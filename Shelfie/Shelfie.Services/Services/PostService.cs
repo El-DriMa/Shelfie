@@ -24,7 +24,7 @@ namespace Shelfie.Services.Services
         {
             if (!string.IsNullOrWhiteSpace(search.Username))
             {
-                query = query.Where(g => g.User.Username.Contains(search.Username));
+                query = query.Where(p => p.User.Username == search.Username);
             }
 
             if (search.PostState.HasValue)
@@ -32,8 +32,14 @@ namespace Shelfie.Services.Services
                 query = query.Where(p => p.State == search.PostState.Value);
             }
 
+            if (!string.IsNullOrWhiteSpace(search.GenreName))
+            {
+                query = query.Where(p => p.Genre.Name == search.GenreName);
+            }
+
             return query;
         }
+
         public override async Task BeforeUpdate(PostUpdateRequest request, Post entity)
         {
             if (!string.IsNullOrWhiteSpace(request.Content))

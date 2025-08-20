@@ -91,4 +91,29 @@ class PostProvider extends BaseProvider<Post> {
     final response = await http.delete(uri, headers: createHeaders(authHeader));
     return response.statusCode == 200 || response.statusCode == 204;
   }
+
+  @override
+  Future<List<Post>> getAll(
+    String authHeader, {
+    String? username,
+    int? postState,
+    String? genreName,
+  }) async {
+    final uri = Uri.parse("${BaseProvider.baseUrl}Post").replace(
+      queryParameters: {
+        if (username != null && username.isNotEmpty) 'Username': username,
+        if (postState != null) 'PostState': postState.toString(),
+        if (genreName != null && genreName.isNotEmpty) 'GenreName': genreName,
+      },
+    );
+
+    final response = await http.get(uri, headers: createHeaders(authHeader));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List items = data['items'];
+      return items.map((json) => fromJson(json)).toList();
+    }
+    throw Exception("Failed to load posts");
+  }
+
 }

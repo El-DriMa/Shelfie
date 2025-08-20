@@ -11,5 +11,6 @@ namespace Shelfie.Models.SearchObjects
     {
         public string? Username { get; set; }
         public PostStateEnum? PostState { get; set; }
+        public string? GenreName { get; set; }
     }
 }
