@@ -15,9 +15,17 @@ namespace ShelfieAPI.Authentication
 
         public async Task InvokeAsync(HttpContext context, IB220155Context db)
         {
-            //await _next(context);
-            //return;
+            if (context.Request.Path.StartsWithSegments("/User") && context.Request.Method == HttpMethods.Post)
+            {
+                await _next(context);
+                return;
+            }
 
+            if (context.Request.Path.StartsWithSegments("/covers"))
+            {
+                await _next(context);
+                return;
+            }
             if (context.Request.Path.StartsWithSegments("/api/dataseed") 
                )
             {

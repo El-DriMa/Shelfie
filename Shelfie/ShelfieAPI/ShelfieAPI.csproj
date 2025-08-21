@@ -32,4 +32,8 @@
     <ProjectReference Include="..\Shelfie.Services\Shelfie.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\covers\" />
+  </ItemGroup>
+
 </Project>

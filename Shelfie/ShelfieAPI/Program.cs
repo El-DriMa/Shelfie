@@ -7,6 +7,7 @@ using Shelfie.Services.Interfaces;
 using Shelfie.Services.Services;
 using ShelfieAPI.Authentication;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -112,6 +113,8 @@ app.UseMiddleware<BasicAuthMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStaticFiles();
 
 app.MapControllers();
 //app.Urls.Add("http://0.0.0.0:5000");

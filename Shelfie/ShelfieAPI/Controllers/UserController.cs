@@ -60,6 +60,56 @@ namespace ShelfieAPI.Controllers
             }
         }
 
+        [HttpPost("{id}/cover")]
+        [RequestSizeLimit(10_000_000)]
+        public async Task<ActionResult<UserResponse>> UploadCover(int id, [FromForm] CoverUploadRequest request, [FromServices] IUserService userService, [FromServices] IWebHostEnvironment env)
+        {
+            try
+            {
+                var coverImage = request.CoverImage;
+                var user = await userService.GetById(id);
+                if (user == null)
+                    return NotFound($"User with ID {id} not found");
+                if (coverImage == null || coverImage.Length == 0)
+                    return BadRequest("No file uploaded or file is empty.");
+
+                var currentUserIdStr = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!int.TryParse(currentUserIdStr, out int currentUserId))
+                    return Unauthorized();
+
+                var isAdmin = User.IsInRole("Admin");
+                if (id != currentUserId && !isAdmin)
+                    return BadRequest("You can only upload cover for your own profile");
+
+                var uploads = Path.Combine(env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "covers");
+                if (!Directory.Exists(uploads))
+                    Directory.CreateDirectory(uploads);
+
+                var fileName = Guid.NewGuid() + Path.GetExtension(coverImage.FileName);
+                var filePath = Path.Combine(uploads, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await coverImage.CopyToAsync(stream);
+                }
+
+                var userEntityForUpdate = await _context.Users.FindAsync(id);
+                if (userEntityForUpdate != null)
+                {
+                    userEntityForUpdate.PhotoUrl = $"covers/{fileName}";
+                    await _context.SaveChangesAsync();
+
+                    var updatedUser = await userService.GetById(id);
+                    return Ok(updatedUser);
+                }
+                return NotFound($"User entity with ID {id} not found in database");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error uploading cover: {ex.Message}");
+            }
+        }
+
+
 
 
     }

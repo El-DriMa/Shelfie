@@ -16,9 +16,9 @@ namespace Shelfie.Models.Requests
         [Range(1, int.MaxValue, ErrorMessage = "Total pages must be a positive number.")]
         public int? TotalPages { get; set; } = 0;
 
-        public byte[]? CoverImage { get; set; }
+        public string? PhotoUrl { get; set; }
 
-      
+
         public int? GenreId { get; set; }
 
        

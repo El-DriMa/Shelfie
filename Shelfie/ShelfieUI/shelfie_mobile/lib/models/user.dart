@@ -10,6 +10,7 @@ class User {
   String username;
   DateTime? lastLoginAt;
   String? phoneNumber;
+  String? photoUrl;
 
   User({
     required this.id,

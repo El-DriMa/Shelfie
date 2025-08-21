@@ -102,7 +102,7 @@ namespace Shelfie.Services.Services
         { 
             if (!string.IsNullOrWhiteSpace(request.Title)) entity.Title = request.Title; 
             if (request.TotalPages.HasValue && request.TotalPages.Value > 0) entity.TotalPages = request.TotalPages.Value; 
-            if (request.CoverImage != null) entity.CoverImage = request.CoverImage; 
+            if (request.PhotoUrl != null) entity.PhotoUrl = request.PhotoUrl; 
             if (request.GenreId.HasValue) entity.GenreId = request.GenreId.Value; 
             if (request.AuthorId.HasValue) entity.AuthorId = request.AuthorId.Value; 
             if (request.PublisherId.HasValue) entity.PublisherId = request.PublisherId.Value; 
@@ -260,7 +260,7 @@ namespace Shelfie.Services.Services
                         Id = b.Id,
                         Title = b.Title,
                         AuthorName = b.Author.FirstName + " " + b.Author.LastName,
-                        CoverImage = b.CoverImage,
+                        PhotoUrl = b.PhotoUrl,
                         AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0,
                         ReviewCount = b.Reviews.Count,
                     })
@@ -326,7 +326,7 @@ namespace Shelfie.Services.Services
                         Id = b.Id,
                         Title = b.Title,
                         AuthorName = b.Author.FirstName + " " + b.Author.LastName,
-                        CoverImage = b.CoverImage,
+                        PhotoUrl = b.PhotoUrl,
                         AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0,
                         ReviewCount = b.Reviews.Count,
                     })

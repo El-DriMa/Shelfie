@@ -15,7 +15,7 @@ namespace Shelfie.Models.Responses
         public string Username { get; set; } = string.Empty;
         public DateTime? LastLoginAt { get; set; }
         public string? PhoneNumber { get; set; }
-        //public string? PhotoUrl { get; set; }
+        public string? PhotoUrl { get; set; }
         public List<string> Roles { get; set; } = new List<string>();
     }
 }

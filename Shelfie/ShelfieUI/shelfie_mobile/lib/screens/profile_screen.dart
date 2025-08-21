@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shelfie/screens/password_change_screen.dart';
+import '../config.dart' as BaseProvider;
 import '../models/user.dart';
 import 'package:shelfie/config.dart';
 import 'package:http/http.dart' as http;
@@ -33,6 +34,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  String? _getUserImageUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+
+    String base = BaseProvider.baseUrl ?? '';
+    base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+    return '$base/$photoUrl';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,14 +68,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           final user = snapshot.data!;
-
+          final imageUrl = _getUserImageUrl(user!.photoUrl ?? '');
           return SingleChildScrollView(
             padding: EdgeInsets.all(16),
             child: Column(
               children: [
+                const SizedBox(height: 36),
+
                 CircleAvatar(
-                  radius: 50,
-                  child: Icon(Icons.person, size: 50),
+                  radius: 64,
+                  backgroundColor: const Color(0xFFE0C9A6),
+                  backgroundImage: imageUrl != null ? NetworkImage(imageUrl) : null,
+                  child: imageUrl == null
+                      ? const Icon(Icons.person, size: 80, color: Color(0xFF8D6748))
+                      : null,
                 ),
                 SizedBox(height: 16),
                 Text('${user.firstName} ${user.lastName}',
@@ -148,9 +165,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ChangePasswordScreen(
+                          builder: (_) => EditProfileScreen(
                             authHeader: widget.authHeader,
-                            username: user.username,
+                            user: user,
                           ),
                         ),
                       );

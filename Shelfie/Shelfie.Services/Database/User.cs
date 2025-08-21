@@ -33,7 +33,7 @@ namespace Shelfie.Services.Database
         public DateTime? LastLoginAt { get; set; }
 
         public string? PhoneNumber { get; set; }
-       // public string? PhotoUrl { get; set; }
+        public string? PhotoUrl { get; set; }
 
         public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
