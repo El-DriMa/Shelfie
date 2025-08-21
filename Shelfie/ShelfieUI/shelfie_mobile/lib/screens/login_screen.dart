@@ -14,6 +14,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
 
   void _login() async {
+    print ("Login button pressed");
+    print ("Username: ${usernameController.text}");
+    print ("Password: ${passwordController.text}");
     final username = usernameController.text;
     final password = passwordController.text;
 

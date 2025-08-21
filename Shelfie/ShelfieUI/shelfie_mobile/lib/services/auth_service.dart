@@ -6,6 +6,7 @@ class AuthService {
   Future<String?> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/User/me');
     final basicAuth = 'Basic ${base64Encode(utf8.encode('$email:$password'))}';
+    print("Logging in with URL: $url");
 
     final response = await http.get(
       url,

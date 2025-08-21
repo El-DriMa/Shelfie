@@ -10,7 +10,6 @@ namespace Shelfie.Models.Requests
 {
     public class PostUpdateRequest
     {
-        public string? Content { get; set; } = string.Empty;
         public PostStateEnum? State { get; set; } 
 
     }

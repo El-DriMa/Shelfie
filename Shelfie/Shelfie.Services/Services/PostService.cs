@@ -42,11 +42,7 @@ namespace Shelfie.Services.Services
 
         public override async Task BeforeUpdate(PostUpdateRequest request, Post entity)
         {
-            if (!string.IsNullOrWhiteSpace(request.Content))
-            {
-                entity.Content = request.Content;
-            }
-
+        
             if (request.State.HasValue)
             {
                 entity.State = request.State.Value;

@@ -30,5 +30,7 @@ namespace Shelfie.Models.Requests
         public string Password { get; set; } = string.Empty;
 
         public string? PhoneNumber { get; set; }
+        //public string? PhotoUrl { get; set; }
+
     }
 }

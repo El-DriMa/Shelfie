@@ -77,7 +77,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _buildInfoRow('Email', user.email),
                 _buildInfoRow('Phone', user.phoneNumber ?? 'Not provided'),
 
-                SizedBox(height: 30),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Confirm Delete'),
+                            content: const Text('Do you really want to delete your profile?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true) {
+                          await _provider.deleteUser(widget.authHeader,user.id);
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.remove('authToken');
+                          Navigator.pushReplacementNamed(context, '/start');
+                        }
+                      },
+                      child: const Text(
+                        'Delete Profile',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+
+                SizedBox(height: 10),
                 Text('Update your profile or change your account settings.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey[700], fontSize: 14)),

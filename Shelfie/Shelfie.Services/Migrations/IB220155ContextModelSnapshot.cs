@@ -67,7 +67,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Book", b =>
@@ -128,7 +128,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasIndex("PublisherId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Comment", b =>
@@ -170,7 +170,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Genre", b =>
@@ -197,7 +197,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.NotificationMessage", b =>
@@ -242,7 +242,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Post", b =>
@@ -281,7 +281,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Publisher", b =>
@@ -327,7 +327,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Publishers");
+                    b.ToTable("Publishers", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.ReadingChallenge", b =>
@@ -383,7 +383,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ReadingChallenges");
+                    b.ToTable("ReadingChallenges", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Review", b =>
@@ -423,7 +423,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Role", b =>
@@ -455,7 +455,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Shelf", b =>
@@ -490,7 +490,7 @@ namespace Shelfie.Services.Migrations
                     b.HasIndex("UserId", "Name")
                         .IsUnique();
 
-                    b.ToTable("Shelves");
+                    b.ToTable("Shelves", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.ShelfBooks", b =>
@@ -525,7 +525,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasIndex("ShelfId");
 
-                    b.ToTable("ShelfBooks");
+                    b.ToTable("ShelfBooks", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Statistics", b =>
@@ -590,7 +590,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Statistics");
+                    b.ToTable("Statistics", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.User", b =>
@@ -646,7 +646,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.UserRole", b =>
@@ -669,7 +669,7 @@ namespace Shelfie.Services.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Shelfie.Services.Database.Book", b =>

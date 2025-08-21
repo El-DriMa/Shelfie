@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shelfie/providers/comment_provider.dart';
@@ -7,7 +6,6 @@ import '../config.dart';
 import '../models/post.dart';
 import '../models/comment.dart';
 import '../providers/user_provider.dart';
-
 
 class CommentsScreen extends StatefulWidget {
   final Post post;
@@ -29,6 +27,21 @@ class _CommentsScreenState extends State<CommentsScreen> {
   final TextEditingController replyController = TextEditingController();
   final _provider = CommentProvider();
   final _userProvider = UserProvider();
+  int? currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+    commentsFuture = _provider.fetchComments(widget.authHeader, widget.post.id);
+  }
+
+  Future<void> _loadUser() async {
+    final user = await _userProvider.getCurrentUser(widget.authHeader);
+    setState(() {
+      currentUserId = user.id;
+    });
+  }
 
   Map<int, List<Comment>> buildRepliesMap(List<Comment> comments) {
     final map = <int, List<Comment>>{};
@@ -40,12 +53,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
     return map;
   }
 
-  @override
-  void initState() {
-    super.initState();
-    commentsFuture = _provider.fetchComments(widget.authHeader, widget.post.id);
-  }
-
   String getTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
     final diff = now.difference(dateTime.toLocal());
@@ -54,15 +61,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
     return '${diff.inDays} d';
   }
 
-
-
   Future<void> sendReply() async {
     final content = replyController.text.trim();
     if (content.isEmpty) return;
     int? parentCommentId = replyingToComment?.id;
     int postId = widget.post.id;
     final user = await _userProvider.getCurrentUser(widget.authHeader);
-    await _provider.addComment(widget.authHeader, postId, user.id, content, parentCommentId);
+    await _provider.addComment(
+        widget.authHeader, postId, user.id, content, parentCommentId);
 
     replyController.clear();
     setState(() {
@@ -71,9 +77,34 @@ class _CommentsScreenState extends State<CommentsScreen> {
     });
   }
 
+  Future<void> deleteComment(Comment comment) async {
+    final comments = await _provider.fetchComments(widget.authHeader, widget.post.id);
+    final hasReplies = comments.any((c) => c.parentCommentId == comment.id);
+
+    if (hasReplies) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You cannot delete a comment with replies.')),
+      );
+      return;
+    }
+
+    await _provider.deleteComment(widget.authHeader, comment.id);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Comment deleted successfully.')),
+    );
+
+    setState(() {
+      commentsFuture = _provider.fetchComments(widget.authHeader, widget.post.id);
+    });
+  }
+
+
+
   Widget buildComments(List<Comment> comments) {
     final repliesMap = buildRepliesMap(comments);
-    final mainComments = comments.where((c) => c.parentCommentId == null).toList();
+    final mainComments =
+    comments.where((c) => c.parentCommentId == null).toList();
 
     return ListView.builder(
       itemCount: mainComments.length,
@@ -87,6 +118,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
               replyingToComment = comment;
             });
           },
+          currentUserId: currentUserId ?? -1,
+          onDelete: deleteComment,
         );
       },
     );
@@ -132,7 +165,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       const SizedBox(width: 8),
                       Text(
                         widget.post.username ?? 'User',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -146,7 +180,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     widget.post.content,
                     style: const TextStyle(fontSize: 15),
                   ),
-
                 ],
               ),
             ),
@@ -188,7 +221,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   if (replyingToComment != null)
                     Row(
                       children: [
-                        Text('Replying to @${replyingToComment!.username}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Replying to @${replyingToComment!.username}',
+                            style:
+                            const TextStyle(fontWeight: FontWeight.bold)),
                         const Spacer(),
                         IconButton(
                           icon: const Icon(Icons.close),
@@ -206,8 +241,11 @@ class _CommentsScreenState extends State<CommentsScreen> {
                         child: TextField(
                           controller: replyController,
                           decoration: InputDecoration(
-                            hintText: replyingToComment == null ? 'Reply to post...' : 'Reply to comment...',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            hintText: replyingToComment == null
+                                ? 'Reply to post...'
+                                : 'Reply to comment...',
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8)),
                           ),
                         ),
                       ),
@@ -223,7 +261,6 @@ class _CommentsScreenState extends State<CommentsScreen> {
           ],
         ),
       ),
-
     );
   }
 }
@@ -231,8 +268,16 @@ class _CommentsScreenState extends State<CommentsScreen> {
 class CommentWidget extends StatelessWidget {
   final Comment comment;
   final VoidCallback? onReply;
+  final int currentUserId;
+  final Function(Comment)? onDelete;
 
-  const CommentWidget({Key? key, required this.comment, this.onReply}) : super(key: key);
+  const CommentWidget({
+    Key? key,
+    required this.comment,
+    this.onReply,
+    required this.currentUserId,
+    this.onDelete,
+  }) : super(key: key);
 
   String _getTimeAgo(DateTime dateTime) {
     final now = DateTime.now();
@@ -278,13 +323,38 @@ class CommentWidget extends StatelessWidget {
                 _getTimeAgo(comment.createdAt),
                 style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
+              const Spacer(),
+              if (comment.userId == currentUserId)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Confirm Delete'),
+                        content: const Text('Do you really want to delete this comment?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      onDelete?.call(comment);
+                    }
+                  },
+                ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            comment.content,
-            style: const TextStyle(fontSize: 14),
-          ),
+          Text(comment.content, style: const TextStyle(fontSize: 14)),
           if (comment.parentCommentId == null && onReply != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -292,7 +362,8 @@ class CommentWidget extends StatelessWidget {
                 onTap: onReply,
                 child: Text(
                   'Reply',
-                  style: TextStyle(color: Colors.deepPurple, fontSize: 14),
+                  style:
+                  TextStyle(color: Colors.deepPurple, fontSize: 14),
                 ),
               ),
             ),
@@ -306,12 +377,16 @@ class CommentWithRepliesWidget extends StatelessWidget {
   final Comment comment;
   final List<Comment> replies;
   final VoidCallback onReply;
+  final int currentUserId;
+  final Function(Comment) onDelete;
 
   const CommentWithRepliesWidget({
     Key? key,
     required this.comment,
     required this.replies,
     required this.onReply,
+    required this.currentUserId,
+    required this.onDelete,
   }) : super(key: key);
 
   @override
@@ -322,6 +397,8 @@ class CommentWithRepliesWidget extends StatelessWidget {
         CommentWidget(
           comment: comment,
           onReply: comment.parentCommentId == null ? onReply : null,
+          currentUserId: currentUserId,
+          onDelete: onDelete,
         ),
         if (replies.isNotEmpty)
           Padding(
@@ -332,6 +409,8 @@ class CommentWithRepliesWidget extends StatelessWidget {
                 comment: r,
                 replies: [],
                 onReply: onReply,
+                currentUserId: currentUserId,
+                onDelete: onDelete,
               ))
                   .toList(),
             ),

@@ -48,7 +48,7 @@ class _PostsScreenState extends State<PostsScreen> {
       if (isMyPosts) {
         posts = _provider.getUserPosts(widget.authHeader, widget.genreId);
       } else {
-        posts = _provider.getByGenre(widget.authHeader, widget.genreId);
+        posts = _provider.getAll(widget.authHeader,genreName:widget.genreName);
       }
     });
   }
@@ -136,7 +136,7 @@ class _PostsScreenState extends State<PostsScreen> {
 
                     if (result == true) {
                       setState(() {
-                        posts = _provider.getByGenre(widget.authHeader, widget.genreId);
+                        posts = _provider.getAll(widget.authHeader,genreName:widget.genreName);
                       });
                     }
                   },
@@ -163,9 +163,12 @@ class _PostsScreenState extends State<PostsScreen> {
                     return const Center(child: Text('No posts found'));
                   }
 
-                  final postList = snapshot.data!
-                      .where((p) => p.state != 'Deleted')
-                      .toList();
+                  final postList = snapshot.data!.where((p) {
+                    if (p.state == 'Deleted') return false;
+                    if (isMyPosts) return true;
+                    return p.state == 'Published';
+                  }).toList();
+
                   return ListView.builder(
                     itemCount: postList.length,
                     itemBuilder: (context, index) {
@@ -186,7 +189,7 @@ class _PostsScreenState extends State<PostsScreen> {
 
                               if (result == true) {
                                 setState(() {
-                                  posts = _provider.getByGenre(widget.authHeader, widget.genreId);
+                                  posts = _provider.getAll(widget.authHeader,genreName:widget.genreName);
                                 });
                               }
                             },

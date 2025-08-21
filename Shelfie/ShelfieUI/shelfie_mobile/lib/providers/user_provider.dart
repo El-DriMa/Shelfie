@@ -34,4 +34,20 @@ class UserProvider extends BaseProvider<User> {
       throw Exception('Failed to update user');
     }
   }
+
+  Future<void> deleteUser(String authHeader, int userId) async {
+    final uri = Uri.parse('${BaseProvider.baseUrl}User/$userId');
+    final response = await http.delete(
+      uri,
+      headers: {
+        'authorization': authHeader,
+        'content-type': 'application/json',
+      },
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Failed to delete user');
+    }
+  }
+
 }

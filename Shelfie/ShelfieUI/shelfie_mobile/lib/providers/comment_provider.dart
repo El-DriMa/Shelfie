@@ -38,4 +38,21 @@ class CommentProvider extends BaseProvider<Comment> {
     }
     throw Exception("Failed to add new comment");
   }
+
+
+  Future<void> deleteComment(String authHeader, int commentId) async {
+    final uri = Uri.parse('${BaseProvider.baseUrl}Comment/$commentId');
+    final response = await http.delete(
+      uri,
+      headers: {
+        'authorization': authHeader,
+        'content-type': 'application/json',
+      },
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Failed to delete comment');
+    }
+  }
+
 }
