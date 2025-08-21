@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shelfie/providers/user_provider.dart';
 import '../models/user.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shelfie/config.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final User user;
@@ -20,7 +17,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController lastNameController;
   late TextEditingController emailController;
   late TextEditingController phoneController;
-  late TextEditingController passwordController;
 
   final _provider=UserProvider();
 
@@ -31,7 +27,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     lastNameController = TextEditingController(text: widget.user.lastName);
     emailController = TextEditingController(text: widget.user.email);
     phoneController = TextEditingController(text: widget.user.phoneNumber);
-    passwordController = TextEditingController();
   }
 
   @override
@@ -48,7 +43,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _buildTextField(lastNameController, 'Last Name'),
             _buildTextField(emailController, 'Email'),
             _buildTextField(phoneController, 'Phone'),
-            _buildTextField(passwordController, 'New Password (leave empty to keep)'),
             SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
@@ -80,9 +74,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 if (phoneController.text.trim().isNotEmpty) {
                   data['phoneNumber'] = phoneController.text.trim();
                 }
-                if (passwordController.text.isNotEmpty) {
-                  data['password'] = passwordController.text;
-                }
+
 
                 if (data.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(

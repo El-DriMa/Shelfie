@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using MapsterMapper;
 using System.ComponentModel.DataAnnotations;
+using Shelfie.Services.Services;
 
 namespace ShelfieAPI.Controllers
 {
@@ -40,6 +41,25 @@ namespace ShelfieAPI.Controllers
 
             return Ok(user);
         }
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request, [FromServices] IUserService userService)
+        {
+            var userIdStr = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+                return Unauthorized();
+
+            try
+            {
+                await userService.ChangePassword(userId, request);
+                return Ok("Password has been changed successfully");
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
 
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shelfie/screens/password_change_screen.dart';
 import '../models/user.dart';
 import 'package:shelfie/config.dart';
 import 'package:http/http.dart' as http;
@@ -147,11 +148,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
+                          builder: (_) => ChangePasswordScreen(
+                            authHeader: widget.authHeader,
+                            username: user.username,
+                          ),
+                        ),
+                      );
+
+                      if (result == true) {
+                        _refreshUser();
+                      }
+                    },
+                  ),
+                ),
+
+                SizedBox(height: 10),
+
+                SizedBox(
+                  width: double.infinity,
+                  child:
+                  ElevatedButton.icon(
+                    icon: Icon(Icons.settings),
+                    label: Text('Settings'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
                           builder: (_) =>
-                              EditProfileScreen(
-                                user: user,
+                              ChangePasswordScreen(
                                 authHeader: widget.authHeader,
-                              ),
+                                username: user.username,
+                        ),
                         ),
                       );
                       if (result == true) {

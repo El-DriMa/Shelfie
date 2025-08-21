@@ -19,7 +19,7 @@ namespace ShelfieAPI.Authentication
             //return;
 
             if (context.Request.Path.StartsWithSegments("/api/dataseed") 
-                || context.Request.Path.StartsWithSegments("/api/user") && context.Request.Method == "POST")
+               )
             {
                 await _next(context);
                 return;

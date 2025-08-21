@@ -92,13 +92,6 @@ namespace Shelfie.Services.Services
                 entity.Email = request.Email;
 
 
-            if (!string.IsNullOrWhiteSpace(request.Password))
-            {
-                PasswordHelper.CreatePasswordHash(request.Password, out string hash, out string salt);
-                entity.PasswordHash = hash;
-                entity.PasswordSalt = salt;
-            }
-
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
                 entity.PhoneNumber = request.PhoneNumber;
 
@@ -138,6 +131,27 @@ namespace Shelfie.Services.Services
             response.Roles = user.UserRoles.Select(ur => ur.Role.Name).ToList();
             return response;
         }
+
+        public async Task ChangePassword(int userId, ChangePasswordRequest request)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                throw new ValidationException("User not found.");
+
+            if (!PasswordHelper.VerifyPassword(request.OldPassword, user.PasswordHash, user.PasswordSalt))
+                throw new ValidationException("Old password is not correct!");
+
+            if (PasswordHelper.VerifyPassword(request.NewPassword, user.PasswordHash, user.PasswordSalt))
+                throw new ValidationException("New password can not be then same as old password");
+
+            PasswordHelper.CreatePasswordHash(request.NewPassword, out string hash, out string salt);
+            user.PasswordHash = hash;
+            user.PasswordSalt = salt;
+            user.ModifiedAt = DateTime.Now;
+
+            await _db.SaveChangesAsync();
+        }
+
 
     }
 }
