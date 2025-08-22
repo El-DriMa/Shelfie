@@ -11,5 +11,6 @@ namespace Shelfie.Services.Interfaces
 {
     public interface IUserRoleService : ICRUDService<UserRoleResponse,UserRoleSearchObject,UserRoleInsertRequest,UserRoleUpdateRequest>
     {
+        Task UpdateRoles(int userId, List<string> roles);
     }
 }

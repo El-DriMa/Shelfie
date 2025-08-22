@@ -8,6 +8,9 @@ import '../providers/author_provider.dart';
 import '../providers/publisher_provider.dart';
 import '../providers/book_provider.dart';
 import '../config.dart';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import '../providers/base_provider.dart';
 
 class AddEditBookScreen extends StatefulWidget {
   final String authHeader;
@@ -33,6 +36,10 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
   int? _selectedGenreId;
   int? _selectedAuthorId;
   int? _selectedPublisherId;
+
+  File? _selectedImage;
+  String? _existingCoverUrl;
+
 
   bool _isLoading = true;
   bool _isSaving = false;
@@ -72,6 +79,8 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
     await _loadDropdowns();
     if (widget.bookId != null) {
       await _loadBook(widget.bookId!);
+      _existingCoverUrl = _getImageUrl(_book?.photoUrl ?? '');
+
     }
     setState(() => _isLoading = false);
   }
@@ -88,13 +97,16 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
   Future<void> _loadBook(int id) async {
     try {
       _book = await _bookProvider.getById(widget.authHeader, id);
+      print("Existing cover URL: $_existingCoverUrl");
+      print("Full URL: ${BaseProvider.baseUrl}${_existingCoverUrl}");
+
       setState(() {
         _titleController.text = _book!.title;
         _pagesController.text = _book!.totalPages.toString();
         _yearController.text = _book!.yearPublished.toString();
         _descController.text = _book!.shortDescription;
         _languageController.text = _book!.language;
-        _coverController.text = _book!.coverImage ?? '';
+        _coverController.text = _book!.photoUrl ?? '';
 
         _selectedGenreId = _book!.genreId;
         _selectedAuthorId = _book!.authorId;
@@ -102,6 +114,17 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
       });
     } catch (_) {}
   }
+
+   String? _getImageUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+
+    String base = BaseProvider.baseUrl ?? '';
+    base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+    return '$base/$photoUrl';
+  }
+
 
   Future<void> _saveBook() async {
     if (!_formKey.currentState!.validate()) return;
@@ -113,27 +136,62 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
       "totalPages": int.tryParse(_pagesController.text) ?? 0,
       "yearPublished": int.tryParse(_yearController.text) ?? 0,
       "shortDescription": _descController.text,
-      "language": _selectedLanguage,
+      "language": _selectedLanguage ?? _book?.language,
       "genreId": _selectedGenreId,
       "authorId": _selectedAuthorId,
       "publisherId": _selectedPublisherId,
-      "coverImage": _coverController.text.isNotEmpty ? _coverController.text.codeUnits : null,
     };
 
-    if (_book != null && _book!.id > 0) {
-      await _bookProvider.updateBook(widget.authHeader, _book!.id, bookData);
-    } else {
-      await _bookProvider.createBook(widget.authHeader, bookData);
-    }
+    try {
+      if (_book != null && _book!.id > 0) {
+        await _bookProvider.updateBook(widget.authHeader, _book!.id, bookData);
+      } else {
+        final createdBook = await _bookProvider.createBook(widget.authHeader, bookData);
+        _book = createdBook;
+      }
 
-    setState(() => _isSaving = false);
-    Navigator.pop(context, true);
+      if (_selectedImage != null && _book != null) {
+        await _bookProvider.uploadPhoto(widget.authHeader, _book!.id, _selectedImage!);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Book saved successfully'), backgroundColor: Colors.green),
+      );
+
+      Navigator.pop(context, true); 
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save book: $e'), backgroundColor: Colors.red),
+      );
+    } finally {
+      setState(() => _isSaving = false);
+    }
+}
+
+
+
+  Future<void> _pickImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg','jpeg','png','gif','bmp','webp'],
+      allowMultiple: false,
+      withData: false,
+    );
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _selectedImage = File(result.files.single.path!);
+        _coverController.text = ""; 
+      });
+    }
   }
 
 
 
   @override
   Widget build(BuildContext context) {
+      
+      final imageUrl = _getImageUrl(_existingCoverUrl ?? '');
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.bookId != null ? "Edit Book" : "Add New Book"),
@@ -233,10 +291,42 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
                         validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _coverController,
-                          decoration: const InputDecoration(labelText: 'Cover Image URL', border: OutlineInputBorder()),
+                        Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            Container(
+                              width: 120,
+                              height: 160,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                               child: _selectedImage != null
+                                ? Image.file(_selectedImage!, fit: BoxFit.cover)
+                                : (_existingCoverUrl != null
+                                    ? Image.network(_existingCoverUrl!, fit: BoxFit.cover)
+                                    : const Icon(Icons.image, size: 60, color: Colors.grey)),
+
+                            ),
+                            Positioned(
+                              bottom: 4,
+                              right: 4,
+                              child: GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.deepPurple,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
+                                ),
+                              ),
+                            )
+                          ],
                         ),
+
                         const SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,

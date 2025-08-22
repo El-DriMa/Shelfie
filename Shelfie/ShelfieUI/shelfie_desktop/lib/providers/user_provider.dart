@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import 'base_provider.dart';
+import 'dart:io';
 
 class UserProvider extends BaseProvider<User> {
   UserProvider() : super("User");
@@ -104,4 +105,39 @@ class UserProvider extends BaseProvider<User> {
     }
     throw Exception("Failed to search users");
   }
+
+   Future<void> uploadPhoto(String authHeader, int userId, File photoFile) async {
+    try {
+      final uri = Uri.parse("${BaseProvider.baseUrl}User/$userId/cover");
+
+      var request = http.MultipartRequest('POST', uri);
+      request.headers.addAll({
+        'authorization': authHeader,
+      });
+
+      var stream = http.ByteStream(photoFile.openRead());
+      var length = await photoFile.length();
+      var filename = photoFile.path.split('/').last;
+
+      var multipartFile = http.MultipartFile(
+        'coverImage',
+        stream,
+        length,
+        filename: filename,
+      );
+
+      request.files.add(multipartFile);
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final message = response.body.isNotEmpty ? response.body : "Upload failed";
+        throw Exception(message);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
 }

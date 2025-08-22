@@ -108,9 +108,13 @@ namespace Shelfie.Services.Services
             if (request.AuthorId.HasValue) entity.AuthorId = request.AuthorId.Value; 
             if (request.PublisherId.HasValue) entity.PublisherId = request.PublisherId.Value; 
             if (request.YearPublished.HasValue && request.YearPublished.Value > 0) entity.YearPublished = request.YearPublished.Value; 
-            if (!string.IsNullOrWhiteSpace(request.ShortDescription)) entity.ShortDescription = request.ShortDescription; 
-            if (!string.IsNullOrWhiteSpace(request.Language)) entity.Language = request.Language; 
-            
+            if (!string.IsNullOrWhiteSpace(request.ShortDescription)) entity.ShortDescription = request.ShortDescription;
+            if (!string.IsNullOrWhiteSpace(request.Language))
+                entity.Language = request.Language;
+            else
+                entity.Language = entity.Language; 
+
+
             entity.ModifiedAt = DateTime.Now;
             await Task.CompletedTask; 
         }

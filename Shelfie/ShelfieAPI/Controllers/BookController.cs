@@ -109,5 +109,49 @@ namespace ShelfieAPI.Controllers
             return Ok(pagedResult);
         }
 
+        [HttpPost("{id}/cover")]
+        [RequestSizeLimit(10_000_000)]
+        public async Task<ActionResult<BookResponse>> UploadCover(int id, [FromForm] CoverUploadRequest request,[FromServices] IBookService bookService,[FromServices] IWebHostEnvironment env)
+        {
+            try
+            {
+                var coverImage = request.CoverImage;
+                var book = await bookService.GetById(id);
+                if (book == null)
+                    return NotFound($"Book with ID {id} not found");
+
+                if (coverImage == null || coverImage.Length == 0)
+                    return BadRequest("No file uploaded or file is empty.");
+
+                var uploads = Path.Combine(env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "covers");
+                if (!Directory.Exists(uploads))
+                    Directory.CreateDirectory(uploads);
+
+                var fileName = Guid.NewGuid() + Path.GetExtension(coverImage.FileName);
+                var filePath = Path.Combine(uploads, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await coverImage.CopyToAsync(stream);
+                }
+
+                var bookEntity = await _context.Books.FindAsync(id);
+                if (bookEntity != null)
+                {
+                    bookEntity.PhotoUrl = $"covers/{fileName}";
+                    await _context.SaveChangesAsync();
+
+                    var updatedBook = await bookService.GetById(id);
+                    return Ok(updatedBook);
+                }
+
+                return NotFound($"Book entity with ID {id} not found in database");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error uploading cover: {ex.Message}");
+            }
+        }
+
+
     }
 }

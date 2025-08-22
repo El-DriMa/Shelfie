@@ -26,6 +26,7 @@ namespace Shelfie.Models.Requests
 
         public string? PhoneNumber { get; set; }
         public string? PhotoUrl { get; set; }
+        public bool? IsActive { get; set; }
 
     }
 }

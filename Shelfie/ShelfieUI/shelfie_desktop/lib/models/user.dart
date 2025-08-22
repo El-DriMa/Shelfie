@@ -10,6 +10,8 @@ class User {
   String username;
   DateTime? lastLoginAt;
   String? phoneNumber;
+  bool? isActive;
+  String? photoUrl;
 
   User({
     required this.id,
@@ -18,7 +20,9 @@ class User {
     required this.email,
     required this.username,
     this.lastLoginAt,
-    this.phoneNumber
+    this.phoneNumber,
+    this.isActive,
+    this.photoUrl
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/book.dart';
 import 'base_provider.dart';
+import 'dart:io';
 
 class BookProvider extends BaseProvider<Book> {
   BookProvider() : super("Book");
@@ -162,4 +163,39 @@ print("Pozivam API na: $uri");
     final response = await http.delete(uri, headers: createHeaders(authHeader));
     return response.statusCode == 200 || response.statusCode == 204;
   }
+
+   Future<void> uploadPhoto(String authHeader, int bookId, File photoFile) async {
+    try {
+      final uri = Uri.parse("${BaseProvider.baseUrl}Book/$bookId/cover");
+
+      var request = http.MultipartRequest('POST', uri);
+      request.headers.addAll({
+        'authorization': authHeader,
+      });
+
+      var stream = http.ByteStream(photoFile.openRead());
+      var length = await photoFile.length();
+      var filename = photoFile.path.split('/').last;
+
+      var multipartFile = http.MultipartFile(
+        'coverImage',
+        stream,
+        length,
+        filename: filename,
+      );
+
+      request.files.add(multipartFile);
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final message = response.body.isNotEmpty ? response.body : "Upload failed";
+        throw Exception(message);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
 }

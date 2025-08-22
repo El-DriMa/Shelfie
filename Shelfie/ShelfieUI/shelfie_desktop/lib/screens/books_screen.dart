@@ -3,6 +3,7 @@ import '../models/book.dart';
 import '../providers/book_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../config.dart';
+import '../providers/base_provider.dart';
 import 'add_edit_book_screen.dart';
 
 class BooksScreen extends StatefulWidget {
@@ -44,6 +45,16 @@ class _BooksScreenState extends State<BooksScreen> {
     }
   }
 
+   String? _getImageUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+
+    String base = BaseProvider.baseUrl ?? '';
+    base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+    return '$base/$photoUrl';
+  }
+
   void _sortBooks() {
     if (_sortOrder == 'A-Z') {
       _books.sort((a, b) => a.title.compareTo(b.title));
@@ -74,6 +85,7 @@ class _BooksScreenState extends State<BooksScreen> {
         ? _currentPage * _itemsPerPage
         : _books.length;
     final pageBooks = _books.sublist(startIndex, endIndex);
+
 
    
     return Scaffold(
@@ -190,19 +202,19 @@ class _BooksScreenState extends State<BooksScreen> {
                                 children: [
                                   Expanded(
                                     child: ClipRRect(
-                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                                      child: book.coverImage != null && book.coverImage!.isNotEmpty
-                                          ? Image.network(
-                                              '$baseUrl/${book.coverImage}',
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (context, error, stackTrace) =>
-                                                  const Icon(Icons.image, size: 20),
-                                            )
-                                          : Container(
-                                              color: Colors.grey[300],
-                                              child: const Icon(Icons.image, size: 20),
-                                            ),
-                                    ),
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                                    child: book.photoUrl != null && book.photoUrl!.isNotEmpty
+                                        ? Image.network(
+                                            _getImageUrl(book.photoUrl!)!, 
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) =>
+                                                const Icon(Icons.image, size: 20),
+                                          )
+                                        : Container(
+                                            color: Colors.grey[300],
+                                            child: const Icon(Icons.image, size: 20),
+                                          ),
+                                  ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),

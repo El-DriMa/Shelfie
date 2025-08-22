@@ -95,6 +95,10 @@ namespace Shelfie.Services.Services
             if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
                 entity.PhoneNumber = request.PhoneNumber;
 
+            if (request.IsActive.HasValue)
+                entity.IsActive = request.IsActive.Value;
+
+
             entity.ModifiedAt = DateTime.Now;
 
             await Task.CompletedTask;

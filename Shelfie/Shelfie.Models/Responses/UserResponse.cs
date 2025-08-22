@@ -17,5 +17,6 @@ namespace Shelfie.Models.Responses
         public string? PhoneNumber { get; set; }
         public string? PhotoUrl { get; set; }
         public List<string> Roles { get; set; } = new List<string>();
+        public bool? IsActive { get; set; }
     }
 }
