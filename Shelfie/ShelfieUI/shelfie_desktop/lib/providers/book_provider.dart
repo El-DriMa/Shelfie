@@ -13,7 +13,6 @@ class BookProvider extends BaseProvider<Book> {
   @override
   Future<List<Book>> getAll(String authHeader) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Book");
-print("Pozivam API na: $uri");
     final response = await http.get(uri, headers: createHeaders(authHeader));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

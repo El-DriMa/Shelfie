@@ -1,6 +1,7 @@
 ﻿using Shelfie.Models.Requests;
 using Shelfie.Models.Responses;
 using Shelfie.Models.SearchObjects;
+using Shelfie.Services.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;

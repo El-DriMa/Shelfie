@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using Shelfie.Models.Requests;
 using Shelfie.Models.Responses;
 using Shelfie.Models.SearchObjects;
@@ -63,7 +64,7 @@ namespace Shelfie.Services.Services
 
         public override async Task<PagedResult<UserRoleResponse>> GetPaged(UserRoleSearchObject search)
         {
-            var query = _db.Set<UserRole>().Include(x=>x.User).AsQueryable();
+            var query = _db.Set<UserRole>().Include(x=>x.User).Include(x=>x.Role).AsQueryable();
 
             query = AddFilter(search, query);
 
@@ -76,7 +77,13 @@ namespace Shelfie.Services.Services
 
             var list = await query.ToListAsync();
 
-            var result = Mapper.Map<List<UserRoleResponse>>(list);
+            var result = list.Select(b =>
+            {
+                var response = Mapper.Map<UserRoleResponse>(b);
+                response.Username = b.User.Username;
+                response.RoleName = b.Role.Name;
+                return response;
+            }).ToList();
 
             return new PagedResult<UserRoleResponse>
             {
@@ -84,6 +91,44 @@ namespace Shelfie.Services.Services
                 TotalCount = count
             };
         }
+
+      
+            public override async Task BeforeInsert(UserRoleInsertRequest request, UserRole entity)
+            {
+                await base.BeforeInsert(request, entity);
+
+                var userRoles = await _db.UserRoles
+                    .Where(ur => ur.UserId == request.UserId)
+                    .ToListAsync();
+
+                if (userRoles.Count >= 2)
+                    throw new Exception("User can have at most 2 roles.");
+
+                if (userRoles.Any(ur => ur.RoleId == request.RoleId))
+                    throw new Exception("User already has this role.");
+
+                var existingRoleIds = userRoles.Select(ur => ur.RoleId).ToList();
+                if (existingRoleIds.Contains(request.RoleId) && existingRoleIds.Count == 1)
+                {
+                    throw new Exception("Cannot add duplicate role.");
+                }
+            }
+
+            public override async Task BeforeUpdate(UserRoleUpdateRequest request, UserRole entity)
+            {
+                await base.BeforeUpdate(request, entity);
+
+                var userRoles = await _db.UserRoles
+                    .Where(ur => ur.UserId == entity.UserId && ur.Id != entity.Id)
+                    .ToListAsync();
+
+                if (userRoles.Count >= 2)
+                    throw new Exception("User can have at most 2 roles.");
+
+                if (userRoles.Any(ur => ur.RoleId == request.RoleId))
+                    throw new Exception("User already has this role.");
+            }
+       
 
     }
 }

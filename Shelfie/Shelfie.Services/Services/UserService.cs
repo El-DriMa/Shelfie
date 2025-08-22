@@ -156,6 +156,29 @@ namespace Shelfie.Services.Services
             await _db.SaveChangesAsync();
         }
 
+        public virtual async Task<PagedResult<UserResponse>> GetPaged(UserSearchObject search)
+        {
+            var query = _db.Set<User>().Include(x=>x.UserRoles).ThenInclude(r=>r.Role).AsQueryable();
+
+            query = AddFilter(search, query);
+
+            int count = await query.CountAsync();
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+            {
+                query = query.Skip((search.Page.Value - 1) * search.PageSize.Value).Take(search.PageSize.Value);
+            }
+
+            var list = await query.ToListAsync();
+
+            var result = Mapper.Map<List<UserResponse>>(list);
+
+            return new PagedResult<UserResponse>
+            {
+                Items = result,
+                TotalCount = count
+            };
+        }
 
     }
 }

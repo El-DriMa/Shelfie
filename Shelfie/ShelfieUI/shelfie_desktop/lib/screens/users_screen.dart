@@ -3,6 +3,7 @@ import '../models/user.dart';
 import '../providers/user_provider.dart';
 import 'package:intl/intl.dart';
 import 'add_edit_user_screen.dart';
+import 'user_roles_screen.dart';
 
 class UsersScreen extends StatefulWidget {
   final String authHeader;
@@ -215,6 +216,22 @@ class _UsersScreenState extends State<UsersScreen> {
                                       });
                                     },
                                   ),
+                                   IconButton(
+                                      icon: const Icon(Icons.security, color: Colors.blue),
+                                      tooltip: "Manage Roles",
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => UserRolesScreen(
+                                              authHeader: widget.authHeader, 
+                                              userId: user.id,               
+                                              username: user.username,   
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   IconButton(
                                     icon: const Icon(Icons.delete,
                                         color: Colors.red),
