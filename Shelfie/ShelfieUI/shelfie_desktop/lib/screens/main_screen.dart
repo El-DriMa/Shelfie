@@ -8,6 +8,7 @@ import 'genres_screen.dart';
 import 'posts_screen.dart';
 import 'reviews_screen.dart';
 import 'shelf_books_screen.dart';
+import 'statistics_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainScreen extends StatefulWidget {
@@ -36,6 +37,7 @@ class _MainScreenState extends State<MainScreen> {
       ShelfBooksScreen(authHeader: widget.authHeader),
       PostsScreen(authHeader: widget.authHeader),
       UsersScreen(authHeader: widget.authHeader),
+      StatisticsScreen(authHeader: widget.authHeader),
     ];
   }
 
@@ -86,6 +88,7 @@ class _MainScreenState extends State<MainScreen> {
                       Tab(text: 'Shelves'),
                       Tab(text: 'Posts'),
                       Tab(text: 'Users'),
+                      Tab(text: 'Stats'),
                     ],
                   ),
                 ),

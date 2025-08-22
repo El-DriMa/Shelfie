@@ -20,6 +20,18 @@ class Statistics {
   int topAuthorId;
   String topAuthor;
 
+  
+  int totalUsers;
+  int totalBooks;
+  int totalAuthors;
+  int totalReviews;
+  List<String> mostReadGenres;
+  List<int> mostReadGenresCounts;
+  List<String> topUsers;
+  List<int> topUsersCounts;
+  double averageRating;
+
+
   Statistics({
     required this.userId,
     required this.totalReadBooks,
@@ -36,6 +48,15 @@ class Statistics {
     required this.uniqueGenresNames,
     required this.topAuthorId,
     required this.topAuthor,
+    required this.totalUsers,
+    required this.totalBooks,
+    required this.totalAuthors,
+    required this.totalReviews, 
+    required this.mostReadGenres,
+    required this.mostReadGenresCounts,
+    required this.topUsers,
+    required this.topUsersCounts,
+    required this.averageRating,
   });
 
   factory Statistics.fromJson(Map<String, dynamic> json) => _$StatisticsFromJson(json);

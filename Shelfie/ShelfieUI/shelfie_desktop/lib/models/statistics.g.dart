@@ -31,6 +31,25 @@ Statistics _$StatisticsFromJson(Map<String, dynamic> json) => Statistics(
           .toList(),
   topAuthorId: (json['topAuthorId'] as num).toInt(),
   topAuthor: json['topAuthor'] as String,
+  totalUsers: (json['totalUsers'] as num).toInt(),
+  totalBooks: (json['totalBooks'] as num).toInt(),
+  totalAuthors: (json['totalAuthors'] as num).toInt(),
+  totalReviews: (json['totalReviews'] as num).toInt(),
+  mostReadGenres:
+      (json['mostReadGenres'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+  mostReadGenresCounts:
+      (json['mostReadGenresCounts'] as List<dynamic>)
+          .map((e) => (e as num).toInt())
+          .toList(),
+  topUsers:
+      (json['topUsers'] as List<dynamic>).map((e) => e as String).toList(),
+  topUsersCounts:
+      (json['topUsersCounts'] as List<dynamic>)
+          .map((e) => (e as num).toInt())
+          .toList(),
+  averageRating: (json['averageRating'] as num).toDouble(),
 );
 
 Map<String, dynamic> _$StatisticsToJson(Statistics instance) =>
@@ -50,4 +69,13 @@ Map<String, dynamic> _$StatisticsToJson(Statistics instance) =>
       'uniqueGenresNames': instance.uniqueGenresNames,
       'topAuthorId': instance.topAuthorId,
       'topAuthor': instance.topAuthor,
+      'totalUsers': instance.totalUsers,
+      'totalBooks': instance.totalBooks,
+      'totalAuthors': instance.totalAuthors,
+      'totalReviews': instance.totalReviews,
+      'mostReadGenres': instance.mostReadGenres,
+      'mostReadGenresCounts': instance.mostReadGenresCounts,
+      'topUsers': instance.topUsers,
+      'topUsersCounts': instance.topUsersCounts,
+      'averageRating': instance.averageRating,
     };

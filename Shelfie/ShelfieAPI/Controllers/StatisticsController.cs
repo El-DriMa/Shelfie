@@ -30,5 +30,12 @@ namespace ShelfieAPI.Controllers
 
             return result ?? new PagedResult<StatisticsResponse> { Items = new List<StatisticsResponse>(), TotalCount = 0 };
         }
+
+        [HttpGet("all")]
+        public async Task<ActionResult<StatisticsResponse>> GetAll()
+        {
+            var stats = await _service.GetAppStatisticsAsync();
+            return Ok(stats);
+        }
     }
 }

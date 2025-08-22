@@ -122,5 +122,47 @@ namespace Shelfie.Services.Services
                 TotalCount = 1
             };
         }
+
+        public async Task<StatisticsResponse> GetAppStatisticsAsync()
+        {
+            var totalUsers = await _db.Users.CountAsync();
+            var totalBooks = await _db.Books.CountAsync();
+            var totalAuthors = await _db.Authors.CountAsync();
+            var totalReviews = await _db.Reviews.CountAsync();
+
+            var mostReadGenres = await _db.ShelfBooks
+                .Include(sb => sb.Book).ThenInclude(b => b.Genre)
+                .Where(sb => sb.Shelf.Name == Models.Enums.ShelfTypeEnum.Read)
+                .GroupBy(sb => sb.Book.Genre.Name)
+                .Select(g => new { GenreName = g.Key, Count = g.Count() })
+                .OrderByDescending(g => g.Count)
+                .Take(5)
+                .ToListAsync();
+
+            var topUsers = await _db.ShelfBooks
+                .Include(sb => sb.Shelf).ThenInclude(s => s.User)
+                .Where(sb => sb.Shelf.Name == Models.Enums.ShelfTypeEnum.Read)
+                .GroupBy(sb => sb.Shelf.User.Username)
+                .Select(g => new { Username = g.Key, Count = g.Count() })
+                .OrderByDescending(g => g.Count)
+                .Take(5)
+                .ToListAsync();
+
+            var averageRating = await _db.Reviews.AverageAsync(r => (double?)r.Rating) ?? 0;
+
+            return new StatisticsResponse
+            {
+                TotalUsers = totalUsers,
+                TotalBooks = totalBooks,
+                TotalAuthors = totalAuthors,
+                TotalReviews = totalReviews,
+                MostReadGenres = mostReadGenres.Select(g => g.GenreName).ToList(),
+                MostReadGenresCounts = mostReadGenres.Select(g => g.Count).ToList(),
+                TopUsers = topUsers.Select(u => u.Username).ToList(),
+                TopUsersCounts = topUsers.Select(u => u.Count).ToList(),
+                AverageRating = averageRating
+            };
+        }
+
     }
 }

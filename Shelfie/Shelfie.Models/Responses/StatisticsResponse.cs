@@ -24,5 +24,19 @@ namespace Shelfie.Models.Responses
         public List<string> UniqueGenresNames { get; set; } = new List<string>();
         public int TopAuthorId { get; set; }
         public string TopAuthor { get; set; } = "No data";
+
+
+
+        //
+
+        public int TotalUsers { get; set; }
+        public int TotalBooks { get; set; }
+        public int TotalAuthors { get; set; }
+        public int TotalReviews { get; set; }
+        public List<string> MostReadGenres { get; set; } = new List<string>();
+        public List<int> MostReadGenresCounts { get; set; } = new List<int>();
+        public List<string> TopUsers { get; set; } = new List<string>();
+        public List<int> TopUsersCounts { get; set; } = new List<int>();
+        public double AverageRating { get; set; }
     }
 }

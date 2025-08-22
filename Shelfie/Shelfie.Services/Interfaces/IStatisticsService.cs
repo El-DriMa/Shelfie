@@ -12,5 +12,6 @@ namespace Shelfie.Services.Interfaces
     public interface IStatisticsService : IService<StatisticsResponse,StatisticsSearchObject>
     {
         Task<PagedResult<StatisticsResponse>> GetPagedForUser(StatisticsSearchObject search, int userId);
+        Task<StatisticsResponse> GetAppStatisticsAsync();
     }
 }

@@ -20,4 +20,21 @@ class StatisticsProvider extends BaseProvider<Statistics> {
     }
     throw Exception("Failed to load Statistics");
   }
+
+   Future<Statistics> getAppStatistics(String authHeader) async {
+    final uri = Uri.parse("${BaseProvider.baseUrl}Statistics/all");
+    final response = await http.get(uri, headers: {
+      'Authorization': authHeader,
+      'Content-Type': 'application/json',
+    });
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return Statistics.fromJson(data);
+    } else {
+      throw Exception("Failed to load app statistics");
+    }
+  }
+
 }
+
