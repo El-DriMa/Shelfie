@@ -15,6 +15,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Shelfie.Services.Services
@@ -213,6 +214,7 @@ namespace Shelfie.Services.Services
 
         public async Task<PagedResult<BookResponse>> GetRecommendedBooksAsync(BookSearchObject search, int userId)
         {
+
             if (_model == null || _predictionEngine == null)
             {
                 await LoadOrTrainModelAsync();
@@ -238,40 +240,7 @@ namespace Shelfie.Services.Services
                 .Distinct()
                 .ToListAsync();
 
-            if (readBooks.Count < 3)
-            {
-                var result1Query = _db.Books
-                    .OrderByDescending(b => b.ShelfBooks.Count)
-                    .AsQueryable();
-
-                result1Query = AddFilter(search, result1Query);
-
-                totalCount = await result1Query.CountAsync();
-
-                if (search.Page.HasValue && search.PageSize.HasValue)
-                {
-                    int skip = (search.Page.Value - 1) * search.PageSize.Value;
-                    result1Query = result1Query.Skip(skip).Take(search.PageSize.Value);
-                }
-
-                var result1 = await result1Query
-                    .Select(b => new BookResponse
-                    {
-                        Id = b.Id,
-                        Title = b.Title,
-                        AuthorName = b.Author.FirstName + " " + b.Author.LastName,
-                        PhotoUrl = b.PhotoUrl,
-                        AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0,
-                        ReviewCount = b.Reviews.Count,
-                    })
-                    .ToListAsync();
-
-                return new PagedResult<BookResponse>
-                {
-                    Items = result1,
-                    TotalCount = totalCount
-                };
-            }
+            
 
             var allBooks = await _db.Books.ToListAsync();
 
@@ -421,7 +390,15 @@ namespace Shelfie.Services.Services
             }
 
             if (!data.Any())
-                return;
+            {
+                var fallbackBooks = await _db.Books.Take(10).ToListAsync();
+                var ids = fallbackBooks.Select(b => (uint)b.Id).ToList();
+
+                for (int i = 0; i < ids.Count; i++)
+                    for (int j = 0; j < ids.Count; j++)
+                        if (i != j)
+                            data.Add(new BookEntry { BookId = ids[i], CoReadBookId = ids[j], Label = 1 });
+            }
 
 
             var uniqueBookIds = data

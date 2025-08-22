@@ -70,11 +70,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         const SnackBar(content: Text('Profile updated successfully'), backgroundColor: Colors.green),
       );
       Navigator.pop(context, true);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('Error while saving profile: $e');
+      print('Auth header: ${widget.authHeader}');
+
+      print(stackTrace);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Failed to update profile: $e'), backgroundColor: Colors.red),
       );
-    } finally {
+  } finally {
       setState(() { _isSaving = false; });
     }
   }
@@ -92,6 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile'), backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
+      backgroundColor: Colors.deepPurple[50],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -105,8 +110,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ? FileImage(_selectedImage!)
                       : (_existingPhotoUrl != null && _existingPhotoUrl!.isNotEmpty
                       ? NetworkImage("${BaseProvider.baseUrl}${_existingPhotoUrl!}") as ImageProvider
-                      : const AssetImage("assets/default_profile.png")),
+                      : const AssetImage("assets/avatar.jpg")),
                 ),
+
                 Positioned(
                   bottom: 0,
                   right: 0,
@@ -159,7 +165,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         const SizedBox(height: 6),
         TextField(
           controller: controller,
+          style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),

@@ -60,6 +60,31 @@ namespace ShelfieAPI.Controllers
                 .Distinct()
                 .ToListAsync();
 
+            if (!genres.Any() && !authors.Any() && !userBookIds.Any())
+            {
+                var randomBooks = await _context.Books
+                    .Include(b => b.Genre)
+                    .Include(b => b.Author)
+                    .Include(b => b.Publisher)
+                    .OrderBy(b => Guid.NewGuid()) 
+                    .Take(10)
+                    .ToListAsync();
+
+                var bookResponses = randomBooks.Select(b =>
+                {
+                    var response = _mapper.Map<BookResponse>(b);
+                    response.AuthorName = $"{b.Author.FirstName} {b.Author.LastName}".Trim();
+                    return response;
+                }).ToList();
+
+                return Ok(new PagedResult<BookResponse>
+                {
+                    Items = bookResponses,
+                    TotalCount = bookResponses.Count
+                });
+            }
+
+
             var recommendedBooks = await _context.Books
                 .Include(b => b.Genre)
                 .Include(b => b.Author)
