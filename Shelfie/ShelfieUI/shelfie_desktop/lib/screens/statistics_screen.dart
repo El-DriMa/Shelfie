@@ -3,6 +3,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/statistics_provider.dart';
 import '../models/statistics.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
 class StatisticsScreen extends StatefulWidget {
   final String authHeader;
@@ -42,6 +47,82 @@ class _StatisticsScreenState extends State<StatisticsScreen> with TickerProvider
     }
   }
 
+  Future<void> _generatePdfReport() async {
+  if (_stats == null) return;
+
+  final pdf = pw.Document();
+
+  pdf.addPage(
+    pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      build: (pw.Context context) {
+        return pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text('App Statistics Report',
+                style: pw.TextStyle(
+                    fontSize: 24, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 20),
+
+            pw.Text('Total Users: ${_stats!.totalUsers}'),
+            pw.Text('Total Books: ${_stats!.totalBooks}'),
+            pw.Text('Total Authors: ${_stats!.totalAuthors}'),
+            pw.Text('Total Reviews: ${_stats!.totalReviews}'),
+            pw.Text('Average Rating: ${_stats!.averageRating.toStringAsFixed(1)}'),
+
+            pw.SizedBox(height: 20),
+
+            pw.Text('Most Read Genres:',
+                style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 8),
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: List.generate(_stats!.mostReadGenres.length, (i) {
+                return pw.Text(
+                    '- ${_stats!.mostReadGenres[i]} (${_stats!.mostReadGenresCounts[i]})');
+              }),
+            ),
+
+            pw.SizedBox(height: 20),
+
+            pw.Text('Top Users:',
+                style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 8),
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: List.generate(_stats!.topUsers.length, (i) {
+                return pw.Text(
+                    '- ${_stats!.topUsers[i]} (${_stats!.topUsersCounts[i]})');
+              }),
+            ),
+          ],
+        );
+      },
+    ),
+  );
+
+  String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Report As',
+        fileName: 'report.pdf',
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (outputFile != null) {
+        if (!outputFile.toLowerCase().endsWith('.pdf')) {
+          outputFile = '$outputFile.pdf';
+        }
+
+        final file = File(outputFile);
+        await file.writeAsBytes(await pdf.save());
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Report saved at $outputFile')),
+        );
+}
+
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +132,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> with TickerProvider
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 2,
+        actions: [
+        IconButton(
+          icon: Icon(Icons.picture_as_pdf),
+          iconSize: 32, 
+          onPressed: _generatePdfReport, 
+        ),
+      ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/start_screen.dart';
+import 'package:window_manager/window_manager.dart';
+
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+
+  
   const MyApp({super.key});
 
   @override
