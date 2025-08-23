@@ -25,7 +25,7 @@ namespace Shelfie.Services.Services
         {
             if (!string.IsNullOrWhiteSpace(search.FTS))
             {
-                query = query.Where(u => u.FirstName.Contains(search.FTS) || u.LastName.Contains(search.FTS));
+                query = query.Where(u => u.FirstName.Contains(search.FTS) || u.LastName.Contains(search.FTS) || u.Username.Contains(search.FTS));
             }
 
             return query;

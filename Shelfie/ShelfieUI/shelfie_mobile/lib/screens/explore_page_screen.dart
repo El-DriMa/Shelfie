@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shelfie/screens/add_to_shelf_screen.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
+import '../config.dart' as BaseProvider;
 import '../models/book.dart';
 import '../models/user.dart';
 import '../providers/book_provider.dart';
@@ -54,6 +55,17 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
       }
     });
   }
+
+  String? _getImageUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+
+    String base = BaseProvider.baseUrl ?? '';
+    base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+    return '$base/$photoUrl';
+  }
+
 
   @override
   void initState() {
@@ -174,14 +186,16 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
             }
 
             final books = snapshot.data!;
+
             return ListView.builder(
               itemCount: books.length,
               itemBuilder: (context, index) {
                 final book = books[index];
+                final imageUrl = _getImageUrl(book.photoUrl ?? '');
                 Widget imageWidget;
                 if (book.photoUrl != null && book.photoUrl!.isNotEmpty) {
                   imageWidget = Image.network(
-                    '$baseUrl/${book.photoUrl}',
+                   imageUrl!,
                     fit: BoxFit.cover,
                     width: 100,
                     errorBuilder: (context, error, stackTrace) => Container(

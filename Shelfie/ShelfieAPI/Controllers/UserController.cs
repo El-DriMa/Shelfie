@@ -11,6 +11,8 @@ using System.Security.Claims;
 using MapsterMapper;
 using System.ComponentModel.DataAnnotations;
 using Shelfie.Services.Services;
+using Shelfie.Services.Helpers;
+using System.Text;
 
 namespace ShelfieAPI.Controllers
 {
@@ -109,8 +111,55 @@ namespace ShelfieAPI.Controllers
             }
         }
 
+        [HttpPost("login/admin")]
+        public async Task<IActionResult> LoginAdmin([FromHeader(Name = "Authorization")] string authHeader)
+        {
+            var user = await ValidateUser(authHeader);
+            if (user == null)
+                return Unauthorized(new { message = "Wrong credentials" });
 
+            bool isAdmin = user.UserRoles.Any(ur => ur.Role.Name == "Admin");
+            if (!isAdmin)
+                return Unauthorized(new { message = "You don't have access to admin app" });
 
+            return Ok(new { message = "Admin login successful" });
+        }
+
+        [HttpPost("login/user")]
+        public async Task<IActionResult> LoginUser([FromHeader(Name = "Authorization")] string authHeader)
+        {
+            var user = await ValidateUser(authHeader);
+            if (user == null)
+                return Unauthorized(new { message = "Wrong credentials" });
+
+            bool isRegularUser = user.UserRoles.Any(ur => ur.Role.Name == "User");
+            if (!isRegularUser)
+                return Unauthorized(new { message = "You don't have access to this app" });
+
+            return Ok(new { message = "User login successful" });
+        }
+
+        private async Task<User?> ValidateUser(string authHeader)
+        {
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Basic "))
+                return null;
+
+            var encoded = authHeader.Substring("Basic ".Length).Trim();
+            var bytes = Convert.FromBase64String(encoded);
+            var parts = Encoding.UTF8.GetString(bytes).Split(':');
+            if (parts.Length != 2) return null;
+
+            var user = await _context.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Username == parts[0]);
+
+            if (user == null || !PasswordHelper.VerifyPassword(parts[1], user.PasswordHash, user.PasswordSalt))
+                return null;
+
+            user.LastLoginAt = DateTime.Now;
+            await _context.SaveChangesAsync();
+
+            return user;
+        }
 
     }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import '../config.dart' as BaseProvider;
 import '../models/shelfBooks.dart';
 import '../providers/shelf_books_provider.dart';
 import '../providers/shelf_provider.dart';
@@ -40,6 +41,16 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
     setState(() {
       currentlyReadingShelfId = shelf.id;
     });
+  }
+
+  String? _getImageUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+
+    String base = BaseProvider.baseUrl ?? '';
+    base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+    return '$base/$photoUrl';
   }
 
   @override
@@ -105,13 +116,28 @@ class _WantToReadShelfScreenState extends State<WantToReadShelfScreen> {
                   itemCount: sortedBooks.length,
                   itemBuilder: (context, index) {
                     final book = sortedBooks[index];
-                    Widget imageWidget = Container(
-                      color: Colors.white54,
-                      height: 150,
-                      width: 100,
-                      child: Icon(Icons.menu_book_rounded, size: 30),
-                    );
-
+                    final imageUrl = _getImageUrl(book.photoUrl ?? '');
+                    Widget imageWidget;
+                    if (book.photoUrl != null && book.photoUrl!.isNotEmpty) {
+                      imageWidget = Image.network(
+                        imageUrl!,
+                        fit: BoxFit.cover,
+                        width: 100,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.white54,
+                          height: 160,
+                          width: 100,
+                          child: Icon(Icons.menu_book_rounded, size: 60),
+                        ),
+                      );
+                    } else {
+                      imageWidget = Container(
+                        color: Colors.white54,
+                        height: 160,
+                        width: 100,
+                        child: Icon(Icons.menu_book_rounded, size: 60),
+                      );
+                    }
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(

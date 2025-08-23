@@ -3,8 +3,19 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
+import '../config.dart' as BaseProvider;
 import '../models/book.dart';
 import '../providers/book_provider.dart';
+
+String? _getImageUrl(String photoUrl) {
+  if (photoUrl.isEmpty) return null;
+  if (photoUrl.startsWith('http')) return photoUrl;
+
+  String base = BaseProvider.baseUrl ?? '';
+  base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+  return '$base/$photoUrl';
+}
 
 class BookDetailsScreen extends StatelessWidget {
   final String authHeader;
@@ -39,6 +50,7 @@ class BookDetailsScreen extends StatelessWidget {
             return const Center(child: Text('No data found'));
           }
           final book = snapshot.data!;
+          final imageUrl = _getImageUrl(book.photoUrl ?? '');
           return Column(
             children: [
               Container(
@@ -46,13 +58,19 @@ class BookDetailsScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
-                  child: book.photoUrl != null
-                      ? Image.network(
-                    book.photoUrl!,
-                    fit: BoxFit.cover,
+                  child:  (imageUrl != null && imageUrl.isNotEmpty)
+                    ? Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  height: 220,
+                  width: 150,
+                  errorBuilder: (context, error, stackTrace) => Container(
                     height: 220,
                     width: 150,
-                  )
+                    color: const Color(0xFFE0E0E0),
+                    child: const Icon(Icons.book, size: 80, color: Color(0xFF9E9E9E)),
+                  ),
+                )
                       : Container(
                     height: 220,
                     width: 150,

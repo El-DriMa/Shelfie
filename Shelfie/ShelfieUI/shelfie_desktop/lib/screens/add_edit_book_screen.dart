@@ -126,47 +126,55 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
   }
 
 
-  Future<void> _saveBook() async {
-    if (!_formKey.currentState!.validate()) return;
+ Future<void> _saveBook() async {
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSaving = true);
+  setState(() => _isSaving = true);
 
-    final bookData = <String, dynamic>{
-      "title": _titleController.text,
-      "totalPages": int.tryParse(_pagesController.text) ?? 0,
-      "yearPublished": int.tryParse(_yearController.text) ?? 0,
-      "shortDescription": _descController.text,
-      "language": _selectedLanguage ?? _book?.language,
-      "genreId": _selectedGenreId,
-      "authorId": _selectedAuthorId,
-      "publisherId": _selectedPublisherId,
-    };
+  final bookData = <String, dynamic>{
+    "title": _titleController.text,
+    "totalPages": int.tryParse(_pagesController.text) ?? 0,
+    "yearPublished": int.tryParse(_yearController.text) ?? 0,
+    "shortDescription": _descController.text,
+    "language": _selectedLanguage ?? _book?.language,
+    "genreId": _selectedGenreId,
+    "authorId": _selectedAuthorId,
+    "publisherId": _selectedPublisherId,
+    "photoUrl": _book?.photoUrl, 
+  };
 
-    try {
-      if (_book != null && _book!.id > 0) {
-        await _bookProvider.updateBook(widget.authHeader, _book!.id, bookData);
-      } else {
-        final createdBook = await _bookProvider.createBook(widget.authHeader, bookData);
-        _book = createdBook;
-      }
-
-      if (_selectedImage != null && _book != null) {
-        await _bookProvider.uploadPhoto(widget.authHeader, _book!.id, _selectedImage!);
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Book saved successfully'), backgroundColor: Colors.green),
-      );
-
-      Navigator.pop(context, true); 
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save book: $e'), backgroundColor: Colors.red),
-      );
-    } finally {
-      setState(() => _isSaving = false);
+  try {
+    if (_book != null && _book!.id > 0) {
+      await _bookProvider.updateBook(widget.authHeader, _book!.id, bookData);
+    } else {
+      _book = await _bookProvider.createBook(widget.authHeader, bookData);
     }
+
+    if (_selectedImage != null && _book != null) {
+      await _bookProvider.uploadPhoto(widget.authHeader, _book!.id, _selectedImage!);
+      _selectedImage = null;
+    }
+    if (_book != null) {
+      _book = await _bookProvider.getById(widget.authHeader, _book!.id);
+      setState(() {
+        _existingCoverUrl = _getImageUrl(_book?.photoUrl ?? '');
+      });
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Book saved successfully'), backgroundColor: Colors.green),
+    );
+    Navigator.pop(context, true); 
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to save book: $e'), backgroundColor: Colors.red),
+    );
+  } finally {
+    setState(() => _isSaving = false);
+  }
 }
+
+
 
 
 

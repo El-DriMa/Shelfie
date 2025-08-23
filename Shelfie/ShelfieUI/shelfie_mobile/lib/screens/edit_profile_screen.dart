@@ -20,6 +20,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController lastNameController;
   late TextEditingController emailController;
   late TextEditingController phoneController;
+  late User _user;
 
   File? _selectedImage;
   String? _existingPhotoUrl;
@@ -29,11 +30,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _user = widget.user;
     firstNameController = TextEditingController(text: widget.user.firstName);
     lastNameController = TextEditingController(text: widget.user.lastName);
     emailController = TextEditingController(text: widget.user.email);
     phoneController = TextEditingController(text: widget.user.phoneNumber);
-    _existingPhotoUrl = widget.user.photoUrl;
+    _existingPhotoUrl = _user.photoUrl;
   }
 
   Future<void> _pickImage() async {
@@ -50,24 +52,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  String? _getImageUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+
+    String base = BaseProvider.baseUrl ?? '';
+    base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+    return '$base/$photoUrl';
+  }
+
+
   Future<void> _saveProfile() async {
-    setState(() { _isSaving = true; });
+    setState(() {
+      _isSaving = true;
+    });
 
     final data = <String, dynamic>{};
-    if (firstNameController.text.trim().isNotEmpty) data['firstName'] = firstNameController.text.trim();
-    if (lastNameController.text.trim().isNotEmpty) data['lastName'] = lastNameController.text.trim();
-    if (emailController.text.trim().isNotEmpty) data['email'] = emailController.text.trim();
-    if (phoneController.text.trim().isNotEmpty) data['phoneNumber'] = phoneController.text.trim();
+    if (firstNameController.text
+        .trim()
+        .isNotEmpty) data['firstName'] = firstNameController.text.trim();
+    if (lastNameController.text
+        .trim()
+        .isNotEmpty) data['lastName'] = lastNameController.text.trim();
+    if (emailController.text
+        .trim()
+        .isNotEmpty) data['email'] = emailController.text.trim();
+    if (phoneController.text
+        .trim()
+        .isNotEmpty) data['phoneNumber'] = phoneController.text.trim();
+    data['photoUrl'] = _user.photoUrl;
 
     try {
       if (data.isNotEmpty) {
         await _provider.updateUser(widget.authHeader, widget.user.id, data);
       }
       if (_selectedImage != null) {
-        await _provider.uploadPhoto(widget.authHeader, widget.user.id, _selectedImage!);
+        await _provider.uploadPhoto(
+            widget.authHeader, widget.user.id, _selectedImage!);
       }
+
+
+      _user = await _provider.getById(widget.authHeader, _user.id);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully'), backgroundColor: Colors.green),
+        const SnackBar(content: Text('Profile updated successfully'),
+            backgroundColor: Colors.green),
       );
       Navigator.pop(context, true);
     } catch (e, stackTrace) {
@@ -76,14 +105,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       print(stackTrace);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text('Failed to update profile: $e'),
+            backgroundColor: Colors.red),
       );
-  } finally {
-      setState(() { _isSaving = false; });
+    } finally {
+      setState(() {
+        _isSaving = false;
+      });
     }
   }
 
-  @override
+
+    @override
   void dispose() {
     firstNameController.dispose();
     lastNameController.dispose();
@@ -108,11 +141,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   radius: 60,
                   backgroundImage: _selectedImage != null
                       ? FileImage(_selectedImage!)
-                      : (_existingPhotoUrl != null && _existingPhotoUrl!.isNotEmpty
-                      ? NetworkImage("${BaseProvider.baseUrl}${_existingPhotoUrl!}") as ImageProvider
-                      : const AssetImage("assets/avatar.jpg")),
+                      : (_existingPhotoUrl != null
+                      ? NetworkImage(_getImageUrl(_existingPhotoUrl!)!)
+                      : const AssetImage("assets/avatar.jpg") as ImageProvider),
                 ),
-
                 Positioned(
                   bottom: 0,
                   right: 0,

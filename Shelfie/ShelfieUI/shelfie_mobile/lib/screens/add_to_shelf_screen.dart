@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import '../config.dart' as BaseProvider;
 import '../models/book.dart';
 import '../models/shelfBooks.dart';
 import '../models/shelf.dart';
@@ -39,6 +40,15 @@ class _AddToShelfScreenState extends State<AddToShelfScreen> {
   final _shelfProvider = ShelfProvider();
   final _bookProvider = BookProvider();
 
+  String? _getImageUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+
+    String base = BaseProvider.baseUrl ?? '';
+    base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+    return '$base/$photoUrl';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +75,7 @@ class _AddToShelfScreenState extends State<AddToShelfScreen> {
           }
 
           final book = bookSnapshot.data!;
+          final imageUrl = _getImageUrl(book.photoUrl ?? '');
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -81,7 +92,7 @@ class _AddToShelfScreenState extends State<AddToShelfScreen> {
                       children: [
                         book.photoUrl != null
                             ? Image.network(
-                          book.photoUrl!,
+                          imageUrl!,
                           height: 180,
                           width: 120,
                           fit: BoxFit.cover,

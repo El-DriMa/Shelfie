@@ -136,7 +136,8 @@ Future<void> _updateGenre(int id) async {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Genres'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),

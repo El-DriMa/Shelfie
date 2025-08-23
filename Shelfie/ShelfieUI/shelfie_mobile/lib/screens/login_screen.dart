@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'main_screen.dart';
+import 'dart:convert';
+import '../providers/user_provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -13,53 +17,46 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
 
 
+  final UserProvider _userProvider = UserProvider();
+
+
   void _login() async {
-    print ("Login button pressed");
-    print ("Username: ${usernameController.text}");
-    print ("Password: ${passwordController.text}");
-    final username = usernameController.text;
-    final password = passwordController.text;
-
     try {
-      final result = await AuthService().login(username, password);
+      final credentials = base64Encode(
+          utf8.encode('${usernameController.text}:${passwordController.text}'));
+      final authHeader = 'Basic $credentials';
 
-      if (result == "FORBIDDEN") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('You are not allowed to access this app'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } else if (result == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid credentials'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login successful'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MainScreen(authHeader: result),
-          ),
-        );
-      }
-    } catch (e) {
+      await _userProvider.loginUser(authHeader);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Login failed'),
+          content: Text('Login successful'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainScreen(authHeader: authHeader),
+        ),
+      );
+    } catch (e) {
+      final errorMessage = e is String
+          ? e
+          : (e is Exception
+          ? e.toString().replaceAll('Exception: ', '')
+          : 'Login failed');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
+
 
 
   @override

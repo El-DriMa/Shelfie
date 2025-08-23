@@ -136,8 +136,9 @@ namespace Shelfie.Services.Services
                 response.ReviewCount = b.Book.Reviews.Count;
                 response.Username = b.Shelf.User.Username;
                 response.UserId = b.Shelf.UserId;
+                response.PhotoUrl = b.Book.PhotoUrl;
 
-                return response;
+                return response; ;
             }).ToList();
 
             return new PagedResult<ShelfBooksResponse>

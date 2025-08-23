@@ -108,5 +108,28 @@ class UserProvider extends BaseProvider<User> {
     }
   }
 
+  Future<void> loginUser(String authHeader) async {
+    final uri = Uri.parse("${BaseProvider.baseUrl}User/login/user");
+    final response = await http.post(uri, headers: createHeaders(authHeader));
+
+    if (response.statusCode == 200) {
+      print("Login successful");
+    } else {
+      final msg = response.body.isNotEmpty ? response.body : "Login failed";
+      throw msg;
+    }
+  }
+
+  Future<User> getById(String authHeader, int userId) async {
+    final uri = Uri.parse("${BaseProvider.baseUrl}User/$userId");
+    final response = await http.get(uri, headers: createHeaders(authHeader));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return fromJson(data);
+    }
+    throw Exception("Failed to load user");
+  }
+
+
 
 }

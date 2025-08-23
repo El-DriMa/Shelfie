@@ -10,6 +10,11 @@ import 'reviews_screen.dart';
 import 'shelf_books_screen.dart';
 import 'statistics_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'admin_edit_profile_screen.dart';
+import '../models/user.dart';
+import '../providers/user_provider.dart';
+import 'password_change_screen.dart';
+
 
 class MainScreen extends StatefulWidget {
   final String authHeader;
@@ -23,6 +28,8 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   late final List<Widget> _screens;
+  final UserProvider _provider = UserProvider();
+  dynamic user;
 
   @override
   void initState() {
@@ -39,11 +46,21 @@ class _MainScreenState extends State<MainScreen> {
       UsersScreen(authHeader: widget.authHeader),
       StatisticsScreen(authHeader: widget.authHeader),
     ];
+     _loadUser();
   }
 
-  void _logout() {
-    Navigator.pop(context);
+   Future<void> _loadUser() async {
+    final current = await _provider.getCurrentUser(widget.authHeader);
+    setState(() {
+      user = current;
+    });
   }
+   void _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('authToken');
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +109,49 @@ class _MainScreenState extends State<MainScreen> {
                     ],
                   ),
                 ),
+                 PopupMenuButton<String>(
+                  icon: const Icon(Icons.settings, color: Colors.white, size: 30),
+                  onSelected: (value) async {
+                    if (value == 'profile') {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdminEditProfileScreen(
+                            user: user,
+                            authHeader: widget.authHeader,
+                          ),
+                        ),
+                      );
+                      if (result == true) {
+                        _loadUser();
+                      }
+                    } else if (value == 'password') {
+                     final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChangePasswordScreen(
+                            authHeader: widget.authHeader,
+                            username: user.username,
+                          ),
+                        ),
+                      );
+                      if (result == true) {
+                        _loadUser();
+                      }
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'profile',
+                      child: Text('Edit Profile'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'password',
+                      child: Text('Change Password'),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 10),
                 Padding(
                     padding: const EdgeInsets.only(right: 16),
                     child: ElevatedButton.icon(

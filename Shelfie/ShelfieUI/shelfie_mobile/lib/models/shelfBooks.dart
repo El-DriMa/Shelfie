@@ -16,6 +16,7 @@ class ShelfBooks {
   DateTime? updatedAt;
   double averageRating;
   int reviewCount;
+  String? photoUrl;
 
   ShelfBooks({
     required this.id,
@@ -30,6 +31,7 @@ class ShelfBooks {
     this.updatedAt,
     required this.averageRating,
     required this.reviewCount,
+    this.photoUrl,
   });
 
   factory ShelfBooks.fromJson(Map<String, dynamic> json) => _$ShelfBooksFromJson(json);
