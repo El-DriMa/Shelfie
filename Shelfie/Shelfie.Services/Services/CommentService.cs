@@ -1,4 +1,5 @@
-﻿using MapsterMapper;
+﻿using EasyNetQ;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Shelfie.Models.Requests;
 using Shelfie.Models.Responses;
@@ -16,9 +17,11 @@ namespace Shelfie.Services.Services
     public class CommentService : BaseCRUDService<CommentResponse, CommentSearchObject, Comment, CommentInsertRequest, CommentUpdateRequest>, ICommentService
     {
         private INotificationService _notificationService;
-        public CommentService(IB220155Context context, IMapper mapper, INotificationService notificationService) : base(context, mapper)
+        public IBus bus;
+        public CommentService(IB220155Context context, IMapper mapper, INotificationService notificationService, IBus bus) : base(context, mapper)
         {
             _notificationService = notificationService;
+            this.bus = bus;
         }
 
         public override async Task<PagedResult<CommentResponse>> GetPaged(CommentSearchObject search)
@@ -84,7 +87,7 @@ namespace Shelfie.Services.Services
 
             if (entity.UserId != post.UserId)
             {
-                var notification = new NotificationInsertRequest
+                var ev = new CommentCreatedEvent
                 {
                     PostId = entity.PostId,
                     CommentId = entity.Id,
@@ -94,7 +97,7 @@ namespace Shelfie.Services.Services
                     FromUserName = (await _db.Users.FindAsync(entity.UserId))?.Username ?? ""
                 };
 
-                await _notificationService.Insert(notification);
+                await bus.PubSub.PublishAsync(ev);
             }
 
             return Mapper.Map<CommentResponse>(entity);

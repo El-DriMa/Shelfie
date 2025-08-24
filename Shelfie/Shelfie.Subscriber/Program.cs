@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Shelfie.Models.Responses;
 using Shelfie.Services.Database;
 using System;
 using System.Threading.Tasks;
@@ -26,9 +27,26 @@ var bus = RabbitHutch.CreateBus("host=localhost");
 using var scope = host.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<IB220155Context>();
 
-await bus.PubSub.SubscribeAsync<NotificationMessage>("notification_subscriber", async notification =>
+await bus.PubSub.SubscribeAsync<CommentCreatedEvent>("notification_subscriber", async ev =>
 {
-    Console.WriteLine($"New notification for user {notification.ToUserId}: {notification.CommentText}");
+    using var scope = host.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<IB220155Context>();
+
+    var notification = new NotificationMessage
+    {
+        PostId = ev.PostId,
+        CommentId = ev.CommentId,
+        CommentText = ev.CommentText,
+        FromUserId = ev.FromUserId,
+        ToUserId = ev.ToUserId,
+        FromUserName = ev.FromUserName,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    await dbContext.Notifications.AddAsync(notification);
+    await dbContext.SaveChangesAsync();
+
+    Console.WriteLine($"Notification saved for user {ev.ToUserId} from {ev.FromUserName}");
 });
 
 Console.WriteLine("Listening for notifications. Press any key to exit.");

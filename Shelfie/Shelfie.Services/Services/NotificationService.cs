@@ -26,22 +26,6 @@ namespace Shelfie.Services.Services
             _mapper = mapper;
         }
 
-        public override async Task<NotificationResponse> Insert(NotificationInsertRequest request)
-        {
-            if (request.FromUserId == request.ToUserId)
-                return null;
-
-            var entity = _mapper.Map<NotificationMessage>(request);
-            entity.CreatedAt = DateTime.UtcNow;
-
-            await _context.Notifications.AddAsync(entity);
-            await _context.SaveChangesAsync();
-
-            var response = _mapper.Map<NotificationResponse>(entity);
-            await _bus.PubSub.PublishAsync(entity);
-
-            return response;
-        }
 
         public virtual async Task BeforeUpdate(NotificationUpdateRequest request, NotificationMessage entity)
         {
