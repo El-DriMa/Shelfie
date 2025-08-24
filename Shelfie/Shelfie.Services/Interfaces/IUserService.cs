@@ -14,6 +14,7 @@ namespace Shelfie.Services.Interfaces
         Task<UserResponse> GetCurrentUser(int userId, string appType);
 
         Task ChangePassword(int userId, ChangePasswordRequest request);
+        Task AdminChangePassword(int userId, string newPassword);
 
     }
 }

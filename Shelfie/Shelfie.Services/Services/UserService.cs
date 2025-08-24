@@ -64,6 +64,8 @@ namespace Shelfie.Services.Services
                 });
             }
 
+            user.IsActive = true;
+
             await _db.Users.AddAsync(user);
             await _db.SaveChangesAsync();
 
@@ -179,6 +181,21 @@ namespace Shelfie.Services.Services
                 TotalCount = count
             };
         }
+
+        public async Task AdminChangePassword(int userId, string newPassword)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                throw new ValidationException("User not found.");
+
+            PasswordHelper.CreatePasswordHash(newPassword, out string hash, out string salt);
+            user.PasswordHash = hash;
+            user.PasswordSalt = salt;
+            user.ModifiedAt = DateTime.Now;
+
+            await _db.SaveChangesAsync();
+        }
+
 
     }
 }

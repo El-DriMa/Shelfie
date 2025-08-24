@@ -3,6 +3,7 @@ import '../models/user.dart';
 import '../providers/user_provider.dart';
 import 'package:intl/intl.dart';
 import 'add_edit_user_screen.dart';
+import 'change_user_password_screen.dart';
 import 'user_roles_screen.dart';
 
 class UsersScreen extends StatefulWidget {
@@ -216,6 +217,21 @@ class _UsersScreenState extends State<UsersScreen> {
                                       });
                                     },
                                   ),
+                                  IconButton(
+                                      icon: const Icon(Icons.vpn_key, color: Colors.red),
+                                      tooltip: "Change Password",
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChangeUserPasswordScreen(
+                                              authHeader: widget.authHeader, 
+                                              userId: user.id,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                    IconButton(
                                       icon: const Icon(Icons.security, color: Colors.blue),
                                       tooltip: "Manage Roles",

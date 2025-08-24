@@ -161,5 +161,22 @@ namespace ShelfieAPI.Controllers
             return user;
         }
 
+        [HttpPost("admin-change-password")]
+        public async Task<IActionResult> AdminChangePassword(
+            [FromBody] AdminChangePasswordRequest request,
+            [FromServices] IUserService userService)
+        {
+            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(currentUserIdStr, out int currentUserId))
+                return Unauthorized();
+
+            if (request.UserId == currentUserId)
+                return BadRequest("Cannot reset your own password via admin endpoint. Use your own change password screen.");
+
+            await userService.AdminChangePassword(request.UserId, request.NewPassword);
+            return Ok("Password has been changed successfully");
+        }
+
+
     }
 }

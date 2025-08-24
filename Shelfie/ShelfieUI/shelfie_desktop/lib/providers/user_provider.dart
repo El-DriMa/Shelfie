@@ -174,4 +174,27 @@ class UserProvider extends BaseProvider<User> {
     throw msg; 
     }
   }
+
+  Future<void> adminChangePassword(String authHeader, int userId, String newPassword) async {
+  final uri = Uri.parse('${BaseProvider.baseUrl}User/admin-change-password');
+
+    final response = await http.post(
+      uri,
+      headers: {
+        'authorization': authHeader,
+        'content-type': 'application/json',
+      },
+      body: jsonEncode({
+        'userId': userId,
+        'newPassword': newPassword,
+      }),
+    );
+
+   if (response.statusCode >= 200 && response.statusCode < 300) {
+    print("Password changed successfully");
+  }else {
+    final msg = response.body.isNotEmpty ? response.body : "Login failed";
+    throw msg; 
+  }
+  }
 }
