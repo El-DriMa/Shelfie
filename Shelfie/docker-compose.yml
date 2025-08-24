@@ -1,0 +1,83 @@
+version: '3'
+
+services:
+  shelfie-sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MySuperStrong!Pass123
+      - MSSQL_PID=Developer
+    ports:
+      - "1401:1433"
+    networks:
+      - shelfie-network
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBIT_MQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_MQ_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - shelfie-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    user: "999:999"
+  
+  shelfie-api:
+    build:
+      context: .
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings:DefaultConnection=Server=shelfie-sql,1433;Database=shelfie;User ID=sa;Password=MySuperStrong!Pass123;TrustServerCertificate=True
+      - RabbitMQ:HostName=${RABBIT_MQ_HOST}
+      - RabbitMQ:Username=${RABBIT_MQ_USER}
+      - RabbitMQ:Password=${RABBIT_MQ_PASS}
+    ports:
+      - "5046:5046"
+    networks:
+      - shelfie-network
+    links:
+      - shelfie-sql
+      - rabbitmq
+    depends_on:
+      shelfie-sql:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    command: sh -c "sleep 120 && dotnet ShelfieAPI.dll"
+   
+  
+  shelfie-subscriber:
+    build:
+      context: .
+      dockerfile: Shelfie.Subscriber/Dockerfile
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=${RABBIT_MQ_USER}
+      - RABBITMQ_PASSWORD=${RABBIT_MQ_PASS}
+      - EmailSettings__FromEmail=${SMTP_USER}
+      - EmailSettings__SmtpServer=${SMTP_HOST}
+      - EmailSettings__Port=${SMTP_PORT}
+      - EmailSettings__Password=${SMTP_PASS}
+    networks:
+      - shelfie-network
+    links:
+      - rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    command: sh -c "sleep 90 && dotnet Shelfie.Subscriber.dll"
+
+networks:
+  shelfie-network:
+    driver: bridge

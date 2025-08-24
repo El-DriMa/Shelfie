@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Shelfie.Models.Enums;
 using Shelfie.Services.Database;
 using Shelfie.Services.Helpers;
 
@@ -176,6 +177,68 @@ namespace ShelfieAPI.DataSeed
                  _context.Set<UserRole>().AddRange(userRoles);
                 _context.SaveChanges();
             }
+
+            if (!_context.Set<Post>().Any())
+            {
+                var posts = new List<Post>
+                    {
+                        new Post { Content = "Excited to start reading Harry Potter!", UserId = 3, GenreId = 1, State = PostStateEnum.Published },
+                        new Post { Content = "Just finished War and Peace, amazing!", UserId = 4, GenreId = 6, State = PostStateEnum.Published },
+                        new Post { Content = "Looking for a good mystery book.", UserId = 5, GenreId = 3, State = PostStateEnum.Draft }
+                    };
+                _context.Set<Post>().AddRange(posts);
+                _context.SaveChanges();
+            }
+
+
+            if (!_context.Set<Comment>().Any())
+            {
+                var comments = new List<Comment>
+                    {
+                        new Comment { PostId = 1, UserId = 4, Content = "I love that series too!" },
+                        new Comment { PostId = 2, UserId = 3, Content = "War and Peace is a classic." },
+                        new Comment { PostId = 1, UserId = 5, Content = "Can't wait to read it!" }
+                    };
+                _context.Set<Comment>().AddRange(comments);
+                _context.SaveChanges();
+            }
+
+            if (!_context.Set<ReadingChallenge>().Any())
+            {
+                var challenges = new List<ReadingChallenge>
+                    {
+                        new ReadingChallenge { UserId = 3, ChallengeName = "Read 5 Books", Description = "Complete 5 books this month", GoalType = GoalTypeEnum.Books, GoalAmount = 5, StartDate = DateOnly.FromDateTime(DateTime.Now), EndDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(1)), Progress = 0, IsCompleted = false },
+                        new ReadingChallenge { UserId = 4, ChallengeName = "Read 1000 Pages", Description = "Reach 1000 pages", GoalType = GoalTypeEnum.Pages, GoalAmount = 1000, StartDate = DateOnly.FromDateTime(DateTime.Now), EndDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(2)), Progress = 200, IsCompleted = false }
+                    };
+                _context.Set<ReadingChallenge>().AddRange(challenges);
+                _context.SaveChanges();
+            }
+
+            if (!_context.Set<Review>().Any())
+            {
+                var reviews = new List<Review>
+                    {
+                        new Review { BookId = 6, UserId = 3, Rating = 5, Description = "Loved it!" },
+                        new Review { BookId = 4, UserId = 4, Rating = 4, Description = "Historical masterpiece" },
+                        new Review { BookId = 2, UserId = 5, Rating = 3, Description = "Good, but not my favorite" }
+                    };
+                                _context.Set<Review>().AddRange(reviews);
+                _context.SaveChanges();
+            }
+
+            
+            if (!_context.Set<ShelfBooks>().Any())
+            {
+                                var shelfBooks = new List<ShelfBooks>
+                    {
+                        new ShelfBooks { ShelfId = 1, BookId = 6, PagesRead = 50 },
+                        new ShelfBooks { ShelfId = 2, BookId = 4, PagesRead = 100 },
+                        new ShelfBooks { ShelfId = 3, BookId = 2, PagesRead = 0 }
+                    };
+                _context.Set<ShelfBooks>().AddRange(shelfBooks);
+                _context.SaveChanges();
+            }
+
 
             return Ok("All data seeded successfully.");
         }

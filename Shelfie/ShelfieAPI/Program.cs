@@ -76,6 +76,21 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<IB220155Context>();
+
+    if (context.Database.EnsureCreated())
+    {
+        if (!context.Users.Any())
+        {
+            var seeder = new ShelfieAPI.DataSeed.DataSeed(context);
+            seeder.SeedAll();
+        }
+    }
+}
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
