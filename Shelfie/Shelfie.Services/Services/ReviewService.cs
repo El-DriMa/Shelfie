@@ -56,6 +56,16 @@ namespace Shelfie.Services.Services
         }
         public override IQueryable<Review> AddFilter(ReviewSearchObject search, IQueryable<Review> query)
         {
+            if (search.BookId.HasValue)
+            {
+                query = query.Where(r => r.BookId == search.BookId.Value);
+            }
+
+            if (search.UserId.HasValue)
+            {
+                query = query.Where(r => r.UserId == search.UserId.Value);
+            }
+
             if (!string.IsNullOrWhiteSpace(search.BookName) && !string.IsNullOrWhiteSpace(search.Username))
             {
                 query = query.Where(r =>

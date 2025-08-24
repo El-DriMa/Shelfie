@@ -54,7 +54,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
     challengeNameController.text = challenge.challengeName;
     descriptionController.text = challenge.description;
     goalAmountController.text = challenge.goalAmount.toString();
-    selectedGoalType = int.tryParse(challenge.goalType) ?? 1;
+    selectedGoalType = challenge.goalType.toLowerCase() == 'books' ? 1 : 0;
     startDate = challenge.startDate;
     endDate = challenge.endDate;
     progressController.text = challenge.progress.toString();
@@ -165,6 +165,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
                 ],
                 onChanged: (val) => setState(() => selectedGoalType = val!),
               ),
+
               _buildTextField(goalAmountController, 'Goal Amount', keyboardType: TextInputType.number),
               SizedBox(height: 16),
               Row(

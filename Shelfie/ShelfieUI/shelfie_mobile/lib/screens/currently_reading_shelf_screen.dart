@@ -282,13 +282,29 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
 
                                         if (newPagesRead != null && newPagesRead != currentPagesRead) {
                                           try {
-                                            await _shelfBooksProvider.updatePagesRead(widget.authHeader,book.id, newPagesRead);
+                                            await _shelfBooksProvider.updatePagesRead(
+                                                widget.authHeader, book.id, newPagesRead);
+
+                                            if (newPagesRead == book.totalPages) {
+                                              await _shelfBooksProvider.removeBookFromShelf(widget.authHeader, book.id);
+                                              await _shelfBooksProvider.addToShelf(widget.authHeader, book.bookId, readShelfId);
+
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text('Book moved to Read shelf'),
+                                                    backgroundColor: Colors.green,
+                                                    duration: Duration(seconds: 2),
+                                                  ),
+                                                );
+                                              }
+                                            }
+
                                             setState(() {});
                                           } catch (e) {
                                             showDialog(
                                               context: context,
                                               builder: (context) => AlertDialog(
-                                               // title: Text('Error'),
                                                 content: Text('Pages read cannot be decreased or exceed the total number of pages.'),
                                                 actions: [
                                                   TextButton(
@@ -300,6 +316,7 @@ class _CurrentlyReadingShelfScreenState extends State<CurrentlyReadingShelfScree
                                             );
                                           }
                                         }
+
                                       },
                                       child: Text(
                                         'Update reading progress',
