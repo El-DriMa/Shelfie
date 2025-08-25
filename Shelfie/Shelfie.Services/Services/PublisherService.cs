@@ -41,7 +41,7 @@ namespace Shelfie.Services.Services
 
         public override async Task BeforeUpdate(PublisherUpdateRequest request, Publisher entity)
         {
-            if (_db.Publishers.Any(p => p.Name == request.Name))
+            if (_db.Publishers.Any(p => p.Name == request.Name && p.Id != entity.Id))
                 throw new ValidationException("A publisher with the same name already exists.");
 
             if (!string.IsNullOrWhiteSpace(request.Name))
@@ -66,8 +66,6 @@ namespace Shelfie.Services.Services
 
             await Task.CompletedTask;
         }
-
-       
 
     }
 }

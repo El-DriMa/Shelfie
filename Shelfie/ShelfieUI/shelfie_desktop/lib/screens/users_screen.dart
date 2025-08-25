@@ -20,6 +20,7 @@ class _UsersScreenState extends State<UsersScreen> {
   bool _isLoading = true;
   String _searchQuery = '';
   String _sortOrder = 'A-Z';
+  User? _currentUser;
 
   int _currentPage = 1;
   final int _itemsPerPage = 10;
@@ -27,9 +28,13 @@ class _UsersScreenState extends State<UsersScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUsers();
+    _initialize();
   }
 
+  Future<void> _initialize() async {
+    _currentUser = await _userProvider.getCurrentUser(widget.authHeader);
+    _loadUsers();
+  }
   Future<void> _loadUsers() async {
     try {
       var users = await _userProvider.getAll(widget.authHeader);
@@ -232,7 +237,8 @@ class _UsersScreenState extends State<UsersScreen> {
                                         );
                                       },
                                     ),
-                                   IconButton(
+                                   if (user.username != _currentUser?.username)
+                                    IconButton(
                                       icon: const Icon(Icons.security, color: Colors.blue),
                                       tooltip: "Manage Roles",
                                       onPressed: () {
@@ -240,44 +246,46 @@ class _UsersScreenState extends State<UsersScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => UserRolesScreen(
-                                              authHeader: widget.authHeader, 
-                                              userId: user.id,               
-                                              username: user.username,   
+                                              authHeader: widget.authHeader,
+                                              userId: user.id,
+                                              username: user.username,
                                             ),
                                           ),
                                         );
                                       },
                                     ),
                                   IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
-                                    onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text('Confirm Delete'),
-                                          content: const Text(
-                                              'Are you sure you want to delete this user?'),
-                                          actions: [
-                                            TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    context, false),
-                                                child: const Text('Cancel')),
-                                            TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    context, true),
-                                                child: const Text('Delete')),
-                                          ],
-                                        ),
-                                      );
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text('Confirm Delete'),
+                                        content: const Text(
+                                            'Are you sure you want to delete this user?'),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: const Text('Cancel')),
+                                          TextButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              child: const Text('Delete')),
+                                        ],
+                                      ),
+                                    );
 
-                                      if (confirm == true) {
-                                        await _userProvider.deleteUser(
-                                            widget.authHeader, user.id);
+                                    if (confirm == true) {
+                                      await _userProvider.deleteUser(widget.authHeader, user.id);
+                                      
+                                      if (user.id == _currentUser?.id) {
+                                        Navigator.of(context).pushReplacementNamed('/login');
+                                      } else {
                                         _loadUsers();
                                       }
-                                    },
-                                  ),
+                                    }
+                                  },
+                                ),
+
                                 ],
                               )),
                             ]);
