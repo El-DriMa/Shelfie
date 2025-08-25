@@ -62,12 +62,11 @@
   - View active challenges with progress and remaining days
   - Add new challenge with goal (e.g., read 100 pages in 5 days)
   - Edit or delete challenges
-  - See books completed in each challenge
+  - See books completed in each challenge time period
 
 - **User Statistics:**
   - Track total books/pages read this year
   - Most read genres, shortest/longest books, highest/lowest rated books
-  - Average ratings and annual reading summary
 
 - **Discussion Forum:**
   - Browse posts by genre
@@ -76,6 +75,7 @@
 
 - **My Profile / Mini Feed:**
   - Edit personal info and app settings
+  - User Activity
   - Delete profile
 
 ---
@@ -85,7 +85,11 @@
 - **Frontend:** Flutter (mobile and desktop)  
 - **Backend:** C# .NET Core  
 - **Database:** MS SQL Server  
-- **Deployment:** Docker  
+- **Deployment:** Docker
+
+## RabbitMQ Notifications
+
+This project uses RabbitMQ to send real-time in-app notifications to users. Whenever someone comments on a user's post, a notification is sent via the subscriber service. Notifications are not sent when a user comments on their own post.
 
 ---
 
