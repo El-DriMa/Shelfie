@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../models/shelfBooks.dart';
 import '../providers/reading_challenge_provider.dart';
+import '../providers/shelf_books_provider.dart';
+import '../providers/shelf_provider.dart';
 
 class AddEditChallengeScreen extends StatefulWidget {
   final String authHeader;
@@ -27,6 +30,9 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
 
   final ReadingChallengeProvider _provider = ReadingChallengeProvider();
 
+  final _shelfBooksProvider = ShelfBooksProvider();
+  final _shelfProvider = ShelfProvider();
+  int shelfReadId=0;
   int selectedGoalType = 1;
   DateTime? startDate;
   DateTime? endDate;
@@ -44,7 +50,20 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
 
     if (widget.challengeId != null) {
       _loadChallenge();
+      getReadShelfId();
     }
+  }
+
+  void getReadShelfId() async {
+    final shelves = await _shelfProvider.getAll(widget.authHeader);
+    final readShelf = shelves.firstWhere(
+          (shelf) => shelf.name.toLowerCase() == 'read',
+      orElse: () => shelves.first,
+    );
+    setState(() {
+      shelfReadId = readShelf.id;
+    });
+
   }
 
   Future<void> _loadChallenge() async {
@@ -72,10 +91,10 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
       final name = challengeNameController.text.trim();
       final desc = descriptionController.text.trim();
       final goalAmount = int.tryParse(goalAmountController.text.trim()) ?? 0;
-      if ((int.tryParse(progressController.text.trim()) ?? 0) >= goalAmount) {
+      int progress = int.tryParse(progressController.text.trim()) ?? 0;
+
+      if (progress >= goalAmount) {
         isCompleted = true;
-      } else {
-        isCompleted = false;
       }
 
       if (widget.challengeId == null) {
@@ -88,18 +107,18 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
           goalAmount,
           startDate!,
           endDate!,
-          int.tryParse(progressController.text.trim()) ?? 0,
+          progress,
           isCompleted,
         );
       } else {
         await _provider.updateChallenge(widget.authHeader, widget.challengeId!, {
-          'challengeName': challengeNameController.text.trim(),
-          'description': descriptionController.text.trim(),
-          'goalAmount': int.tryParse(goalAmountController.text.trim()) ?? 0,
+          'challengeName': name,
+          'description': desc,
+          'goalAmount': goalAmount,
           'goalType': selectedGoalType,
           'startDate': DateFormat('yyyy-MM-dd').format(startDate!),
           'endDate': DateFormat('yyyy-MM-dd').format(endDate!),
-          'progress': int.tryParse(progressController.text.trim()) ?? 0,
+          'progress': progress,
           'isCompleted': isCompleted,
         });
       }
@@ -112,6 +131,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
       );
     }
   }
+
 
   Future<void> _pickDate({required bool isStart}) async {
     final picked = await showDatePicker(
@@ -188,7 +208,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
               ),
               _buildTextField(progressController, 'Progress', keyboardType: TextInputType.number),
 
-              CheckboxListTile(
+            /*  CheckboxListTile(
                 title: Text('Completed'),
                 value: isCompleted,
                 onChanged: (val) {
@@ -196,7 +216,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
                     isCompleted = val ?? false;
                   });
                 },
-              ),
+              ),*/
               SizedBox(height: 20),
 
               ElevatedButton(
@@ -204,6 +224,49 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
                 child: Text(widget.challengeId == null ? 'Create Challenge' : 'Update Challenge'),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple,foregroundColor: Colors.white),
               ),
+              SizedBox(height: 12),
+              Text("Books read in this challenge:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              FutureBuilder<List<ShelfBooks>>(
+                future: _shelfBooksProvider.getByShelfId(widget.authHeader, shelfReadId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Text("No books found in Read shelf");
+                  }
+
+                  final booksInChallenge = snapshot.data!.where((sb) {
+                    return sb.createdAt.isAfter(startDate!) &&
+                        sb.createdAt.isBefore(endDate!);
+                  }).toList();
+
+                  if (booksInChallenge.isEmpty) {
+                    return Text("No books read in this period");
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: booksInChallenge.length,
+                    itemBuilder: (context, index) {
+                      final book = booksInChallenge[index];
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 6),
+                        child: ListTile(
+                          leading: book.photoUrl != null
+                              ? Image.network(book.photoUrl!, width: 40, height: 60, fit: BoxFit.cover)
+                              : Icon(Icons.book, size: 40, color: Colors.deepPurple),
+                          title: Text(book.bookTitle ?? ""),
+                          subtitle: Text(book.authorName ?? ""),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+
             ],
           ),
         ),

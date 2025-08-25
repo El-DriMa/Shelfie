@@ -6,6 +6,12 @@ import 'package:shelfie/config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/comment_provider.dart';
+import '../providers/post_provider.dart';
+import '../providers/reading_challenge_provider.dart';
+import '../providers/review_provider.dart';
+import '../providers/shelf_books_provider.dart';
+import '../providers/shelf_provider.dart';
 import '../providers/user_provider.dart';
 import 'edit_profile_screen.dart';
 
@@ -237,6 +243,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                 ),
+                SizedBox(height: 30),
+                Text("Activity", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                FutureBuilder<List<UserActivity>>(
+                  future: getUserActivities(widget.authHeader, user.id),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return CircularProgressIndicator();
+                    final activities = snapshot.data!;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: activities.length,
+                      itemBuilder: (context, index) {
+                        final a = activities[index];
+                        return ListTile(
+                          title: Text(a.description),
+                          leading: Icon(
+                              a.type == 'shelf' ? Icons.book : a.type == 'review' ? Icons.star : a.type == 'challenge' ? Icons.flag : Icons.comment
+                          ),
+                        );
+                      },
+                    );
+                  },
+                )
+
               ],
             ),
           );
@@ -262,4 +292,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+
+class UserActivity {
+  final String type; // 'shelf', 'review', 'challenge', 'comment'
+  final String description;
+  //final DateTime date;
+
+  UserActivity({required this.type, required this.description});
+}
+
+Future<List<UserActivity>> getUserActivities(String authHeader, int userId) async {
+  final shelfProvider = ShelfProvider();
+  final shelfBooksProvider = ShelfBooksProvider();
+  final reviewProvider = ReviewProvider();
+  final challengeProvider = ReadingChallengeProvider();
+  final commentProvider = CommentProvider();
+  final postProvider = PostProvider();
+
+  List<UserActivity> activities = [];
+
+  // 1. ShelfBooks
+  final shelves = await shelfProvider.getAll(authHeader);
+  for (var shelf in shelves) {
+    final books = await shelfBooksProvider.getByShelfId(authHeader, shelf.id);
+    for (var book in books) {
+      activities.add(UserActivity(
+        type: 'shelf',
+        description: 'Added "${book.bookTitle}" to ${shelf.name}',
+      ));
+    }
+  }
+
+  // 2. Reviews
+  final reviews = await reviewProvider.getAll(authHeader);
+  final userReviews = reviews.where((r) => r.userId == userId);
+  for (var review in userReviews) {
+    activities.add(UserActivity(
+      type: 'review',
+      description: 'Reviewed "${review.bookTitle}" (${review.rating}/5): ${review.description}',
+    ));
+  }
+
+  // 3. Challenges
+  final challenges = await challengeProvider.getUserChallenges(authHeader);
+  for (var challenge in challenges) {
+    activities.add(UserActivity(
+      type: 'challenge',
+      description: 'Started challenge "${challenge.challengeName}"',
+    ));
+  }
+
+  // 4. Comments
+  final posts = await PostProvider().getAll(authHeader, username: null);
+  for (var post in posts) {
+    final comments = await commentProvider.fetchComments(authHeader, post.id);
+    final userComments = comments.where((c) => c.userId == userId);
+    for (var comment in userComments) {
+      activities.add(UserActivity(
+        type: 'comment',
+        description: 'Commented on post "${post.content}": ${comment.content}',
+      ));
+    }
+  }
+
+
+  return activities;
 }

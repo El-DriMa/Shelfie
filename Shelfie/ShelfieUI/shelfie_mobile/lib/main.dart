@@ -17,7 +17,6 @@ class MyApp extends StatelessWidget {
       routes: {
         '/start': (context) => StartScreen(),
         '/explore': (context) => ExplorePageScreen(authHeader: ''),
-        '/notifications': (context) => NotificationsScreen(authHeader: ''),
         '/login': (context) => LoginScreen(),
         '/profile': (context) => ProfileScreen(authHeader: ''),
       },
