@@ -450,9 +450,9 @@ namespace Shelfie.Services.Services
 
         private class BookEntry
         {
-            [KeyType(count: 40)]
+            [KeyType(count: 15)]
             public uint BookId { get; set; }
-            [KeyType(count: 40)]
+            [KeyType(count: 15)]
             public uint CoReadBookId { get; set; }
             public float Label { get; set; }
         }

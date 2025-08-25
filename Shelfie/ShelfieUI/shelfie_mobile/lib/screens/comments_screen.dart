@@ -64,18 +64,25 @@ class _CommentsScreenState extends State<CommentsScreen> {
   Future<void> sendReply() async {
     final content = replyController.text.trim();
     if (content.isEmpty) return;
+
     int? parentCommentId = replyingToComment?.id;
     int postId = widget.post.id;
     final user = await _userProvider.getCurrentUser(widget.authHeader);
+
     await _provider.addComment(
         widget.authHeader, postId, user.id, content, parentCommentId);
 
     replyController.clear();
     setState(() {
       replyingToComment = null;
-      commentsFuture = _provider.fetchComments(widget.authHeader, postId);
+    });
+
+    final updated = await _provider.fetchComments(widget.authHeader, postId);
+    setState(() {
+      commentsFuture = Future.value(updated);
     });
   }
+
 
   Future<void> deleteComment(Comment comment) async {
     final comments = await _provider.fetchComments(widget.authHeader, widget.post.id);

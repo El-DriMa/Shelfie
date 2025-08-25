@@ -110,13 +110,13 @@ namespace ShelfieAPI.DataSeed
             {
                 var books = new List<Book>
                 {
-                    new Book { Title = "Pride and Prejudice", TotalPages = 279, PhotoUrl = "/covers/5ba49406-fbb1-4138-8b39-91623895f709.jpg", AuthorId = 1, PublisherId = 1, GenreId = 5, YearPublished = 1813, ShortDescription = "Classic romantic novel", Language = "English" },
+                    new Book { Title = "Pride and Prejudice", TotalPages = 279, PhotoUrl = "covers/5ba49406-fbb1-4138-8b39-91623895f709.jpg", AuthorId = 1, PublisherId = 1, GenreId = 5, YearPublished = 1813, ShortDescription = "Classic romantic novel", Language = "English" },
                     new Book { Title = "The Adventures of Tom Sawyer", TotalPages = 274, PhotoUrl = null, AuthorId = 2, PublisherId = 2, GenreId = 10, YearPublished = 1876, ShortDescription = "American classic", Language = "English" },
                     new Book { Title = "Great Expectations", TotalPages = 505, PhotoUrl = null, AuthorId = 3, PublisherId = 3, GenreId = 13, YearPublished = 1861, ShortDescription = "Coming-of-age novel", Language = "English" },
                     new Book { Title = "War and Peace", TotalPages = 1225, PhotoUrl = null, AuthorId = 4, PublisherId = 4, GenreId = 6, YearPublished = 1869, ShortDescription = "Historical novel", Language = "English" },
                     new Book { Title = "Murder on the Orient Express", TotalPages = 256, PhotoUrl = null, AuthorId = 5, PublisherId = 5, GenreId = 3, YearPublished = 1934, ShortDescription = "Mystery novel", Language = "English" },
                     new Book { Title = "Harry Potter and the Philosopher's Stone", TotalPages = 223, PhotoUrl = null, AuthorId = 6, PublisherId = 6, GenreId = 1, YearPublished = 1997, ShortDescription = "Fantasy novel", Language = "English" },
-                    new Book { Title = "1984", TotalPages = 328, PhotoUrl = "/covers/fde22249-32bc-4478-9500-0579fc59835c.jpg", AuthorId = 7, PublisherId = 7, GenreId = 2, YearPublished = 1949, ShortDescription = "Dystopian novel", Language = "English" },
+                    new Book { Title = "1984", TotalPages = 328, PhotoUrl = "covers/fde22249-32bc-4478-9500-0579fc59835c.jpg", AuthorId = 7, PublisherId = 7, GenreId = 2, YearPublished = 1949, ShortDescription = "Dystopian novel", Language = "English" },
                     new Book { Title = "The Old Man and the Sea", TotalPages = 127, PhotoUrl = null, AuthorId = 8, PublisherId = 8, GenreId = 13, YearPublished = 1952, ShortDescription = "Short novel", Language = "English" },
                     new Book { Title = "The Great Gatsby", TotalPages = 180, PhotoUrl = null, AuthorId = 9, PublisherId = 9, GenreId = 13, YearPublished = 1925, ShortDescription = "Jazz Age novel", Language = "English" },
                     new Book { Title = "Mrs Dalloway", TotalPages = 296, PhotoUrl = null, AuthorId = 10, PublisherId = 10, GenreId = 9, YearPublished = 1925, ShortDescription = "Modernist novel", Language = "English" },
@@ -130,27 +130,15 @@ namespace ShelfieAPI.DataSeed
                 _context.SaveChanges();
             }
 
-            if (!_context.Set<Shelf>().Any())
-            {
-                var shelves = new List<Shelf>
-                {
-                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.Read, BooksCount = 0, UserId = 1 },
-                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.CurrentlyReading, BooksCount = 0, UserId = 1 },
-                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.WantToRead, BooksCount = 0, UserId = 1 }
-                };
-                _context.Set<Shelf>().AddRange(shelves);
-                _context.SaveChanges();
-            }
 
             if (!_context.Set<User>().Any())
             {
                 var users = new List<User>
                 {
-                    new User { Username = "desktop", Email = "desktop@example.com" },
-                    new User { Username = "mobile", Email = "mobile@example.com" },  
-                    new User { Username = "Alice", Email = "alice@example.com" },
-                    new User { Username = "Bob", Email = "bob@example.com" },
-                    new User { Username = "Charlie", Email = "charlie@example.com" }
+                    new User { FirstName="Desktop", LastName="Admin", Username = "desktop", Email = "desktop@example.com" },
+                    new User { FirstName="Mobile", LastName="Test", Username = "mobile", Email = "mobile@example.com" },  
+                    new User { FirstName="Alice",LastName="Doe", Username = "alice", Email = "alice@example.com" },
+                    new User { FirstName="Bob",LastName="Macy", Username = "bob", Email = "bob@example.com" },
                 };
 
                 foreach (var user in users)
@@ -158,6 +146,7 @@ namespace ShelfieAPI.DataSeed
                     PasswordHelper.CreatePasswordHash("test", out string hash, out string salt);
                     user.PasswordHash = hash;
                     user.PasswordSalt = salt;
+                    user.IsActive = true;
                 }
 
                 _context.Set<User>().AddRange(users);
@@ -168,47 +157,63 @@ namespace ShelfieAPI.DataSeed
 
                 var userRoles = new List<UserRole>
                     {
-                        new UserRole { UserId = users[0].Id, RoleId = adminRole.Id }, 
-                        new UserRole { UserId = users[1].Id, RoleId = userRole.Id },  
+                        new UserRole { UserId = users[0].Id, RoleId = adminRole.Id },
+                        new UserRole { UserId = users[1].Id, RoleId = userRole.Id },
                         new UserRole { UserId = users[2].Id, RoleId = userRole.Id },
                         new UserRole { UserId = users[3].Id, RoleId = userRole.Id },
-                        new UserRole { UserId = users[4].Id, RoleId = userRole.Id }
                     };
-                 _context.Set<UserRole>().AddRange(userRoles);
+                _context.Set<UserRole>().AddRange(userRoles);
                 _context.SaveChanges();
             }
+
+            if (!_context.Set<Shelf>().Any())
+            {
+                var shelves = new List<Shelf>
+                {
+                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.Read, BooksCount = 2, UserId = 2 },
+                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.CurrentlyReading, BooksCount = 0, UserId = 2 },
+                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.WantToRead, BooksCount = 0, UserId = 2 },
+                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.Read, BooksCount = 2, UserId = 3 },
+                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.CurrentlyReading, BooksCount = 0, UserId = 3 },
+                    new Shelf { Name = Shelfie.Models.Enums.ShelfTypeEnum.WantToRead, BooksCount = 0, UserId = 3 }
+                };
+                _context.Set<Shelf>().AddRange(shelves);
+                _context.SaveChanges();
+            }
+
+            if (!_context.Set<ShelfBooks>().Any())
+            {
+                var shelfBooks = new List<ShelfBooks>
+                    {
+                        new ShelfBooks { ShelfId = 1, BookId = 6, PagesRead = 50 },
+                        new ShelfBooks { ShelfId = 1, BookId = 4, PagesRead = 50 },
+                        new ShelfBooks { ShelfId = 4, BookId = 4, PagesRead = 100 },
+                        new ShelfBooks { ShelfId = 4, BookId = 2, PagesRead = 20 }
+                    };
+                _context.Set<ShelfBooks>().AddRange(shelfBooks);
+                _context.SaveChanges();
+            }
+
 
             if (!_context.Set<Post>().Any())
             {
                 var posts = new List<Post>
                     {
-                        new Post { Content = "Excited to start reading Harry Potter!", UserId = 3, GenreId = 1, State = PostStateEnum.Published },
-                        new Post { Content = "Just finished War and Peace, amazing!", UserId = 4, GenreId = 6, State = PostStateEnum.Published },
-                        new Post { Content = "Looking for a good mystery book.", UserId = 5, GenreId = 3, State = PostStateEnum.Draft }
+                        new Post { Content = "Excited to start reading Harry Potter!", UserId = 2, GenreId = 1, State = PostStateEnum.Published },
+                        new Post { Content = "Just finished War and Peace, amazing!", UserId = 3, GenreId = 6, State = PostStateEnum.Published },
+                        new Post { Content = "Looking for a good mystery book.", UserId = 2, GenreId = 3, State = PostStateEnum.Draft }
                     };
                 _context.Set<Post>().AddRange(posts);
                 _context.SaveChanges();
             }
 
 
-            if (!_context.Set<Comment>().Any())
-            {
-                var comments = new List<Comment>
-                    {
-                        new Comment { PostId = 1, UserId = 4, Content = "I love that series too!" },
-                        new Comment { PostId = 2, UserId = 3, Content = "War and Peace is a classic." },
-                        new Comment { PostId = 1, UserId = 5, Content = "Can't wait to read it!" }
-                    };
-                _context.Set<Comment>().AddRange(comments);
-                _context.SaveChanges();
-            }
-
             if (!_context.Set<ReadingChallenge>().Any())
             {
                 var challenges = new List<ReadingChallenge>
                     {
-                        new ReadingChallenge { UserId = 3, ChallengeName = "Read 5 Books", Description = "Complete 5 books this month", GoalType = GoalTypeEnum.Books, GoalAmount = 5, StartDate = DateOnly.FromDateTime(DateTime.Now), EndDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(1)), Progress = 0, IsCompleted = false },
-                        new ReadingChallenge { UserId = 4, ChallengeName = "Read 1000 Pages", Description = "Reach 1000 pages", GoalType = GoalTypeEnum.Pages, GoalAmount = 1000, StartDate = DateOnly.FromDateTime(DateTime.Now), EndDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(2)), Progress = 200, IsCompleted = false }
+                        new ReadingChallenge { UserId = 2, ChallengeName = "Read 5 Books", Description = "Complete 5 books this month", GoalType = GoalTypeEnum.Books, GoalAmount = 5, StartDate = DateOnly.FromDateTime(DateTime.Now), EndDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(1)), Progress = 0, IsCompleted = false },
+                        new ReadingChallenge { UserId = 3, ChallengeName = "Read 1000 Pages", Description = "Reach 1000 pages", GoalType = GoalTypeEnum.Pages, GoalAmount = 1000, StartDate = DateOnly.FromDateTime(DateTime.Now), EndDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(2)), Progress = 200, IsCompleted = false }
                     };
                 _context.Set<ReadingChallenge>().AddRange(challenges);
                 _context.SaveChanges();
@@ -218,27 +223,15 @@ namespace ShelfieAPI.DataSeed
             {
                 var reviews = new List<Review>
                     {
-                        new Review { BookId = 6, UserId = 3, Rating = 5, Description = "Loved it!" },
-                        new Review { BookId = 4, UserId = 4, Rating = 4, Description = "Historical masterpiece" },
-                        new Review { BookId = 2, UserId = 5, Rating = 3, Description = "Good, but not my favorite" }
+                        new Review { BookId = 6, UserId = 2, Rating = 5, Description = "Loved it!" },
+                        new Review { BookId = 4, UserId = 2, Rating = 4, Description = "Historical masterpiece" },
+                        new Review { BookId = 2, UserId = 3, Rating = 3, Description = "Good, but not my favorite" }
                     };
-                                _context.Set<Review>().AddRange(reviews);
+                _context.Set<Review>().AddRange(reviews);
                 _context.SaveChanges();
             }
 
             
-            if (!_context.Set<ShelfBooks>().Any())
-            {
-                                var shelfBooks = new List<ShelfBooks>
-                    {
-                        new ShelfBooks { ShelfId = 1, BookId = 6, PagesRead = 50 },
-                        new ShelfBooks { ShelfId = 2, BookId = 4, PagesRead = 100 },
-                        new ShelfBooks { ShelfId = 3, BookId = 2, PagesRead = 0 }
-                    };
-                _context.Set<ShelfBooks>().AddRange(shelfBooks);
-                _context.SaveChanges();
-            }
-
 
             return Ok("All data seeded successfully.");
         }

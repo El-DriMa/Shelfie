@@ -11,8 +11,6 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<IBus>(RabbitHutch.CreateBus("host=localhost"));
-
 builder.Services.AddControllers();
 
 builder.Configuration.AddEnvironmentVariables();
@@ -21,6 +19,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<IB220155Context>(options =>
     options.UseSqlServer(connectionString));
+
+var rabbitMqHost = Environment.GetEnvironmentVariable("RABBIT_MQ_HOST") ?? "rabbitmq";
+var rabbitMqUser = Environment.GetEnvironmentVariable("RABBIT_MQ_USER") ?? "guest";
+var rabbitMqPass = Environment.GetEnvironmentVariable("RABBIT_MQ_PASS") ?? "guest";
+
+var rabbitConn = $"host={rabbitMqHost};username={rabbitMqUser};password={rabbitMqPass}";
+
+builder.Services.AddSingleton<IBus>(_ => RabbitHutch.CreateBus(rabbitConn));
+
 
 builder.Services.AddSingleton<IMapper, Mapper>();
 

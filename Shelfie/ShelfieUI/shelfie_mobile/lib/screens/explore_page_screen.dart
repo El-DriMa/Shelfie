@@ -87,40 +87,6 @@ class _ExplorePageScreenState extends State<ExplorePageScreen>{
   }
 
 
- void _showSearchDialog() async {
-    String query = '';
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Search Books'),
-          content: TextField(
-            autofocus: true,
-            decoration: InputDecoration(hintText: 'Type anything...'),
-            onChanged: (v) => query = v,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, query),
-              child: Text('Search'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, null),
-              child: Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-    if (result != null && result.isNotEmpty) {
-      setState(() {
-        booksFuture = _bookProvider.searchBooks(widget.authHeader,result);
-      });
-    }
-  }
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
