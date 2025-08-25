@@ -172,11 +172,42 @@ class _AddEditAuthorScreenState extends State<AddEditAuthorScreen> {
                         onTap: () => _pickDate(_birthDateController, _birthDate, (date) => _birthDate = date),
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
-                        controller: _deathDateController,
-                        decoration: const InputDecoration(labelText: 'Death Date (optional)', border: OutlineInputBorder()),
-                        onTap: () => _pickDate(_deathDateController, _deathDate, (date) => _deathDate = date),
+                       TextFormField(
+                          controller: _deathDateController,
+                          decoration: const InputDecoration(
+                              labelText: 'Death Date (optional)',
+                              border: OutlineInputBorder()),
+                          readOnly: true,
+                          onTap: () async {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                            DateTime? date = await showDatePicker(
+                              context: context,
+                              initialDate: _deathDate ?? DateTime.now(),
+                              firstDate: DateTime(1800),
+                              lastDate: DateTime.now(),
+                            );
+
+                            if (date != null) {
+                              if (_birthDate != null && date.isBefore(_birthDate!)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Death date cannot be before birth date'), backgroundColor: Colors.red,),
+                                );
+                                _deathDate = null;
+                                _deathDateController.text = '';
+                              } else {
+                                _deathDate = date;
+                                _deathDateController.text = DateFormat('dd.MM.yyyy').format(date);
+                              }
+                            }
+                          },
+                          validator: (v) {
+                            if (_deathDate != null && _birthDate != null && _deathDate!.isBefore(_birthDate!)) {
+                              return 'Death date cannot be before birth date';
+                            }
+                            return null;
+                          },
                         ),
+
                         const SizedBox(height: 16),
                         TextFormField(
                         controller: _shortBioController,

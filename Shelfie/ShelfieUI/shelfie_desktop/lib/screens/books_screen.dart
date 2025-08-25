@@ -21,8 +21,6 @@ class _BooksScreenState extends State<BooksScreen> {
   bool _isLoading = true;
   String _searchQuery = '';
   String _sortOrder = 'A-Z';
-
-
   int _currentPage = 1;
   final int _itemsPerPage = 10;
 
@@ -45,13 +43,11 @@ class _BooksScreenState extends State<BooksScreen> {
     }
   }
 
-   String? _getImageUrl(String photoUrl) {
+  String? _getImageUrl(String photoUrl) {
     if (photoUrl.isEmpty) return null;
     if (photoUrl.startsWith('http')) return photoUrl;
-
     String base = BaseProvider.baseUrl ?? '';
     base = base.replaceAll(RegExp(r'/api/?$'), '');
-
     return '$base/$photoUrl';
   }
 
@@ -70,7 +66,7 @@ class _BooksScreenState extends State<BooksScreen> {
       setState(() {
         _books = books;
         _isLoading = false;
-        _currentPage = 1; 
+        _currentPage = 1;
       });
     } catch (e) {
       setState(() => _isLoading = false);
@@ -86,8 +82,6 @@ class _BooksScreenState extends State<BooksScreen> {
         : _books.length;
     final pageBooks = _books.sublist(startIndex, endIndex);
 
-
-   
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -95,93 +89,93 @@ class _BooksScreenState extends State<BooksScreen> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
-      body: Column(
-        children: [
-          Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Book title',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    prefixIcon: const Icon(Icons.search),
-                  ),
-                  onChanged: (value) {
-                    _searchQuery = value;
-                    _searchBooks(value);
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              DropdownButtonHideUnderline(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurple[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: DropdownButton<String>(
-                      value: _sortOrder,
-                      items: const [
-                        DropdownMenuItem(value: 'A-Z', child: Text('A-Z')),
-                        DropdownMenuItem(value: 'Z-A', child: Text('Z-A')),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _sortOrder = value!;
-                          _sortBooks();
-                          _currentPage = 1;
-                        });
-                      },
-                      dropdownColor: Colors.deepPurple[50],
-                      style: const TextStyle(color: Colors.black, fontSize: 14),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddEditBookScreen(authHeader: widget.authHeader),
-                    ),
-                  ).then((value) {
-                    if (value == true) {
-                      _loadBooks();
-                    }
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple[100], 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8), 
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22), 
-                ),
-                child: const Text(
-                  "Add new Book",
-                  style: TextStyle(fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-          _isLoading
-              ? const Expanded(
-                  child: Center(child: CircularProgressIndicator()))
-              : Expanded(
-                  child: Column(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(12),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                children: [
+                  Row(
                     children: [
                       Expanded(
-                        child: GridView.builder(
-                          padding: const EdgeInsets.all(12),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Book title',
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            prefixIcon: const Icon(Icons.search),
+                          ),
+                          onChanged: (value) {
+                            _searchQuery = value;
+                            _searchBooks(value);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      DropdownButtonHideUnderline(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: DropdownButton<String>(
+                              value: _sortOrder,
+                              items: const [
+                                DropdownMenuItem(value: 'A-Z', child: Text('A-Z')),
+                                DropdownMenuItem(value: 'Z-A', child: Text('Z-A')),
+                              ],
+                              onChanged: (value) {
+                                setState(() {
+                                  _sortOrder = value!;
+                                  _sortBooks();
+                                  _currentPage = 1;
+                                });
+                              },
+                              dropdownColor: Colors.deepPurple[50],
+                              style: const TextStyle(color: Colors.black, fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddEditBookScreen(authHeader: widget.authHeader),
+                            ),
+                          ).then((value) {
+                            if (value == true) {
+                              _loadBooks();
+                            }
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepPurple[100],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+                        ),
+                        child: const Text(
+                          "Add new Book",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.all(0),
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 5,
@@ -202,25 +196,24 @@ class _BooksScreenState extends State<BooksScreen> {
                                 children: [
                                   Expanded(
                                     child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                                    child: book.photoUrl != null && book.photoUrl!.isNotEmpty
-                                        ? Image.network(
-                                            _getImageUrl(book.photoUrl!)!, 
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) =>
-                                                const Icon(Icons.image, size: 20),
-                                          )
-                                        : Container(
-                                            color: Colors.grey[300],
-                                            child: const Icon(Icons.image, size: 20),
-                                          ),
-                                  ),
+                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                                      child: book.photoUrl != null && book.photoUrl!.isNotEmpty
+                                          ? Image.network(
+                                              _getImageUrl(book.photoUrl!)!,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (context, error, stackTrace) =>
+                                                  const Icon(Icons.image, size: 20),
+                                            )
+                                          : Container(
+                                              color: Colors.grey[300],
+                                              child: const Icon(Icons.image, size: 20),
+                                            ),
+                                    ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(book.title,
                                             style: const TextStyle(
@@ -257,8 +250,7 @@ class _BooksScreenState extends State<BooksScreen> {
                                     ),
                                   ),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       IconButton(
                                         icon: const Icon(
@@ -291,14 +283,12 @@ class _BooksScreenState extends State<BooksScreen> {
                                               ],
                                             ),
                                           );
-
                                           if (confirm == true) {
                                             await _bookProvider.deleteBook(widget.authHeader, book.id);
-                                            _loadBooks(); 
+                                            _loadBooks();
                                           }
                                         },
                                       ),
-
                                     ],
                                   )
                                 ],
@@ -306,33 +296,33 @@ class _BooksScreenState extends State<BooksScreen> {
                             );
                           },
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back),
-                              onPressed: _currentPage > 1
-                                  ? () => setState(() => _currentPage--)
-                                  : null,
-                            ),
-                            Text('$_currentPage / $totalPages'),
-                            IconButton(
-                              icon: const Icon(Icons.arrow_forward),
-                              onPressed: _currentPage < totalPages
-                                  ? () => setState(() => _currentPage++)
-                                  : null,
-                            ),
-                          ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: _currentPage > 1
+                              ? () => setState(() => _currentPage--)
+                              : null,
                         ),
-                      ),
-                    ],
+                        Text('$_currentPage / $totalPages'),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_forward),
+                          onPressed: _currentPage < totalPages
+                              ? () => setState(() => _currentPage++)
+                              : null,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-        ],
-        ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

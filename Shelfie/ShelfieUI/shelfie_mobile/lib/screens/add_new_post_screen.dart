@@ -50,7 +50,7 @@ class _AddNewPostScreenState extends State<AddNewPostScreen> {
       );
       print('Post added successfully: ${post.id}');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Post added successfully')),
+        const SnackBar(content: Text('Post added to Drafts. See My Posts to Publish')),
       );
       Navigator.pop(context, true);
     } catch (e) {

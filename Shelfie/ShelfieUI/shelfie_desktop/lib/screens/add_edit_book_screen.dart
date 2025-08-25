@@ -276,13 +276,20 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
                           decoration: const InputDecoration(labelText: 'Year Published', border: OutlineInputBorder()),
                           keyboardType: TextInputType.number,
                           validator: (v) {
-                            if (v != null && v.isNotEmpty) {
-                              final n = int.tryParse(v);
-                              if (n == null || n < 1 || n > 2025) return 'Invalid year';
+                            if (v == null || v.isEmpty) return 'Required';
+                            final year = int.tryParse(v);
+                            if (year == null || year < 1 || year > 2025) return 'Invalid year';
+
+                            if (_selectedAuthorId != null) {
+                              final author = _authors.firstWhere((a) => a.id == _selectedAuthorId);
+                              if (author.birthDate != null && year < author.birthDate!.year) {
+                                return 'Year cannot be before author\'s birth (${author.birthDate!.year})';
+                              }
                             }
                             return null;
                           },
                         ),
+
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _descController,
