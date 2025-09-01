@@ -3,8 +3,7 @@ import '../services/auth_service.dart';
 import 'main_screen.dart';
 import 'dart:convert';
 import '../providers/user_provider.dart';
-import 'package:http/http.dart' as http;
-import 'dart:io';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -15,15 +14,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-
-
   final UserProvider _userProvider = UserProvider();
-
 
   void _login() async {
     try {
       final credentials = base64Encode(
-          utf8.encode('${usernameController.text}:${passwordController.text}'));
+        utf8.encode('${usernameController.text}:${passwordController.text}'),
+      );
       final authHeader = 'Basic $credentials';
 
       await _userProvider.loginUser(authHeader);
@@ -42,11 +39,17 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     } catch (e) {
-      final errorMessage = e is String
-          ? e
-          : (e is Exception
-          ? e.toString().replaceAll('Exception: ', '')
-          : 'Login failed');
+      String errorMessage = e.toString().replaceAll('Exception: ', '');
+      if (errorMessage.contains('{') && errorMessage.contains('}')) {
+        try {
+          final parsed = jsonDecode(errorMessage);
+          if (parsed is Map && parsed.containsKey('message')) {
+            errorMessage = parsed['message'];
+          }
+        } catch (_) {
+          errorMessage = "Login failed";
+        }
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -57,19 +60,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.deepPurple[100],
       body: Center(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 'Shelfie',
                 style: TextStyle(
                   fontSize: 48,
@@ -78,10 +79,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.deepPurple,
                 ),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               TextField(
                 controller: usernameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Username',
                   labelStyle: TextStyle(color: Colors.deepPurple),
                   enabledBorder: UnderlineInputBorder(
@@ -92,13 +93,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   prefixIcon: Icon(Icons.email, color: Colors.deepPurple),
                 ),
-                keyboardType: TextInputType.text,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               TextField(
                 controller: passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                   labelStyle: TextStyle(color: Colors.deepPurple),
                   enabledBorder: UnderlineInputBorder(
@@ -110,22 +110,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   prefixIcon: Icon(Icons.lock, color: Colors.deepPurple),
                 ),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Login',
-                    style: TextStyle(fontSize: 20,color: Colors.white),
-
+                    style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
               ),

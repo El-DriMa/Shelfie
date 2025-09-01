@@ -40,6 +40,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         _newController.text,
       );
 
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Password changed successfully"),
@@ -49,23 +51,40 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       _oldController.clear();
       _newController.clear();
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => LoginScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
             (route) => false,
       );
     } catch (e) {
-      String errorMessage = e.toString();
+      String errorMessage;
+
+      if (e is String) {
+        errorMessage = e;
+      } else if (e is Exception) {
+        errorMessage = e.toString().replaceFirst("Exception: ", "");
+      } else {
+        errorMessage = "An error occurred";
+      }
+
       if (errorMessage.contains("Old password is not correct")) {
         errorMessage = "Old password is incorrect";
       }
+
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
-    } finally {
+    }
+
+    if (mounted) {
       setState(() => _loading = false);
     }
   }
+
+
 
   Widget _buildTextField(TextEditingController controller, String label) {
     return Column(

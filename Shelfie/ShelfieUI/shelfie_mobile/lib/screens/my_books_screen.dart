@@ -106,12 +106,40 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                   itemCount: shelves.length,
                   itemBuilder: (context, index) {
                     final shelf = shelves[index];
-                    Widget imageWidget = Container(
-                      color: Colors.white54,
-                      height: 100,
-                      width: 80,
-                      child: Icon(Icons.menu_book_rounded, size: 30),
-                    );
+                    Widget imageWidget;
+                    switch (shelf.name) {
+                      case 'Read':
+                        imageWidget = Container(
+                          color: Colors.white54,
+                          height: 100,
+                          width: 80,
+                          child: Icon(Icons.check_circle, size: 30),
+                        );
+                        break;
+                      case 'WantToRead':
+                        imageWidget = Container(
+                          color: Colors.white54,
+                          height: 100,
+                          width: 80,
+                          child: Icon(Icons.bookmark, size: 30),
+                        );
+                        break;
+                      case 'CurrentlyReading':
+                        imageWidget = Container(
+                          color: Colors.white54,
+                          height: 100,
+                          width: 80,
+                          child: Icon(Icons.menu_book, size: 30),
+                        );
+                        break;
+                      default:
+                        imageWidget = Container(
+                          color: Colors.white54,
+                          height: 100,
+                          width: 80,
+                          child: Icon(Icons.menu_book_rounded, size: 30),
+                        );
+                    }
 
                     return GestureDetector(
                       onTap: () async {

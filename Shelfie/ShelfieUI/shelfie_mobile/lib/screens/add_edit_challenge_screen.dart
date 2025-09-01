@@ -83,7 +83,16 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate() || startDate == null || endDate == null) return;
+    bool isValid = _formKey.currentState!.validate();
+    bool datesValid = startDate != null && endDate != null;
+
+    if (!datesValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select both start and end dates"), backgroundColor: Colors.red),
+      );
+    }
+
+    if (!isValid || !datesValid) return;
 
     setState(() => isLoading = true);
 
@@ -93,9 +102,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
       final goalAmount = int.tryParse(goalAmountController.text.trim()) ?? 0;
       int progress = int.tryParse(progressController.text.trim()) ?? 0;
 
-      if (progress >= goalAmount) {
-        isCompleted = true;
-      }
+      if (progress >= goalAmount) isCompleted = true;
 
       if (widget.challengeId == null) {
         await _provider.addChallenge(
@@ -127,10 +134,11 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
     } catch (e) {
       setState(() => isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     }
   }
+
 
 
   Future<void> _pickDate({required bool isStart}) async {
@@ -185,7 +193,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
                 ],
                 onChanged: (val) => setState(() => selectedGoalType = val!),
               ),
-
+              SizedBox(height: 16),
               _buildTextField(goalAmountController, 'Goal Amount', keyboardType: TextInputType.number),
               SizedBox(height: 16),
               Row(
