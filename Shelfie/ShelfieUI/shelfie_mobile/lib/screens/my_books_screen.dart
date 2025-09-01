@@ -113,7 +113,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                           color: Colors.white54,
                           height: 100,
                           width: 80,
-                          child: Icon(Icons.check_circle, size: 30),
+                          child: Icon(Icons.library_books, size: 30),
                         );
                         break;
                       case 'WantToRead':
@@ -121,7 +121,7 @@ class _MyBooksScreenState extends State<MyBooksScreen>{
                           color: Colors.white54,
                           height: 100,
                           width: 80,
-                          child: Icon(Icons.bookmark, size: 30),
+                          child: Icon(Icons.bookmarks, size: 30),
                         );
                         break;
                       case 'CurrentlyReading':
