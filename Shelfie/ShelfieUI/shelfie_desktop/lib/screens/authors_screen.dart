@@ -212,26 +212,51 @@ class _AuthorsScreenState extends State<AuthorsScreen> {
                                           },
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.delete, color: Colors.red),
-                                          onPressed: () async {
-                                            final confirm = await showDialog<bool>(
-                                              context: context,
-                                              builder: (_) => AlertDialog(
-                                                title: const Text('Confirm Delete'),
-                                                content: const Text('Are you sure you want to delete this author?'),
-                                                actions: [
-                                                  TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                                                  TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
-                                                ],
+                                      icon: const Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            title: const Text('Confirm Delete'),
+                                            content: const Text('Are you sure you want to delete this author?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context, false),
+                                                child: const Text('Cancel'),
                                               ),
-                                            );
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context, true),
+                                                child: const Text('Delete'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
 
-                                            if (confirm == true) {
-                                              await _authorProvider.deleteAuthor(widget.authHeader, author.id);
+                                        if (confirm == true) {
+                                          try {
+                                            bool success = await _authorProvider.deleteAuthor(widget.authHeader, author.id);
+                                            if (success) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('Author deleted successfully'),
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                              );
                                               _loadAuthors();
                                             }
-                                          },
-                                        ),
+                                          } catch (e) {
+                                             String errorMessage = e is Exception ? e.toString().replaceFirst('Exception: ', '') : 'Unknown error';
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(errorMessage),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                          }
+                                        }
+                                      },
+                                    ),
+
                                       ],
                                     )),
                                   ]);

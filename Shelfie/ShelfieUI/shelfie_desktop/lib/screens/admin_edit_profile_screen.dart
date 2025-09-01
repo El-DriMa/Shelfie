@@ -16,6 +16,7 @@ class AdminEditProfileScreen extends StatefulWidget {
 }
 
 class _AdminEditProfileScreenState extends State<AdminEditProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
   late TextEditingController firstNameController;
   late TextEditingController lastNameController;
   late TextEditingController emailController;
@@ -30,7 +31,7 @@ class _AdminEditProfileScreenState extends State<AdminEditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _user = widget.user; 
+    _user = widget.user;
     firstNameController = TextEditingController(text: widget.user.firstName);
     lastNameController = TextEditingController(text: widget.user.lastName);
     emailController = TextEditingController(text: widget.user.email);
@@ -52,26 +53,24 @@ class _AdminEditProfileScreenState extends State<AdminEditProfileScreen> {
     }
   }
 
- String? _getImageUrl(String photoUrl) {
+  String? _getImageUrl(String photoUrl) {
     if (photoUrl.isEmpty) return null;
     if (photoUrl.startsWith('http')) return photoUrl;
-
     String base = BaseProvider.baseUrl ?? '';
     base = base.replaceAll(RegExp(r'/api/?$'), '');
-
     return '$base/$photoUrl';
   }
 
-
   Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
     setState(() { _isSaving = true; });
 
     final data = <String, dynamic>{};
-    if (firstNameController.text.trim().isNotEmpty) data['firstName'] = firstNameController.text.trim();
-    if (lastNameController.text.trim().isNotEmpty) data['lastName'] = lastNameController.text.trim();
-    if (emailController.text.trim().isNotEmpty) data['email'] = emailController.text.trim();
+    data['firstName'] = firstNameController.text.trim();
+    data['lastName'] = lastNameController.text.trim();
+    data['email'] = emailController.text.trim();
     if (phoneController.text.trim().isNotEmpty) data['phoneNumber'] = phoneController.text.trim();
-    data['photoUrl'] = _user.photoUrl;
+    data['photoUrl'] = _existingPhotoUrl;
 
     try {
       if (data.isNotEmpty) {
@@ -80,38 +79,19 @@ class _AdminEditProfileScreenState extends State<AdminEditProfileScreen> {
       if (_selectedImage != null) {
         await _provider.uploadPhoto(widget.authHeader, widget.user.id, _selectedImage!);
       }
-
-      
-       _user = await _provider.getById(widget.authHeader, _user.id);
+      _user = await _provider.getById(widget.authHeader, _user.id);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully'), backgroundColor: Colors.green),
       );
       Navigator.pop(context, true);
-    } catch (e, stackTrace) {
-      print('Error while saving profile: $e');
-      print('Auth header: ${widget.authHeader}');
-
-      print(stackTrace);
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to update profile: $e'), backgroundColor: Colors.red),
       );
-  } finally {
+    } finally {
       setState(() { _isSaving = false; });
     }
   }
-
-  Future<void> _reloadUser() async {
-  final updatedUser = await _provider.getCurrentUser(widget.authHeader);
-  setState(() {
-    _existingPhotoUrl = updatedUser.photoUrl;
-    firstNameController.text = updatedUser.firstName;
-    lastNameController.text = updatedUser.lastName;
-    emailController.text = updatedUser.email;
-    phoneController.text = updatedUser.phoneNumber!;
-  });
-}
-
-
 
   @override
   void dispose() {
@@ -128,80 +108,103 @@ class _AdminEditProfileScreenState extends State<AdminEditProfileScreen> {
       appBar: AppBar(title: const Text('Edit Profile'), backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
       backgroundColor: Colors.deepPurple[50],
       body: Center(
-  child: ConstrainedBox(
-    constraints: const BoxConstraints(maxWidth: 400),
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              CircleAvatar(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      CircleAvatar(
                         radius: 60,
                         backgroundImage: _selectedImage != null
                             ? FileImage(_selectedImage!)
                             : (_existingPhotoUrl != null
-                                ? NetworkImage(_getImageUrl(_existingPhotoUrl!)!) 
+                                ? NetworkImage(_getImageUrl(_existingPhotoUrl!)!)
                                 : const AssetImage("assets/avatar.jpg") as ImageProvider),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 30,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedImage = null;
+                              _existingPhotoUrl = null;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(Icons.close, color: Colors.white, size: 22),
+                          ),
                         ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.deepPurple,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurple,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              )
-            ],
-          ),
-          const SizedBox(height: 24),
-          _buildTextField(firstNameController, 'First Name'),
-          _buildTextField(lastNameController, 'Last Name'),
-          _buildTextField(emailController, 'Email'),
-          _buildTextField(phoneController, 'Phone'),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.edit),
-              label: _isSaving
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Save Changes'),
-              onPressed: _isSaving ? null : _saveProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  const SizedBox(height: 24),
+                  _buildTextField(firstNameController, 'First Name'),
+                  _buildTextField(lastNameController, 'Last Name'),
+                  _buildTextField(emailController, 'Email'),
+                  _buildTextField(phoneController, 'Phone', required: false),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.edit),
+                      label: _isSaving
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Save Changes'),
+                      onPressed: _isSaving ? null : _saveProfile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          )
-        ],
+          ),
+        ),
       ),
-    ),
-  ),
-),
-
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label) {
+  Widget _buildTextField(TextEditingController controller, String label, {bool required = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
         const SizedBox(height: 6),
-        TextField(
+        TextFormField(
           controller: controller,
           style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
@@ -210,6 +213,10 @@ class _AdminEditProfileScreenState extends State<AdminEditProfileScreen> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
+          validator: (v) {
+            if (required && (v == null || v.trim().isEmpty)) return 'Required';
+            return null;
+          },
         ),
         const SizedBox(height: 14),
       ],

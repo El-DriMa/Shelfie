@@ -67,5 +67,15 @@ namespace Shelfie.Services.Services
             await Task.CompletedTask;
         }
 
+        public override async Task BeforeDelete(Publisher entity)
+        {
+            if (_db.Books.Any(b => b.PublisherId == entity.Id))
+            {
+                throw new ValidationException("Publisher cannot be deleted because there are books linked to this publisher.");
+            }
+            await Task.CompletedTask;
+        }
+
+
     }
 }

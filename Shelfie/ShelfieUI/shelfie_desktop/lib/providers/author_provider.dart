@@ -59,11 +59,24 @@ class AuthorProvider extends BaseProvider<Author> {
     }
 
 
-  Future<bool> deleteAuthor(String authHeader, int authorId) async {
-    final uri = Uri.parse("${BaseProvider.baseUrl}Author/$authorId");
-    final response = await http.delete(uri, headers: createHeaders(authHeader));
-    return response.statusCode == 200 || response.statusCode == 204;
+ Future<bool> deleteAuthor(String authHeader, int authorId) async {
+  final uri = Uri.parse("${BaseProvider.baseUrl}Author/$authorId");
+  final response = await http.delete(uri, headers: createHeaders(authHeader));
+
+  if (response.statusCode == 200 || response.statusCode == 204) {
+    return true;
+  } else {
+    String errorMessage = 'Cannot delete author';
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded['message'] != null) {
+        errorMessage = decoded['message'];
+      }
+    } catch (_) {}
+    throw Exception(errorMessage);
   }
+}
+
 
   Future<List<Author>> searchAuthors(String authHeader, String query) async {
     final params = <String, String>{};

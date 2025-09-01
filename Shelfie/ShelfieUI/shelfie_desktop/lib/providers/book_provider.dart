@@ -160,7 +160,18 @@ class BookProvider extends BaseProvider<Book> {
   Future<bool> deleteBook(String authHeader, int bookId) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Book/$bookId");
     final response = await http.delete(uri, headers: createHeaders(authHeader));
-    return response.statusCode == 200 || response.statusCode == 204;
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return true;
+    } else {
+      String errorMessage = 'Cannot delete author';
+      try {
+        final decoded = jsonDecode(response.body);
+        if (decoded['message'] != null) {
+          errorMessage = decoded['message'];
+        }
+      } catch (_) {}
+      throw Exception(errorMessage);
+    }
   }
 
    Future<void> uploadPhoto(String authHeader, int bookId, File photoFile) async {

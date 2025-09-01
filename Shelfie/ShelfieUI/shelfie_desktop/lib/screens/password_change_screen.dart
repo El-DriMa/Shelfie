@@ -23,48 +23,60 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool _loading = false;
 
   void _changePassword() async {
-    if (_oldController.text.isEmpty || _newController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill both fields")),
-      );
-      return;
-    }
-
-    setState(() => _loading = true);
-
-    try {
-      await _userProvider.changePassword(
-        widget.authHeader,
-        _oldController.text,
-        _newController.text,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Password changed successfully"),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      _oldController.clear();
-      _newController.clear();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => LoginScreen()),
-            (route) => false,
-      );
-    } catch (e) {
-      String errorMessage = e.toString();
-      if (errorMessage.contains("Old password is not correct")) {
-        errorMessage = "Old password is incorrect";
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-      );
-    } finally {
-      setState(() => _loading = false);
-    }
+  if (_oldController.text.isEmpty || _newController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Please fill both fields")),
+    );
+    return;
   }
+
+  setState(() => _loading = true);
+
+  try {
+    await _userProvider.changePassword(
+      widget.authHeader,
+      _oldController.text,
+      _newController.text,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Password changed successfully"),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    _oldController.clear();
+    _newController.clear();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => LoginScreen()),
+      (route) => false,
+    );
+  } catch (e) {
+    String errorMessage;
+
+    if (e is Exception) {
+      errorMessage = e.toString();
+      if (errorMessage.startsWith("Exception: ")) {
+        errorMessage = errorMessage.replaceFirst("Exception: ", "");
+      }
+    } else {
+      errorMessage = "An error occurred";
+    }
+
+    if (errorMessage.contains("Old password is not correct")) {
+      errorMessage = "Old password is incorrect";
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+    );
+  } finally {
+    setState(() => _loading = false);
+  }
+}
+
 
   Widget _buildTextField(TextEditingController controller, String label) {
     return Column(

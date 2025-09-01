@@ -253,12 +253,33 @@ Future<void> _updateGenre(int id) async {
                                                 ],
                                               ),
                                             );
+
                                             if (confirm == true) {
-                                              await _genreProvider.deleteGenre(widget.authHeader, genre.id);
-                                              _loadGenres();
+                                              try {
+                                                await _genreProvider.deleteGenre(widget.authHeader, genre.id);
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Genre deleted successfully!'),
+                                                    backgroundColor: Colors.green,
+                                                  ),
+                                                );
+                                                _loadGenres();
+                                              } catch (e) {
+                                                String errorMsg = e.toString();
+                                                if (errorMsg.startsWith("Exception: ")) {
+                                                  errorMsg = errorMsg.replaceFirst("Exception: ", "");
+                                                }
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(errorMsg),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              }
                                             }
                                           },
                                         ),
+
                                       ],
                                     )),
                                   ]);

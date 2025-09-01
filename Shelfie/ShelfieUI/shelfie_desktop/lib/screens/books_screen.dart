@@ -270,25 +270,45 @@ class _BooksScreenState extends State<BooksScreen> {
                                         },
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red, size: 20),
-                                        onPressed: () async {
-                                          final confirm = await showDialog<bool>(
-                                            context: context,
-                                            builder: (_) => AlertDialog(
-                                              title: const Text('Confirm Delete'),
-                                              content: const Text('Are you sure you want to delete this book?'),
-                                              actions: [
-                                                TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-                                                TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
-                                              ],
-                                            ),
-                                          );
-                                          if (confirm == true) {
+                                      icon: const Icon(Icons.delete, color: Colors.red, size: 20),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (_) => AlertDialog(
+                                            title: const Text('Confirm Delete'),
+                                            content: const Text('Are you sure you want to delete this book?'),
+                                            actions: [
+                                              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                              TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+                                            ],
+                                          ),
+                                        );
+                                        if (confirm == true) {
+                                          try {
                                             await _bookProvider.deleteBook(widget.authHeader, book.id);
                                             _loadBooks();
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Book deleted successfully!'),
+                                                backgroundColor: Colors.green,
+                                              ),
+                                            );
+                                          } catch (e) {
+                                            String errorMsg = e.toString();
+                                            if (errorMsg.startsWith("Exception: ")) {
+                                              errorMsg = errorMsg.replaceFirst("Exception: ", "");
+                                            }
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text(errorMsg),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
                                           }
-                                        },
-                                      ),
+                                        }
+                                      },
+                                    ),
+
                                     ],
                                   )
                                 ],

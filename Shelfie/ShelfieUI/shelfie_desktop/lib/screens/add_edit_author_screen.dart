@@ -64,34 +64,36 @@ class _AddEditAuthorScreenState extends State<AddEditAuthorScreen> {
       });
     } catch (_) {}
   }
-
+  
     Future<void> _saveAuthor() async {
-    if (!_formKey.currentState!.validate()) return;
+      if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSaving = true);
+      setState(() => _isSaving = true);
 
-    final authorData = {
+      final authorData = {
         "firstName": _firstNameController.text,
         "lastName": _lastNameController.text,
         "birthCountry": _birthCountryController.text,
-        "birthDate": _birthDate != null ? DateFormat('yyyy-MM-dd').format(_birthDate!) : null,
+        "birthDate": DateFormat('yyyy-MM-dd').format(_birthDate!),
         "deathDate": _deathDate != null ? DateFormat('yyyy-MM-dd').format(_deathDate!) : null,
         "shortBio": _shortBioController.text,
-    };
+      };
 
-    if (_author != null && _author!.id > 0) {
+      if (_author != null && _author!.id > 0) {
         await _authorProvider.updateAuthor(widget.authHeader, _author!.id, authorData);
-    } else {
+      } else {
         await _authorProvider.createAuthor(widget.authHeader, authorData);
+      }
+
+      setState(() => _isSaving = false);
+      Navigator.pop(context, true);
     }
 
-    setState(() => _isSaving = false);
-    Navigator.pop(context, true);
-    }
+
 
 
   Future<void> _pickDate(TextEditingController controller, DateTime? initialDate, void Function(DateTime) onPicked) async {
-    FocusScope.of(context).requestFocus(FocusNode());
+    //FocusScope.of(context).requestFocus(FocusNode());
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: initialDate ?? DateTime(1970),
@@ -104,80 +106,93 @@ class _AddEditAuthorScreenState extends State<AddEditAuthorScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.authorId != null ? "Edit Author" : "Add New Author"),
-        backgroundColor: Colors.deepPurple,
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(widget.authorId != null ? "Edit Author" : "Add New Author"),
+      backgroundColor: Colors.deepPurple,
+    ),
+    body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
             child: Center(
-                child: ConstrainedBox(
-                 constraints: BoxConstraints(maxWidth: 600),
-              child: Container(
-                width: MediaQuery.of(context).size.width > 600 ? 600 : double.infinity,
-                padding: const EdgeInsets.all(24),
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
-                  border: Border.all(color: Colors.deepPurple.shade100),
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                     TextFormField(
-                        controller: _firstNameController,
-                        decoration: const InputDecoration(labelText: 'First Name', border: OutlineInputBorder()),
-                        validator: (v) {
-                            if (v == null || v.isEmpty) return 'First name cannot be empty';
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Container(
+                  width: MediaQuery.of(context).size.width > 600 ? 600 : double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
+                    border: Border.all(color: Colors.deepPurple.shade100),
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          controller: _firstNameController,
+                          decoration: const InputDecoration(labelText: 'First Name', border: OutlineInputBorder()),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'First name is required';
                             if (v.length > 50) return 'Maximum 50 characters';
                             return null;
-                        },
+                          },
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
-                        controller: _lastNameController,
-                        decoration: const InputDecoration(labelText: 'Last Name', border: OutlineInputBorder()),
-                        validator: (v) {
-                            if (v == null || v.isEmpty) return 'Last name cannot be empty';
+                          controller: _lastNameController,
+                          decoration: const InputDecoration(labelText: 'Last Name', border: OutlineInputBorder()),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Last name is required';
                             if (v.length > 50) return 'Maximum 50 characters';
                             return null;
-                        },
+                          },
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
-                        controller: _birthCountryController,
-                        decoration: const InputDecoration(labelText: 'Birth Country', border: OutlineInputBorder()),
-                        validator: (v) {
-                            if (v == null || v.isEmpty) return 'Birth country cannot be empty';
+                          controller: _birthCountryController,
+                          decoration: const InputDecoration(labelText: 'Birth Country', border: OutlineInputBorder()),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Birth country is required';
                             if (v.length > 100) return 'Maximum 100 characters';
                             return null;
-                        },
+                          },
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
-                        controller: _birthDateController,
-                        decoration: const InputDecoration(labelText: 'Birth Date (dd.MM.yyyy)', border: OutlineInputBorder()),
-                        validator: (v) {
+                          controller: _birthDateController,
+                          readOnly: true,
+                          decoration: const InputDecoration(labelText: 'Birth Date (dd.MM.yyyy)', border: OutlineInputBorder()),
+                          onTap: () => _pickDate(_birthDateController, _birthDate, (date) => setState(() => _birthDate = date)),
+                          validator: (v) {
                             if (_birthDate == null) return 'Birth date is required';
                             return null;
-                        },
-                        onTap: () => _pickDate(_birthDateController, _birthDate, (date) => _birthDate = date),
+                          },
                         ),
                         const SizedBox(height: 16),
-                       TextFormField(
+                        TextFormField(
                           controller: _deathDateController,
-                          decoration: const InputDecoration(
-                              labelText: 'Death Date (optional)',
-                              border: OutlineInputBorder()),
                           readOnly: true,
+                          decoration: InputDecoration(
+                            labelText: 'Death Date (optional)',
+                            border: const OutlineInputBorder(),
+                            suffixIcon: _deathDateController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _deathDate = null;
+                                        _deathDateController.clear();
+                                      });
+                                    },
+                                  )
+                                : null,
+                          ),
                           onTap: () async {
                             FocusScope.of(context).requestFocus(FocusNode());
                             DateTime? date = await showDatePicker(
@@ -190,13 +205,18 @@ class _AddEditAuthorScreenState extends State<AddEditAuthorScreen> {
                             if (date != null) {
                               if (_birthDate != null && date.isBefore(_birthDate!)) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Death date cannot be before birth date'), backgroundColor: Colors.red,),
+                                  const SnackBar(
+                                    content: Text('Death date cannot be before birth date'),
+                                    backgroundColor: Colors.red,
+                                  ),
                                 );
                                 _deathDate = null;
-                                _deathDateController.text = '';
+                                _deathDateController.clear();
                               } else {
-                                _deathDate = date;
-                                _deathDateController.text = DateFormat('dd.MM.yyyy').format(date);
+                                setState(() {
+                                  _deathDate = date;
+                                  _deathDateController.text = DateFormat('dd.MM.yyyy').format(date);
+                                });
                               }
                             }
                           },
@@ -207,42 +227,45 @@ class _AddEditAuthorScreenState extends State<AddEditAuthorScreen> {
                             return null;
                           },
                         ),
-
                         const SizedBox(height: 16),
                         TextFormField(
-                        controller: _shortBioController,
-                        decoration: const InputDecoration(labelText: 'Short Bio', border: OutlineInputBorder()),
-                        maxLines: 5,
-                        validator: (v) {
-                            if (v != null && v.length > 1000) return 'Maximum 1000 characters';
+                          controller: _shortBioController,
+                          decoration: const InputDecoration(labelText: 'Short Bio', border: OutlineInputBorder()),
+                          maxLines: 5,
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Short bio is required';
+                            if (v.length > 1000) return 'Maximum 1000 characters';
                             return null;
-                        },
+                          },
                         ),
-
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _isSaving ? null : _saveAuthor,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: Text(
-                            _isSaving ? "Saving..." : (widget.authorId != null ? "Update Author" : "Add Author"),
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _isSaving ? null : _saveAuthor,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.deepPurple,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                child: Text(
+                                  _isSaving ? "Saving..." : (widget.authorId != null ? "Update Author" : "Add Author"),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-            ),
           ),
-    );
-  }
+  );
+}
 }

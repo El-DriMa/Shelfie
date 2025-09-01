@@ -153,6 +153,16 @@ namespace Shelfie.Services.Services
             };
         }
 
+        public override async Task BeforeDelete(Book entity)
+        {
+            if (_db.ShelfBooks.Any(sb => sb.BookId == entity.Id))
+            {
+                throw new ValidationException("Book cannot be deleted because it is linked to a shelf.");
+            }
+            await Task.CompletedTask;
+        }
+
+
         public async Task<PagedResult<BookResponse>> GetPagedForUser(BookSearchObject search, int userId)
         {
             var baseQuery = _db.ShelfBooks

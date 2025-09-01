@@ -155,12 +155,19 @@ class UserProvider extends BaseProvider<User> {
       }),
     );
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      print("Password changed successfully");
-    } else {
-      final message = response.body.isNotEmpty ? jsonDecode(response.body)['title'] ?? response.body : 'Error';
-      throw Exception(message);
+
+   if (response.statusCode >= 200 && response.statusCode < 300) {
+    print("Password changed successfully");
+  } else {
+    String message;
+    try {
+      final decoded = jsonDecode(response.body);
+      message = decoded['title'] ?? response.body;
+    } catch (_) {
+      message = response.body.isNotEmpty ? response.body : 'Error';
     }
+    throw Exception(message);
+  }
   }
 
   Future<void> loginAdmin(String authHeader) async {

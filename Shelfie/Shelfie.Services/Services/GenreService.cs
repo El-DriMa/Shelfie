@@ -46,5 +46,15 @@ namespace Shelfie.Services.Services
             await Task.CompletedTask;
         }
 
+        public override async Task BeforeDelete(Genre entity)
+        {
+            if (_db.Books.Any(b => b.GenreId == entity.Id))
+            {
+                throw new ValidationException("Genre cannot be deleted because there are books linked to this genre.");
+            }
+            await Task.CompletedTask;
+        }
+
+
     }
 }

@@ -140,7 +140,7 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
     "genreId": _selectedGenreId,
     "authorId": _selectedAuthorId,
     "publisherId": _selectedPublisherId,
-    "photoUrl": _book?.photoUrl, 
+    "photoUrl": _existingCoverUrl == null ? null : _book?.photoUrl, 
   };
 
   try {
@@ -263,12 +263,11 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
                           decoration: const InputDecoration(labelText: 'Total Pages', border: OutlineInputBorder()),
                           keyboardType: TextInputType.number,
                           validator: (v) {
-                            if (v != null && v.isNotEmpty) {
+                              if (v == null || v.isEmpty) return 'Required';
                               final n = int.tryParse(v);
                               if (n == null || n < 1) return 'Must be positive number';
-                            }
-                            return null;
-                          },
+                              return null;
+                            },
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
@@ -324,21 +323,46 @@ class _AddEditBookScreenState extends State<AddEditBookScreen> {
 
                             ),
                             Positioned(
-                              bottom: 4,
-                              right: 4,
-                              child: GestureDetector(
-                                onTap: _pickImage,
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.deepPurple,
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: Colors.white, width: 2),
-                                  ),
-                                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
+                                bottom: 4,
+                                right: 4,
+                                child: Row(
+                                  children: [
+                                    if (_selectedImage != null || _existingCoverUrl != null)
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedImage = null;
+                                            _existingCoverUrl = null;
+                                            _coverController.text = '';
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius: BorderRadius.circular(20),
+                                            border: Border.all(color: Colors.white, width: 2),
+                                          ),
+                                          child: const Icon(Icons.close, color: Colors.white, size: 20),
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    GestureDetector(
+                                      onTap: _pickImage,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.deepPurple,
+                                          borderRadius: BorderRadius.circular(20),
+                                          border: Border.all(color: Colors.white, width: 2),
+                                        ),
+                                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            )
+
                           ],
                         ),
 

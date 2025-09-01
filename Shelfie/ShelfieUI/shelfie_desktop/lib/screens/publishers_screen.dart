@@ -208,19 +208,34 @@ class _PublishersScreenState extends State<PublishersScreen> {
                                           title: const Text('Confirm Delete'),
                                           content: const Text('Are you sure you want to delete this publisher?'),
                                           actions: [
-                                            TextButton(
-                                                onPressed: () => Navigator.pop(context, false),
-                                                child: const Text('Cancel')),
-                                            TextButton(
-                                                onPressed: () => Navigator.pop(context, true),
-                                                child: const Text('Delete')),
+                                            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                                            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
                                           ],
                                         ),
                                       );
 
                                       if (confirm == true) {
-                                        await _publisherProvider.deletePublisher(widget.authHeader, publisher.id);
-                                        _loadPublishers();
+                                        try {
+                                          await _publisherProvider.deletePublisher(widget.authHeader, publisher.id);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Publisher deleted successfully!'),
+                                              backgroundColor: Colors.green,
+                                            ),
+                                          );
+                                          _loadPublishers();
+                                        } catch (e) {
+                                          String errorMsg = e.toString();
+                                          if (errorMsg.startsWith("Exception: ")) {
+                                            errorMsg = errorMsg.replaceFirst("Exception: ", "");
+                                          }
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(errorMsg),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
                                       }
                                     },
                                   ),

@@ -162,7 +162,20 @@ class _AddEditPublisherScreenState extends State<AddEditPublisherScreen> {
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _phoneController,
-                            decoration: const InputDecoration(labelText: 'Contact Phone (optional)', border: OutlineInputBorder()),
+                            decoration: InputDecoration(
+                              labelText: 'Contact Phone (optional)',
+                              border: const OutlineInputBorder(),
+                              suffixIcon: _phoneController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        setState(() {
+                                          _phoneController.clear();
+                                        });
+                                      },
+                                    )
+                                  : null,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           TextFormField(

@@ -84,7 +84,18 @@ class GenreProvider extends BaseProvider<Genre> {
   Future<bool> deleteGenre(String authHeader, int genreId) async {
     final uri = Uri.parse("${BaseProvider.baseUrl}Genre/$genreId");
     final response = await http.delete(uri, headers: createHeaders(authHeader));
-    return response.statusCode == 200 || response.statusCode == 204;
+      if (response.statusCode == 200 || response.statusCode == 204) {
+    return true;
+  } else {
+    String errorMessage = 'Cannot delete genre';
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded['message'] != null) {
+        errorMessage = decoded['message'];
+      }
+    } catch (_) {}
+    throw Exception(errorMessage);
+  }
   }
 }
 
