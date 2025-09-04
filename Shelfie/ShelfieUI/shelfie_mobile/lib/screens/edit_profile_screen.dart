@@ -209,7 +209,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         TextFormField(
           controller: controller,
           style: const TextStyle(color: Colors.black),
-          validator: required ? (value) => (value == null || value.trim().isEmpty) ? '$label is required' : null : null,
+          validator: (value) {
+            if (required && (value == null || value.trim().isEmpty)) {
+              return '$label is required';
+            }
+
+            if (label == 'Email' && value != null && value.trim().isNotEmpty) {
+              final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+              if (!regex.hasMatch(value.trim())) {
+                return 'Invalid email format (must be like name@example.com)';
+              }
+            }
+
+            if (label.startsWith('Phone') && value != null && value.trim().isNotEmpty) {
+              final regex = RegExp(r'^[0-9]+$');
+              if (!regex.hasMatch(value.trim())) {
+                return 'Phone must contain only digits';
+              }
+              if (value.trim().length < 6 || value.trim().length > 15) {
+                return 'Phone must be between 6 and 15 digits';
+              }
+            }
+
+            return null;
+          },
           decoration: InputDecoration(
             labelText: label,
             filled: true,

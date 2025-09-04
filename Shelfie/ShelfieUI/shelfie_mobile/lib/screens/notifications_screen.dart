@@ -86,21 +86,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             itemBuilder: (context, index) {
               final notification = notifications[index];
 
-              return FutureBuilder<Post>(
+              return FutureBuilder<Post?>(
                 future: _postProvider.getById(widget.authHeader, notification.postId),
                 builder: (context, snapshot) {
-                  String postTitle = 'Loading post...';
-                  if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                    postTitle = snapshot.data!.content ?? 'Post';
-                    if(postTitle.length > 50) {
-                      postTitle = postTitle.substring(0, 50) + '...';
+                  String postTitle;
+                  bool postDeleted = false;
+
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      postTitle = snapshot.data!.content ?? 'Post';
+                      if (postTitle.length > 50) postTitle = postTitle.substring(0, 50) + '...';
+                    } else {
+                      postTitle = 'Deleted post';
+                      postDeleted = true;
                     }
                   } else if (snapshot.hasError) {
-                    postTitle = 'Error loading post';
+                    postTitle = 'Deleted post';
+                    postDeleted = true;
+                  } else {
+                    postTitle = 'Loading post...';
                   }
 
                   return InkWell(
-                    onTap: () => onNotificationTap(notification),
+                    onTap: postDeleted ? null : () => onNotificationTap(notification),
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
                       decoration: BoxDecoration(

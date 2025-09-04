@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../config.dart' as BaseProvider;
 import '../models/shelfBooks.dart';
 import '../providers/reading_challenge_provider.dart';
 import '../providers/shelf_books_provider.dart';
@@ -66,6 +67,17 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
 
   }
 
+  String? _getImageUrl(String photoUrl) {
+    if (photoUrl.isEmpty) return null;
+    if (photoUrl.startsWith('http')) return photoUrl;
+
+    String base = BaseProvider.baseUrl ?? '';
+    base = base.replaceAll(RegExp(r'/api/?$'), '');
+
+    return '$base/$photoUrl';
+  }
+
+
   Future<void> _loadChallenge() async {
     setState(() => isLoading = true);
     final challenge = await _provider.getById(widget.authHeader, widget.challengeId!);
@@ -90,9 +102,17 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please select both start and end dates"), backgroundColor: Colors.red),
       );
+      return;
     }
 
-    if (!isValid || !datesValid) return;
+    if (endDate!.isBefore(startDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("End date cannot be before start date"), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    if (!isValid) return;
 
     setState(() => isLoading = true);
 
@@ -102,7 +122,13 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
       final goalAmount = int.tryParse(goalAmountController.text.trim()) ?? 0;
       int progress = int.tryParse(progressController.text.trim()) ?? 0;
 
-      if (progress >= goalAmount) isCompleted = true;
+      if (progress >= goalAmount) {
+        progress = goalAmount;
+        isCompleted = true;
+      } else {
+        isCompleted = false;
+      }
+
 
       if (widget.challengeId == null) {
         await _provider.addChallenge(
@@ -138,6 +164,7 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
       );
     }
   }
+
 
 
 
@@ -260,11 +287,12 @@ class _AddEditChallengeScreenState extends State<AddEditChallengeScreen> {
                     itemCount: booksInChallenge.length,
                     itemBuilder: (context, index) {
                       final book = booksInChallenge[index];
+                      final imageUrl = _getImageUrl(book.photoUrl ?? '');
                       return Card(
                         margin: EdgeInsets.symmetric(vertical: 6),
                         child: ListTile(
                           leading: book.photoUrl != null
-                              ? Image.network(book.photoUrl!, width: 40, height: 60, fit: BoxFit.cover)
+                              ? Image.network(imageUrl!, width: 40, height: 60, fit: BoxFit.cover)
                               : Icon(Icons.book, size: 40, color: Colors.deepPurple),
                           title: Text(book.bookTitle ?? ""),
                           subtitle: Text(book.authorName ?? ""),

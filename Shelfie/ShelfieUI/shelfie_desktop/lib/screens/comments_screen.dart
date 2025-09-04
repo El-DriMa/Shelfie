@@ -61,6 +61,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
     try {
       await _commentProvider.deleteComment(widget.authHeader, id);
       _loadComments(username: _selectedUsername);
+      ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Comment deleted successfully"),
+        backgroundColor: Colors.green,
+      ),
+    );
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Failed to delete comment")),

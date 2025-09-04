@@ -215,6 +215,21 @@ class _AdminEditProfileScreenState extends State<AdminEditProfileScreen> {
           ),
           validator: (v) {
             if (required && (v == null || v.trim().isEmpty)) return 'Required';
+            if (label == 'Email') {
+              final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+              if (!regex.hasMatch(v!.trim())) {
+                return 'Invalid email format (must be like name@example.com)';
+              }
+            }
+            if (label == 'Phone' && v != null && v.trim().isNotEmpty) {
+              final regex = RegExp(r'^[0-9]+$');
+              if (!regex.hasMatch(v.trim())) {
+                return 'Phone must contain only digits';
+              }
+              if (v.trim().length < 6 || v.trim().length > 15) {
+                return 'Phone must be between 6 and 15 digits';
+              }
+            }
             return null;
           },
         ),

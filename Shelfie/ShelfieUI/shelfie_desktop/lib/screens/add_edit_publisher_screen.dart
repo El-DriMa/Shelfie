@@ -161,22 +161,35 @@ class _AddEditPublisherScreenState extends State<AddEditPublisherScreen> {
                           ),
                           const SizedBox(height: 16),
                           TextFormField(
-                            controller: _phoneController,
-                            decoration: InputDecoration(
-                              labelText: 'Contact Phone (optional)',
-                              border: const OutlineInputBorder(),
-                              suffixIcon: _phoneController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        setState(() {
-                                          _phoneController.clear();
-                                        });
-                                      },
-                                    )
-                                  : null,
-                            ),
+                          controller: _phoneController,
+                          decoration: InputDecoration(
+                            labelText: 'Contact Phone (optional)',
+                            border: const OutlineInputBorder(),
+                            suffixIcon: _phoneController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _phoneController.clear();
+                                      });
+                                    },
+                                  )
+                                : null,
                           ),
+                          validator: (v) {
+                            if (v != null && v.trim().isNotEmpty) {
+                              final regex = RegExp(r'^[0-9]+$');
+                              if (!regex.hasMatch(v.trim())) {
+                                return 'Phone must contain only digits';
+                              }
+                              if (v.trim().length < 6 || v.trim().length > 15) {
+                                return 'Phone must be between 6 and 15 digits';
+                              }
+                            }
+                            return null;
+                          },
+                        ),
+
                           const SizedBox(height: 16),
                           TextFormField(
                             controller: _yearFoundedController,

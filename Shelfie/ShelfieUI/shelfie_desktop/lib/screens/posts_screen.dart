@@ -80,6 +80,12 @@ class _PostsScreenState extends State<PostsScreen> {
     try {
       await _postProvider.deletePost(widget.authHeader, id);
       _loadPosts();
+      ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Post deleted successfully"),
+        backgroundColor: Colors.green,
+      ),
+    );
     } catch (_) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Failed to delete post")),
