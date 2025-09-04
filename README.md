@@ -75,7 +75,7 @@
 
 - **My Profile / Mini Feed:**
   - Edit personal info and app settings
-  - User Activity
+  - User Activity by Categories
   - Delete profile
 
 ---
@@ -101,8 +101,8 @@ This project uses RabbitMQ to send real-time in-app notifications to users. When
  - docker compose up
 
 ### 2. Mobile App
-- Unpack `fit-build-2025-08-25.zip`
-- Find the APK: `fit-build-2025-08-25/flutter-apk/app-release.apk`
+- Unpack `fit-build-2025-09-04.zip`
+- Find the APK: `fit-build-2025-09-04/flutter-apk/app-release.apk`
 - Drag & drop APK into Android Emulator (AVD)
 - Launch the app in emulator
 - **API address:** `http://10.0.2.2:5046`
@@ -110,7 +110,7 @@ This project uses RabbitMQ to send real-time in-app notifications to users. When
 ---
 
 ### 3. Desktop App
-- In the same zip, find `.exe`: `fit-build-2025-08-25/Release/`
+- In the same zip, find `.exe`: `fit-build-2025-09-04/Release/`
 - Run the `.exe` file
 - **API address:** `http://localhost:5046`
 
